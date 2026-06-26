@@ -1,0 +1,346 @@
+site_name: Study Material
+site_url: https://ssourabh9861.github.io/Study-Material/
+repo_url: https://github.com/ssourabh9861/Study-Material
+repo_name: ssourabh9861/Study-Material
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+
+exclude_docs: |
+  PROMPT.md
+  _*.md
+  README.md
+  *.java
+  site/**
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: true
+  - tables
+  - attr_list
+  - md_in_html
+
+nav:
+  - Home: index.md
+
+  - LLD Problems:
+    - Parking Lot: lld-design-prompts/01-parking-lot/01-parking-lot.md
+    - Splitwise: lld-design-prompts/02-splitwise/02-splitwise.md
+    - Movie Ticket Booking (BookMyShow): lld-design-prompts/03-movie-ticket-booking-bookmyshow/03-movie-ticket-booking-bookmyshow.md
+    - Elevator System: lld-design-prompts/04-elevator-system/04-elevator-system.md
+    - Vending Machine: lld-design-prompts/05-vending-machine/05-vending-machine.md
+    - ATM: lld-design-prompts/06-atm/06-atm.md
+    - Library Management: lld-design-prompts/07-library-management/07-library-management.md
+    - Chess: lld-design-prompts/08-chess/08-chess.md
+    - Tic-Tac-Toe: lld-design-prompts/09-tic-tac-toe/09-tic-tac-toe.md
+    - Snake and Ladder: lld-design-prompts/10-snake-and-ladder/10-snake-and-ladder.md
+    - Deck of Cards & Blackjack: lld-design-prompts/11-deck-of-cards-and-blackjack/11-deck-of-cards-and-blackjack.md
+    - Logging Framework: lld-design-prompts/12-logging-framework/12-logging-framework.md
+    - Rate Limiter: lld-design-prompts/13-rate-limiter/13-rate-limiter.md
+    - LRU Cache: lld-design-prompts/14-lru-cache/14-lru-cache.md
+    - In-Memory Key-Value Store: lld-design-prompts/15-in-memory-key-value-store/15-in-memory-key-value-store.md
+    - File System: lld-design-prompts/16-file-system/16-file-system.md
+    - Text Editor: lld-design-prompts/17-text-editor/17-text-editor.md
+    - Notification System: lld-design-prompts/18-notification-system/18-notification-system.md
+    - Food Delivery (Swiggy): lld-design-prompts/19-food-delivery-swiggy/19-food-delivery-swiggy.md
+    - Cab Booking (Uber): lld-design-prompts/20-cab-booking-uber/20-cab-booking-uber.md
+    - Hotel Booking: lld-design-prompts/21-hotel-booking/21-hotel-booking.md
+    - Online Shopping Cart (Amazon): lld-design-prompts/22-online-shopping-cart-amazon/22-online-shopping-cart-amazon.md
+    - Payment Gateway: lld-design-prompts/23-payment-gateway/23-payment-gateway.md
+    - Digital Wallet: lld-design-prompts/24-digital-wallet/24-digital-wallet.md
+    - Meeting Scheduler (Calendar): lld-design-prompts/25-meeting-scheduler-calendar/25-meeting-scheduler-calendar.md
+    - Restaurant Management: lld-design-prompts/26-restaurant-management/26-restaurant-management.md
+    - Traffic Signal Control: lld-design-prompts/27-traffic-signal-control/27-traffic-signal-control.md
+    - Stock Exchange Matching Engine: lld-design-prompts/28-stock-exchange-matching-engine/28-stock-exchange-matching-engine.md
+    - Pub-Sub System: lld-design-prompts/29-pub-sub-system/29-pub-sub-system.md
+    - Message Queue: lld-design-prompts/30-message-queue/30-message-queue.md
+    - URL Shortener: lld-design-prompts/31-url-shortener/31-url-shortener.md
+    - Inventory Management: lld-design-prompts/32-inventory-management/32-inventory-management.md
+    - Car Rental: lld-design-prompts/33-car-rental/33-car-rental.md
+    - Airline Reservation: lld-design-prompts/34-airline-reservation/34-airline-reservation.md
+    - Chat Application: lld-design-prompts/35-chat-application/35-chat-application.md
+    - Online Auction: lld-design-prompts/36-online-auction/36-online-auction.md
+    - Jukebox Music Player: lld-design-prompts/37-jukebox-music-player/37-jukebox-music-player.md
+    - Task Management (Jira): lld-design-prompts/38-task-management-jira/38-task-management-jira.md
+
+  - System Design:
+    - Fundamentals & Framework:
+      - The Design Framework: hld-design-prompts/01-fundamentals-and-framework/01-the-design-framework/01-the-design-framework.md
+      - Back of Envelope Estimation: hld-design-prompts/01-fundamentals-and-framework/02-back-of-envelope-estimation/02-back-of-envelope-estimation.md
+      - Building Blocks Cheatsheet: hld-design-prompts/01-fundamentals-and-framework/03-building-blocks-cheatsheet/03-building-blocks-cheatsheet.md
+      - Tradeoff Playbook: hld-design-prompts/01-fundamentals-and-framework/04-tradeoff-playbook/04-tradeoff-playbook.md
+    - Social & Feed:
+      - Design Twitter Newsfeed: hld-design-prompts/02-social-and-feed/01-design-twitter-newsfeed/01-design-twitter-newsfeed.md
+      - Design Instagram: hld-design-prompts/02-social-and-feed/02-design-instagram/02-design-instagram.md
+      - Design Facebook News Feed: hld-design-prompts/02-social-and-feed/03-design-facebook-news-feed/03-design-facebook-news-feed.md
+      - Design Trending Top-K: hld-design-prompts/02-social-and-feed/04-design-trending-topk/04-design-trending-topk.md
+      - Design Notification System: hld-design-prompts/02-social-and-feed/05-design-notification-system/05-design-notification-system.md
+    - Messaging & Realtime:
+      - Design WhatsApp Chat: hld-design-prompts/03-messaging-and-realtime/01-design-whatsapp-chat/01-design-whatsapp-chat.md
+      - Design Slack: hld-design-prompts/03-messaging-and-realtime/02-design-slack/02-design-slack.md
+      - Design Live Comments: hld-design-prompts/03-messaging-and-realtime/03-design-live-comments/03-design-live-comments.md
+      - Design Presence System: hld-design-prompts/03-messaging-and-realtime/04-design-presence-system/04-design-presence-system.md
+      - Design Video Conferencing: hld-design-prompts/03-messaging-and-realtime/05-design-video-conferencing/05-design-video-conferencing.md
+    - Media & Streaming:
+      - Design YouTube: hld-design-prompts/04-media-and-streaming/01-design-youtube/01-design-youtube.md
+      - Design Netflix: hld-design-prompts/04-media-and-streaming/02-design-netflix/02-design-netflix.md
+      - Design Live Streaming: hld-design-prompts/04-media-and-streaming/03-design-live-streaming/03-design-live-streaming.md
+      - Design Image Host / CDN: hld-design-prompts/04-media-and-streaming/04-design-image-host-cdn/04-design-image-host-cdn.md
+    - Location & Logistics:
+      - Design Uber: hld-design-prompts/05-location-and-logistics/01-design-uber/01-design-uber.md
+      - Design Google Maps: hld-design-prompts/05-location-and-logistics/02-design-google-maps/02-design-google-maps.md
+      - Design Proximity Service (Yelp): hld-design-prompts/05-location-and-logistics/03-design-proximity-service-yelp/03-design-proximity-service-yelp.md
+      - Design Food Delivery: hld-design-prompts/05-location-and-logistics/04-design-food-delivery/04-design-food-delivery.md
+      - Design Hotel Booking: hld-design-prompts/05-location-and-logistics/05-design-hotel-booking/05-design-hotel-booking.md
+    - Commerce & Booking:
+      - Design Ticketmaster: hld-design-prompts/06-commerce-and-booking/01-design-ticketmaster/01-design-ticketmaster.md
+      - Design E-Commerce (Amazon): hld-design-prompts/06-commerce-and-booking/02-design-ecommerce-amazon/02-design-ecommerce-amazon.md
+      - Design Payment System: hld-design-prompts/06-commerce-and-booking/03-design-payment-system/03-design-payment-system.md
+      - Design Digital Wallet: hld-design-prompts/06-commerce-and-booking/04-design-digital-wallet/04-design-digital-wallet.md
+      - Design Ad Click Aggregator: hld-design-prompts/06-commerce-and-booking/05-design-ad-click-aggregator/05-design-ad-click-aggregator.md
+    - Storage & Infrastructure:
+      - Design TinyURL: hld-design-prompts/07-storage-and-infra/01-design-tinyurl/01-design-tinyurl.md
+      - Design Pastebin: hld-design-prompts/07-storage-and-infra/02-design-pastebin/02-design-pastebin.md
+      - Design Dropbox / GDrive: hld-design-prompts/07-storage-and-infra/03-design-dropbox-gdrive/03-design-dropbox-gdrive.md
+      - Design S3 Object Store: hld-design-prompts/07-storage-and-infra/04-design-s3-object-store/04-design-s3-object-store.md
+      - Design Distributed Key-Value Store: hld-design-prompts/07-storage-and-infra/05-design-distributed-key-value-store/05-design-distributed-key-value-store.md
+      - Design Distributed Cache: hld-design-prompts/07-storage-and-infra/06-design-distributed-cache/06-design-distributed-cache.md
+      - Design Rate Limiter: hld-design-prompts/07-storage-and-infra/07-design-rate-limiter/07-design-rate-limiter.md
+      - Design Web Crawler: hld-design-prompts/07-storage-and-infra/08-design-web-crawler/08-design-web-crawler.md
+      - Design Search Autocomplete (Typeahead): hld-design-prompts/07-storage-and-infra/09-design-search-autocomplete-typeahead/09-design-search-autocomplete-typeahead.md
+      - Design Distributed Message Queue: hld-design-prompts/07-storage-and-infra/10-design-distributed-message-queue/10-design-distributed-message-queue.md
+      - Design Distributed Job Scheduler: hld-design-prompts/07-storage-and-infra/11-design-distributed-job-scheduler/11-design-distributed-job-scheduler.md
+      - Design Distributed Counter: hld-design-prompts/07-storage-and-infra/12-design-distributed-counter/12-design-distributed-counter.md
+      - Design Metrics Monitoring System: hld-design-prompts/07-storage-and-infra/13-design-metrics-monitoring-system/13-design-metrics-monitoring-system.md
+      - Design Log Collection & Analysis: hld-design-prompts/07-storage-and-infra/14-design-log-collection-and-analysis/14-design-log-collection-and-analysis.md
+
+  - Concepts:
+    - Distributed Systems Foundations:
+      - CAP & PACELC: concept-prompts/01-distributed-systems-foundations/01-cap-and-pacelc/01-cap-and-pacelc.md
+      - Consistency Models: concept-prompts/01-distributed-systems-foundations/02-consistency-models/02-consistency-models.md
+      - Consensus — Raft & Paxos: concept-prompts/01-distributed-systems-foundations/03-consensus-raft-and-paxos/03-consensus-raft-and-paxos.md
+      - Replication & Quorums: concept-prompts/01-distributed-systems-foundations/04-replication-and-quorums/04-replication-and-quorums.md
+      - Time, Clocks & Ordering: concept-prompts/01-distributed-systems-foundations/05-time-clocks-and-ordering/05-time-clocks-and-ordering.md
+      - Failure Detection & Membership: concept-prompts/01-distributed-systems-foundations/06-failure-detection-and-membership/06-failure-detection-and-membership.md
+    - Distributed Transactions & Consistency:
+      - 2PC & 3PC: concept-prompts/02-distributed-transactions-and-consistency/01-2pc-and-3pc/01-2pc-and-3pc.md
+      - Saga Pattern: concept-prompts/02-distributed-transactions-and-consistency/02-saga-pattern/02-saga-pattern.md
+      - Transactional Outbox & CDC: concept-prompts/02-distributed-transactions-and-consistency/03-transactional-outbox-and-cdc/03-transactional-outbox-and-cdc.md
+      - Idempotency & Deduplication: concept-prompts/02-distributed-transactions-and-consistency/04-idempotency-and-deduplication/04-idempotency-and-deduplication.md
+      - Delivery Semantics: concept-prompts/02-distributed-transactions-and-consistency/05-delivery-semantics/05-delivery-semantics.md
+      - Distributed Locks: concept-prompts/02-distributed-transactions-and-consistency/06-distributed-locks/06-distributed-locks.md
+    - Scalability & Architecture Patterns:
+      - Architectural Styles: concept-prompts/03-scalability-and-architecture-patterns/01-architectural-styles/01-architectural-styles.md
+      - CQRS & Event Sourcing: concept-prompts/03-scalability-and-architecture-patterns/02-cqrs-and-event-sourcing/02-cqrs-and-event-sourcing.md
+      - Load Balancing & Service Discovery: concept-prompts/03-scalability-and-architecture-patterns/03-load-balancing-and-service-discovery/03-load-balancing-and-service-discovery.md
+      - Rate Limiting: concept-prompts/03-scalability-and-architecture-patterns/04-rate-limiting/04-rate-limiting.md
+      - Backpressure & Flow Control: concept-prompts/03-scalability-and-architecture-patterns/05-backpressure-and-flow-control/05-backpressure-and-flow-control.md
+      - Gateway, BFF & Service Mesh: concept-prompts/03-scalability-and-architecture-patterns/06-gateway-bff-and-service-mesh/06-gateway-bff-and-service-mesh.md
+      - Capacity Estimation: concept-prompts/03-scalability-and-architecture-patterns/07-capacity-estimation/07-capacity-estimation.md
+    - Resilience & Fault Tolerance:
+      - Timeouts, Retries & Backoff: concept-prompts/04-resilience-and-fault-tolerance/01-timeouts-retries-backoff/01-timeouts-retries-backoff.md
+      - Circuit Breakers: concept-prompts/04-resilience-and-fault-tolerance/02-circuit-breakers/02-circuit-breakers.md
+      - Bulkheads & Isolation: concept-prompts/04-resilience-and-fault-tolerance/03-bulkheads-and-isolation/03-bulkheads-and-isolation.md
+      - Load Shedding & Degradation: concept-prompts/04-resilience-and-fault-tolerance/04-load-shedding-and-degradation/04-load-shedding-and-degradation.md
+      - Thundering Herd & Stampede: concept-prompts/04-resilience-and-fault-tolerance/05-thundering-herd-and-stampede/05-thundering-herd-and-stampede.md
+      - Redundancy, Failover & Multi-Region: concept-prompts/04-resilience-and-fault-tolerance/06-redundancy-failover-multiregion/06-redundancy-failover-multiregion.md
+      - Chaos Engineering: concept-prompts/04-resilience-and-fault-tolerance/07-chaos-engineering/07-chaos-engineering.md
+    - Databases — Paradigms & Selection:
+      - ACID vs BASE: concept-prompts/05-databases-paradigms-and-selection/01-acid-vs-base/01-acid-vs-base.md
+      - Relational Databases: concept-prompts/05-databases-paradigms-and-selection/02-relational-databases/02-relational-databases.md
+      - Key-Value Stores: concept-prompts/05-databases-paradigms-and-selection/03-key-value-stores/03-key-value-stores.md
+      - Wide-Column Stores: concept-prompts/05-databases-paradigms-and-selection/04-wide-column-stores/04-wide-column-stores.md
+      - Document & Graph Databases: concept-prompts/05-databases-paradigms-and-selection/05-document-and-graph-databases/05-document-and-graph-databases.md
+      - Storage Engines — B-Tree vs LSM: concept-prompts/05-databases-paradigms-and-selection/06-storage-engines-btree-vs-lsm/06-storage-engines-btree-vs-lsm.md
+      - Isolation Levels & MVCC: concept-prompts/05-databases-paradigms-and-selection/07-isolation-levels-and-mvcc/07-isolation-levels-and-mvcc.md
+      - Choosing a Datastore: concept-prompts/05-databases-paradigms-and-selection/08-choosing-a-datastore/08-choosing-a-datastore.md
+    - Database Scaling & Partitioning:
+      - Partitioning & Sharding: concept-prompts/06-database-scaling-and-partitioning/01-partitioning-and-sharding/01-partitioning-and-sharding.md
+      - Consistent Hashing: concept-prompts/06-database-scaling-and-partitioning/02-consistent-hashing/02-consistent-hashing.md
+      - Replication & Read Replicas: concept-prompts/06-database-scaling-and-partitioning/03-replication-and-read-replicas/03-replication-and-read-replicas.md
+      - Replication Lag Handling: concept-prompts/06-database-scaling-and-partitioning/04-replication-lag-handling/04-replication-lag-handling.md
+      - Multi-Region & Geo-Partitioning: concept-prompts/06-database-scaling-and-partitioning/05-multiregion-and-geo-partitioning/05-multiregion-and-geo-partitioning.md
+      - Online Resharding & Migration: concept-prompts/06-database-scaling-and-partitioning/06-online-resharding-and-migration/06-online-resharding-and-migration.md
+    - Caching & In-Memory Stores:
+      - Cache Patterns: concept-prompts/07-caching-and-in-memory-stores/01-cache-patterns/01-cache-patterns.md
+      - Redis Deep Dive: concept-prompts/07-caching-and-in-memory-stores/02-redis-deep-dive/02-redis-deep-dive.md
+      - Memcached: concept-prompts/07-caching-and-in-memory-stores/03-memcached/03-memcached.md
+      - Eviction & Memory: concept-prompts/07-caching-and-in-memory-stores/04-eviction-and-memory/04-eviction-and-memory.md
+      - Cache Invalidation: concept-prompts/07-caching-and-in-memory-stores/05-cache-invalidation/05-cache-invalidation.md
+      - Stampede Protection: concept-prompts/07-caching-and-in-memory-stores/06-stampede-protection/06-stampede-protection.md
+      - Cache Consistency & Multi-Layer: concept-prompts/07-caching-and-in-memory-stores/07-cache-consistency-and-multilayer/07-cache-consistency-and-multilayer.md
+    - Kafka & Message Brokers:
+      - Architecture & The Log: concept-prompts/08-kafka-and-message-brokers/01-architecture-and-the-log/01-architecture-and-the-log.md
+      - Replication, ISR, Controller & KRaft: concept-prompts/08-kafka-and-message-brokers/02-replication-isr-controller-kraft/02-replication-isr-controller-kraft.md
+      - Producers & Delivery: concept-prompts/08-kafka-and-message-brokers/03-producers-and-delivery/03-producers-and-delivery.md
+      - Consumers & Groups: concept-prompts/08-kafka-and-message-brokers/04-consumers-and-groups/04-consumers-and-groups.md
+      - Rebalancing: concept-prompts/08-kafka-and-message-brokers/05-rebalancing/05-rebalancing.md
+      - Exactly-Once & Transactions: concept-prompts/08-kafka-and-message-brokers/06-exactly-once-and-transactions/06-exactly-once-and-transactions.md
+      - Retention & Log Compaction: concept-prompts/08-kafka-and-message-brokers/07-retention-and-log-compaction/07-retention-and-log-compaction.md
+      - Broker Comparison: concept-prompts/08-kafka-and-message-brokers/08-broker-comparison/08-broker-comparison.md
+      - Operations & Troubleshooting: concept-prompts/08-kafka-and-message-brokers/09-operations-and-troubleshooting/09-operations-and-troubleshooting.md
+    - Java Language & Concurrency:
+      - Type System & Generics: concept-prompts/09-java-language-and-concurrency/01-type-system-and-generics/01-type-system-and-generics.md
+      - Collections Framework Internals: concept-prompts/09-java-language-and-concurrency/02-collections-framework-internals/02-collections-framework-internals.md
+      - Streams & Functional: concept-prompts/09-java-language-and-concurrency/03-streams-and-functional/03-streams-and-functional.md
+      - Modern Java Features: concept-prompts/09-java-language-and-concurrency/04-modern-java-features/04-modern-java-features.md
+      - Java Memory Model: concept-prompts/09-java-language-and-concurrency/05-java-memory-model/05-java-memory-model.md
+      - Threads & Context Switching: concept-prompts/09-java-language-and-concurrency/06-threads-and-context-switching/06-threads-and-context-switching.md
+      - Synchronization & Locks: concept-prompts/09-java-language-and-concurrency/07-synchronization-and-locks/07-synchronization-and-locks.md
+      - Atomics & CAS: concept-prompts/09-java-language-and-concurrency/08-atomics-and-cas/08-atomics-and-cas.md
+      - Executors & Thread Pools: concept-prompts/09-java-language-and-concurrency/09-executors-and-thread-pools/09-executors-and-thread-pools.md
+      - CompletableFuture & Async: concept-prompts/09-java-language-and-concurrency/10-completablefuture-and-async/10-completablefuture-and-async.md
+      - Virtual Threads & Structured Concurrency: concept-prompts/09-java-language-and-concurrency/11-virtual-threads-and-structured-concurrency/11-virtual-threads-and-structured-concurrency.md
+      - Concurrent Collections: concept-prompts/09-java-language-and-concurrency/12-concurrent-collections/12-concurrent-collections.md
+      - Concurrency Debugging: concept-prompts/09-java-language-and-concurrency/13-concurrency-debugging/13-concurrency-debugging.md
+    - JVM Internals & GC:
+      - JVM Architecture & Memory: concept-prompts/10-jvm-internals-and-gc/01-jvm-architecture-and-memory/01-jvm-architecture-and-memory.md
+      - JIT & Object Layout: concept-prompts/10-jvm-internals-and-gc/02-jit-and-object-layout/02-jit-and-object-layout.md
+      - Class Loading: concept-prompts/10-jvm-internals-and-gc/03-class-loading/03-class-loading.md
+      - GC Fundamentals: concept-prompts/10-jvm-internals-and-gc/04-gc-fundamentals/04-gc-fundamentals.md
+      - GC Algorithms: concept-prompts/10-jvm-internals-and-gc/05-gc-algorithms/05-gc-algorithms.md
+      - GC Tuning & Logs: concept-prompts/10-jvm-internals-and-gc/06-gc-tuning-and-logs/06-gc-tuning-and-logs.md
+      - OOM & Leak Diagnosis: concept-prompts/10-jvm-internals-and-gc/07-oom-and-leak-diagnosis/07-oom-and-leak-diagnosis.md
+      - Profiling & Low-Latency Tuning: concept-prompts/10-jvm-internals-and-gc/08-profiling-and-low-latency-tuning/08-profiling-and-low-latency-tuning.md
+    - Spring & Hibernate:
+      - IoC & Dependency Injection: concept-prompts/11-spring-and-hibernate/01-ioc-and-dependency-injection/01-ioc-and-dependency-injection.md
+      - Bean Lifecycle & Scopes: concept-prompts/11-spring-and-hibernate/02-bean-lifecycle-and-scopes/02-bean-lifecycle-and-scopes.md
+      - AOP: concept-prompts/11-spring-and-hibernate/03-aop/03-aop.md
+      - Spring Boot Autoconfiguration: concept-prompts/11-spring-and-hibernate/04-spring-boot-autoconfiguration/04-spring-boot-autoconfiguration.md
+      - Spring MVC & REST: concept-prompts/11-spring-and-hibernate/05-spring-mvc-and-rest/05-spring-mvc-and-rest.md
+      - Spring WebFlux & Reactive: concept-prompts/11-spring-and-hibernate/06-spring-webflux-reactive/06-spring-webflux-reactive.md
+      - Spring Data JPA: concept-prompts/11-spring-and-hibernate/07-spring-data-jpa/07-spring-data-jpa.md
+      - Hibernate ORM Internals: concept-prompts/11-spring-and-hibernate/08-hibernate-orm-internals/08-hibernate-orm-internals.md
+      - Entity Mappings & Relationships: concept-prompts/11-spring-and-hibernate/09-entity-mappings-and-relationships/09-entity-mappings-and-relationships.md
+      - Fetching Strategies & N+1: concept-prompts/11-spring-and-hibernate/10-fetching-strategies-and-n+1/10-fetching-strategies-and-n+1.md
+      - Transactions & Spring TX: concept-prompts/11-spring-and-hibernate/11-transactions-and-spring-tx/11-transactions-and-spring-tx.md
+      - Spring Security & Testing: concept-prompts/11-spring-and-hibernate/12-spring-security-and-testing/12-spring-security-and-testing.md
+    - Kubernetes & Containers:
+      - Containers & Linux Primitives: concept-prompts/12-kubernetes-and-containers/01-containers-and-linux-primitives/01-containers-and-linux-primitives.md
+      - Control Plane Architecture: concept-prompts/12-kubernetes-and-containers/02-control-plane-architecture/02-control-plane-architecture.md
+      - Workload Objects: concept-prompts/12-kubernetes-and-containers/03-workload-objects/03-workload-objects.md
+      - Scheduling & Resources: concept-prompts/12-kubernetes-and-containers/04-scheduling-and-resources/04-scheduling-and-resources.md
+      - Networking: concept-prompts/12-kubernetes-and-containers/05-networking/05-networking.md
+      - Storage: concept-prompts/12-kubernetes-and-containers/06-storage/06-storage.md
+      - Autoscaling: concept-prompts/12-kubernetes-and-containers/07-autoscaling/07-autoscaling.md
+      - Config & Secrets: concept-prompts/12-kubernetes-and-containers/08-config-and-secrets/08-config-and-secrets.md
+      - Rollouts & Probes: concept-prompts/12-kubernetes-and-containers/09-rollouts-and-probes/09-rollouts-and-probes.md
+      - Troubleshooting: concept-prompts/12-kubernetes-and-containers/10-troubleshooting/10-troubleshooting.md
+    - Observability & SRE:
+      - Three Pillars: concept-prompts/13-observability-and-sre/01-three-pillars/01-three-pillars.md
+      - Metrics & Prometheus: concept-prompts/13-observability-and-sre/02-metrics-and-prometheus/02-metrics-and-prometheus.md
+      - Distributed Tracing: concept-prompts/13-observability-and-sre/03-distributed-tracing/03-distributed-tracing.md
+      - Logging & Aggregation: concept-prompts/13-observability-and-sre/04-logging-and-aggregation/04-logging-and-aggregation.md
+      - SLO, SLI & Error Budgets: concept-prompts/13-observability-and-sre/05-slo-sli-error-budgets/05-slo-sli-error-budgets.md
+      - Alerting Design: concept-prompts/13-observability-and-sre/06-alerting-design/06-alerting-design.md
+      - Grafana & Dashboards: concept-prompts/13-observability-and-sre/07-grafana-and-dashboards/07-grafana-and-dashboards.md
+      - Incident Response & Postmortems: concept-prompts/13-observability-and-sre/08-incident-response-and-postmortems/08-incident-response-and-postmortems.md
+    - Security for Backend Systems:
+      - AuthN vs AuthZ: concept-prompts/14-security-for-backend-systems/01-authn-vs-authz/01-authn-vs-authz.md
+      - OAuth2 & OIDC: concept-prompts/14-security-for-backend-systems/02-oauth2-and-oidc/02-oauth2-and-oidc.md
+      - JWT Deep Dive: concept-prompts/14-security-for-backend-systems/03-jwt-deep-dive/03-jwt-deep-dive.md
+      - mTLS & Service Identity: concept-prompts/14-security-for-backend-systems/04-mtls-and-service-identity/04-mtls-and-service-identity.md
+      - Secrets & Encryption: concept-prompts/14-security-for-backend-systems/05-secrets-and-encryption/05-secrets-and-encryption.md
+      - OWASP Top 10: concept-prompts/14-security-for-backend-systems/06-owasp-top-10/06-owasp-top-10.md
+      - API Security: concept-prompts/14-security-for-backend-systems/07-api-security/07-api-security.md
+      - Request Integrity & Replay: concept-prompts/14-security-for-backend-systems/08-request-integrity-and-replay/08-request-integrity-and-replay.md
+      - Data Privacy & PCI: concept-prompts/14-security-for-backend-systems/09-data-privacy-and-pci/09-data-privacy-and-pci.md
+    - API Design & Management:
+      - REST Design: concept-prompts/15-api-design-and-management/01-rest-design/01-rest-design.md
+      - gRPC: concept-prompts/15-api-design-and-management/02-grpc/02-grpc.md
+      - GraphQL: concept-prompts/15-api-design-and-management/03-graphql/03-graphql.md
+      - Versioning & Compatibility: concept-prompts/15-api-design-and-management/04-versioning-and-compatibility/04-versioning-and-compatibility.md
+      - Error Handling & Idempotency: concept-prompts/15-api-design-and-management/05-error-handling-and-idempotency/05-error-handling-and-idempotency.md
+      - Pagination & Bulk: concept-prompts/15-api-design-and-management/06-pagination-and-bulk/06-pagination-and-bulk.md
+      - Webhooks: concept-prompts/15-api-design-and-management/07-webhooks/07-webhooks.md
+      - API Gateway & Management: concept-prompts/15-api-design-and-management/08-api-gateway-and-management/08-api-gateway-and-management.md
+      - Rate Limiting & Quotas: concept-prompts/15-api-design-and-management/09-rate-limiting-and-quotas/09-rate-limiting-and-quotas.md
+    - CI/CD & Release Engineering:
+      - Pipeline Fundamentals: concept-prompts/16-cicd-and-release-engineering/01-pipeline-fundamentals/01-pipeline-fundamentals.md
+      - Branching & Feature Flags: concept-prompts/16-cicd-and-release-engineering/02-branching-and-feature-flags/02-branching-and-feature-flags.md
+      - Deployment Strategies: concept-prompts/16-cicd-and-release-engineering/03-deployment-strategies/03-deployment-strategies.md
+      - IaC — Terraform & Helm: concept-prompts/16-cicd-and-release-engineering/04-iac-terraform-helm/04-iac-terraform-helm.md
+      - GitOps: concept-prompts/16-cicd-and-release-engineering/05-gitops/05-gitops.md
+      - Testing in CI: concept-prompts/16-cicd-and-release-engineering/06-testing-in-ci/06-testing-in-ci.md
+      - Supply Chain Security: concept-prompts/16-cicd-and-release-engineering/07-supply-chain-security/07-supply-chain-security.md
+      - DORA Metrics: concept-prompts/16-cicd-and-release-engineering/08-dora-metrics/08-dora-metrics.md
+    - AI & LLM Foundations:
+      - LLM Fundamentals: concept-prompts/17-ai-and-llm-foundations/01-llm-fundamentals/01-llm-fundamentals.md
+      - Tokens & Context Windows: concept-prompts/17-ai-and-llm-foundations/02-tokens-and-context-windows/02-tokens-and-context-windows.md
+      - Embeddings & Vector Search: concept-prompts/17-ai-and-llm-foundations/03-embeddings-and-vector-search/03-embeddings-and-vector-search.md
+      - Prompt Engineering: concept-prompts/17-ai-and-llm-foundations/04-prompt-engineering/04-prompt-engineering.md
+      - Function & Tool Calling: concept-prompts/17-ai-and-llm-foundations/05-function-and-tool-calling/05-function-and-tool-calling.md
+      - RAG Architecture: concept-prompts/17-ai-and-llm-foundations/06-rag-architecture/06-rag-architecture.md
+      - Chunking & Retrieval: concept-prompts/17-ai-and-llm-foundations/07-chunking-and-retrieval/07-chunking-and-retrieval.md
+      - Reranking & Evaluation: concept-prompts/17-ai-and-llm-foundations/08-reranking-and-evaluation/08-reranking-and-evaluation.md
+      - Fine-Tuning vs RAG: concept-prompts/17-ai-and-llm-foundations/09-fine-tuning-vs-rag/09-fine-tuning-vs-rag.md
+      - Inference & Serving: concept-prompts/17-ai-and-llm-foundations/10-inference-and-serving/10-inference-and-serving.md
+      - Guardrails & Observability: concept-prompts/17-ai-and-llm-foundations/11-guardrails-and-observability/11-guardrails-and-observability.md
+    - MCP — Model Context Protocol:
+      - Overview & Why MCP: concept-prompts/18-mcp-model-context-protocol/01-overview-and-why-mcp/01-overview-and-why-mcp.md
+      - Architecture — Host, Client & Server: concept-prompts/18-mcp-model-context-protocol/02-architecture-host-client-server/02-architecture-host-client-server.md
+      - Transports: concept-prompts/18-mcp-model-context-protocol/03-transports/03-transports.md
+      - Tools Primitive: concept-prompts/18-mcp-model-context-protocol/04-tools-primitive/04-tools-primitive.md
+      - Resources Primitive: concept-prompts/18-mcp-model-context-protocol/05-resources-primitive/05-resources-primitive.md
+      - Prompts Primitive: concept-prompts/18-mcp-model-context-protocol/06-prompts-primitive/06-prompts-primitive.md
+      - Building an MCP Server: concept-prompts/18-mcp-model-context-protocol/07-building-an-mcp-server/07-building-an-mcp-server.md
+      - Client Integration: concept-prompts/18-mcp-model-context-protocol/08-client-integration/08-client-integration.md
+      - Auth & Security: concept-prompts/18-mcp-model-context-protocol/09-auth-and-security/09-auth-and-security.md
+      - Sampling & Roots: concept-prompts/18-mcp-model-context-protocol/10-sampling-and-roots/10-sampling-and-roots.md
+    - Agentic AI & Agents:
+      - Agent Fundamentals & Loop: concept-prompts/19-agentic-ai-and-agents/01-agent-fundamentals-and-loop/01-agent-fundamentals-and-loop.md
+      - ReAct Pattern: concept-prompts/19-agentic-ai-and-agents/02-react-pattern/02-react-pattern.md
+      - Planning & Decomposition: concept-prompts/19-agentic-ai-and-agents/03-planning-and-decomposition/03-planning-and-decomposition.md
+      - Tool Use & Orchestration: concept-prompts/19-agentic-ai-and-agents/04-tool-use-and-orchestration/04-tool-use-and-orchestration.md
+      - Memory & State: concept-prompts/19-agentic-ai-and-agents/05-memory-and-state/05-memory-and-state.md
+      - Multi-Agent Systems: concept-prompts/19-agentic-ai-and-agents/06-multi-agent-systems/06-multi-agent-systems.md
+      - Reflection & Self-Critique: concept-prompts/19-agentic-ai-and-agents/07-reflection-and-self-critique/07-reflection-and-self-critique.md
+      - Agent Frameworks: concept-prompts/19-agentic-ai-and-agents/08-agent-frameworks/08-agent-frameworks.md
+      - Agent Evaluation: concept-prompts/19-agentic-ai-and-agents/09-agent-evaluation/09-agent-evaluation.md
+      - Failure Modes & Guardrails: concept-prompts/19-agentic-ai-and-agents/10-failure-modes-and-guardrails/10-failure-modes-and-guardrails.md
+      - Production Agent Architecture: concept-prompts/19-agentic-ai-and-agents/11-production-agent-architecture/11-production-agent-architecture.md

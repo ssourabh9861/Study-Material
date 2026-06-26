@@ -98,57 +98,47 @@
   background: transparent;
 }
 
-/* Nav items */
-.md-nav__link {
-  border-radius: 6px;
-  padding: 5px 8px;
-  margin: 1px 0;
-  transition: background var(--gm-transition), color var(--gm-transition), border-left var(--gm-transition);
-  position: relative;
+/* Primary nav links — hover only, no position/padding overrides */
+.md-nav--primary .md-nav__link:hover {
+  background: rgba(124,111,205,0.1);
+  color: var(--gm-purple) !important;
+  border-radius: 4px;
 }
 
-.md-nav__link:hover {
+/* ---------- TOC (secondary/right sidebar) — scroll-spy highlight ---------- */
+.md-nav--secondary .md-nav__link {
+  font-size: 0.78rem;
+  border-radius: 4px;
+  transition: background var(--gm-transition), color var(--gm-transition);
+}
+
+.md-nav--secondary .md-nav__link:hover {
   background: rgba(124,111,205,0.1);
   color: var(--gm-purple) !important;
 }
 
-/* Active TOC link — scroll-spy highlight */
-.md-nav__link--active,
+/* Active link inside TOC */
+.md-nav--secondary .md-nav__link--active,
 .md-nav[data-md-component="toc"] .md-nav__link.gm-active {
-  background: linear-gradient(90deg, rgba(124,111,205,0.18), transparent) !important;
-  border-left: 3px solid var(--gm-purple) !important;
+  background: linear-gradient(90deg, rgba(124,111,205,0.15), transparent);
+  border-left: 3px solid var(--gm-purple);
   color: var(--gm-purple) !important;
   font-weight: 600;
-  padding-left: 10px !important;
+  padding-left: 8px;
 }
 
-/* TOC secondary nav */
-.md-nav--secondary .md-nav__link {
-  font-size: 0.78rem;
-}
-
-.md-nav--secondary .md-nav__link.gm-active {
-  background: linear-gradient(90deg, rgba(0,201,255,0.15), transparent) !important;
-  border-left: 3px solid var(--gm-cyan) !important;
+.md-nav[data-md-component="toc"] .md-nav__link.gm-active {
+  background: linear-gradient(90deg, rgba(0,201,255,0.12), transparent);
+  border-left: 3px solid var(--gm-cyan);
   color: var(--gm-cyan) !important;
 }
 
-/* Collapsible nav toggle — nicer arrow */
-.md-nav__icon {
-  transition: transform 0.2s ease;
-}
-
-/* Category labels in sidebar */
-.md-nav__title {
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  opacity: 0.5;
-  padding: 12px 8px 4px;
-}
-
 /* ---------- Completion checkmark on nav items ---------- */
+/* position:relative only on the links that actually need the ::after mark */
+.md-nav__link[data-gm-done="true"] {
+  position: relative;
+}
+
 .md-nav__link[data-gm-done="true"]::after {
   content: "✓";
   position: absolute;

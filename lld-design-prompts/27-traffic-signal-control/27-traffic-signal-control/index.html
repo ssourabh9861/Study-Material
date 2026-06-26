@@ -1,0 +1,10246 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ssourabh9861.github.io/Study-Material/lld-design-prompts/27-traffic-signal-control/27-traffic-signal-control/">
+      
+      
+        <link rel="prev" href="../../26-restaurant-management/26-restaurant-management/">
+      
+      
+        <link rel="next" href="../../28-stock-exchange-matching-engine/28-stock-exchange-matching-engine/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Traffic Signal Control - Study Material</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#lld-traffic-signal-control-system" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Study Material" class="md-header__button md-logo" aria-label="Study Material" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Study Material
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Traffic Signal Control
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ssourabh9861/Study-Material" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ssourabh9861/Study-Material
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../01-parking-lot/01-parking-lot/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  LLD Problems
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../hld-design-prompts/01-fundamentals-and-framework/01-the-design-framework/01-the-design-framework/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  System Design
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../concept-prompts/01-distributed-systems-foundations/01-cap-and-pacelc/01-cap-and-pacelc/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Concepts
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Study Material" class="md-nav__button md-logo" aria-label="Study Material" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Study Material
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ssourabh9861/Study-Material" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ssourabh9861/Study-Material
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLD Problems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLD Problems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-parking-lot/01-parking-lot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parking Lot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-splitwise/02-splitwise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Splitwise
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-movie-ticket-booking-bookmyshow/03-movie-ticket-booking-bookmyshow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Movie Ticket Booking (BookMyShow)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-elevator-system/04-elevator-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Elevator System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-vending-machine/05-vending-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vending Machine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-atm/06-atm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ATM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-library-management/07-library-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Library Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-chess/08-chess/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chess
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-tic-tac-toe/09-tic-tac-toe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tic-Tac-Toe
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-snake-and-ladder/10-snake-and-ladder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Snake and Ladder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-deck-of-cards-and-blackjack/11-deck-of-cards-and-blackjack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deck of Cards & Blackjack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../12-logging-framework/12-logging-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../13-rate-limiter/13-rate-limiter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rate Limiter
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../14-lru-cache/14-lru-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LRU Cache
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../15-in-memory-key-value-store/15-in-memory-key-value-store/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    In-Memory Key-Value Store
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../16-file-system/16-file-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../17-text-editor/17-text-editor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Text Editor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../18-notification-system/18-notification-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notification System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../19-food-delivery-swiggy/19-food-delivery-swiggy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Food Delivery (Swiggy)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../20-cab-booking-uber/20-cab-booking-uber/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cab Booking (Uber)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../21-hotel-booking/21-hotel-booking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hotel Booking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../22-online-shopping-cart-amazon/22-online-shopping-cart-amazon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Online Shopping Cart (Amazon)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../23-payment-gateway/23-payment-gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Payment Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../24-digital-wallet/24-digital-wallet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digital Wallet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25-meeting-scheduler-calendar/25-meeting-scheduler-calendar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meeting Scheduler (Calendar)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../26-restaurant-management/26-restaurant-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Restaurant Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Traffic Signal Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../28-stock-exchange-matching-engine/28-stock-exchange-matching-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stock Exchange Matching Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../29-pub-sub-system/29-pub-sub-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pub-Sub System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../30-message-queue/30-message-queue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Message Queue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../31-url-shortener/31-url-shortener/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    URL Shortener
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../32-inventory-management/32-inventory-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inventory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../33-car-rental/33-car-rental/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Car Rental
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../34-airline-reservation/34-airline-reservation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Airline Reservation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../35-chat-application/35-chat-application/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chat Application
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../36-online-auction/36-online-auction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Online Auction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../37-jukebox-music-player/37-jukebox-music-player/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Jukebox Music Player
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../38-task-management-jira/38-task-management-jira/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Management (Jira)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Design
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    System Design
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fundamentals & Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Fundamentals & Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/01-fundamentals-and-framework/01-the-design-framework/01-the-design-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Design Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/01-fundamentals-and-framework/02-back-of-envelope-estimation/02-back-of-envelope-estimation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Back of Envelope Estimation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/01-fundamentals-and-framework/03-building-blocks-cheatsheet/03-building-blocks-cheatsheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building Blocks Cheatsheet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/01-fundamentals-and-framework/04-tradeoff-playbook/04-tradeoff-playbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tradeoff Playbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Social & Feed
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Social & Feed
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/02-social-and-feed/01-design-twitter-newsfeed/01-design-twitter-newsfeed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Twitter Newsfeed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/02-social-and-feed/02-design-instagram/02-design-instagram/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Instagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/02-social-and-feed/03-design-facebook-news-feed/03-design-facebook-news-feed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Facebook News Feed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/02-social-and-feed/04-design-trending-topk/04-design-trending-topk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Trending Top-K
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/02-social-and-feed/05-design-notification-system/05-design-notification-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Notification System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Messaging & Realtime
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Messaging & Realtime
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/03-messaging-and-realtime/01-design-whatsapp-chat/01-design-whatsapp-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design WhatsApp Chat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/03-messaging-and-realtime/02-design-slack/02-design-slack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Slack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/03-messaging-and-realtime/03-design-live-comments/03-design-live-comments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Live Comments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/03-messaging-and-realtime/04-design-presence-system/04-design-presence-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Presence System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/03-messaging-and-realtime/05-design-video-conferencing/05-design-video-conferencing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Video Conferencing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Media & Streaming
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Media & Streaming
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/04-media-and-streaming/01-design-youtube/01-design-youtube/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design YouTube
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/04-media-and-streaming/02-design-netflix/02-design-netflix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Netflix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/04-media-and-streaming/03-design-live-streaming/03-design-live-streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Live Streaming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/04-media-and-streaming/04-design-image-host-cdn/04-design-image-host-cdn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Image Host / CDN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Location & Logistics
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Location & Logistics
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/05-location-and-logistics/01-design-uber/01-design-uber/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Uber
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/05-location-and-logistics/02-design-google-maps/02-design-google-maps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Google Maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/05-location-and-logistics/03-design-proximity-service-yelp/03-design-proximity-service-yelp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Proximity Service (Yelp)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/05-location-and-logistics/04-design-food-delivery/04-design-food-delivery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Food Delivery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/05-location-and-logistics/05-design-hotel-booking/05-design-hotel-booking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Hotel Booking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commerce & Booking
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Commerce & Booking
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/06-commerce-and-booking/01-design-ticketmaster/01-design-ticketmaster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Ticketmaster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/06-commerce-and-booking/02-design-ecommerce-amazon/02-design-ecommerce-amazon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design E-Commerce (Amazon)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/06-commerce-and-booking/03-design-payment-system/03-design-payment-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Payment System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/06-commerce-and-booking/04-design-digital-wallet/04-design-digital-wallet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Digital Wallet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/06-commerce-and-booking/05-design-ad-click-aggregator/05-design-ad-click-aggregator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Ad Click Aggregator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage & Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Storage & Infrastructure
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/07-storage-and-infra/01-design-tinyurl/01-design-tinyurl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design TinyURL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/07-storage-and-infra/02-design-pastebin/02-design-pastebin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Pastebin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/07-storage-and-infra/03-design-dropbox-gdrive/03-design-dropbox-gdrive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Dropbox / GDrive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/07-storage-and-infra/04-design-s3-object-store/04-design-s3-object-store/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design S3 Object Store
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/07-storage-and-infra/05-design-distributed-key-value-store/05-design-distributed-key-value-store/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Distributed Key-Value Store
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/07-storage-and-infra/06-design-distributed-cache/06-design-distributed-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Distributed Cache
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/07-storage-and-infra/07-design-rate-limiter/07-design-rate-limiter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Rate Limiter
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/07-storage-and-infra/08-design-web-crawler/08-design-web-crawler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Web Crawler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/07-storage-and-infra/09-design-search-autocomplete-typeahead/09-design-search-autocomplete-typeahead/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Search Autocomplete (Typeahead)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/07-storage-and-infra/10-design-distributed-message-queue/10-design-distributed-message-queue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Distributed Message Queue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/07-storage-and-infra/11-design-distributed-job-scheduler/11-design-distributed-job-scheduler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Distributed Job Scheduler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/07-storage-and-infra/12-design-distributed-counter/12-design-distributed-counter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Distributed Counter
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/07-storage-and-infra/13-design-metrics-monitoring-system/13-design-metrics-monitoring-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Metrics Monitoring System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hld-design-prompts/07-storage-and-infra/14-design-log-collection-and-analysis/14-design-log-collection-and-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Log Collection & Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Systems Foundations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Distributed Systems Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/01-distributed-systems-foundations/01-cap-and-pacelc/01-cap-and-pacelc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CAP & PACELC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/01-distributed-systems-foundations/02-consistency-models/02-consistency-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Consistency Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/01-distributed-systems-foundations/03-consensus-raft-and-paxos/03-consensus-raft-and-paxos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Consensus — Raft & Paxos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/01-distributed-systems-foundations/04-replication-and-quorums/04-replication-and-quorums/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Replication & Quorums
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/01-distributed-systems-foundations/05-time-clocks-and-ordering/05-time-clocks-and-ordering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time, Clocks & Ordering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/01-distributed-systems-foundations/06-failure-detection-and-membership/06-failure-detection-and-membership/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Detection & Membership
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Transactions & Consistency
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Distributed Transactions & Consistency
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/02-distributed-transactions-and-consistency/01-2pc-and-3pc/01-2pc-and-3pc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2PC & 3PC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/02-distributed-transactions-and-consistency/02-saga-pattern/02-saga-pattern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Saga Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/02-distributed-transactions-and-consistency/03-transactional-outbox-and-cdc/03-transactional-outbox-and-cdc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Transactional Outbox & CDC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/02-distributed-transactions-and-consistency/04-idempotency-and-deduplication/04-idempotency-and-deduplication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Idempotency & Deduplication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/02-distributed-transactions-and-consistency/05-delivery-semantics/05-delivery-semantics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Delivery Semantics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/02-distributed-transactions-and-consistency/06-distributed-locks/06-distributed-locks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Locks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scalability & Architecture Patterns
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Scalability & Architecture Patterns
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/03-scalability-and-architecture-patterns/01-architectural-styles/01-architectural-styles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architectural Styles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/03-scalability-and-architecture-patterns/02-cqrs-and-event-sourcing/02-cqrs-and-event-sourcing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CQRS & Event Sourcing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/03-scalability-and-architecture-patterns/03-load-balancing-and-service-discovery/03-load-balancing-and-service-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Load Balancing & Service Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/03-scalability-and-architecture-patterns/04-rate-limiting/04-rate-limiting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rate Limiting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/03-scalability-and-architecture-patterns/05-backpressure-and-flow-control/05-backpressure-and-flow-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backpressure & Flow Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/03-scalability-and-architecture-patterns/06-gateway-bff-and-service-mesh/06-gateway-bff-and-service-mesh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gateway, BFF & Service Mesh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/03-scalability-and-architecture-patterns/07-capacity-estimation/07-capacity-estimation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capacity Estimation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Resilience & Fault Tolerance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Resilience & Fault Tolerance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/04-resilience-and-fault-tolerance/01-timeouts-retries-backoff/01-timeouts-retries-backoff/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timeouts, Retries & Backoff
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/04-resilience-and-fault-tolerance/02-circuit-breakers/02-circuit-breakers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Circuit Breakers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/04-resilience-and-fault-tolerance/03-bulkheads-and-isolation/03-bulkheads-and-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bulkheads & Isolation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/04-resilience-and-fault-tolerance/04-load-shedding-and-degradation/04-load-shedding-and-degradation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Load Shedding & Degradation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/04-resilience-and-fault-tolerance/05-thundering-herd-and-stampede/05-thundering-herd-and-stampede/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Thundering Herd & Stampede
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/04-resilience-and-fault-tolerance/06-redundancy-failover-multiregion/06-redundancy-failover-multiregion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Redundancy, Failover & Multi-Region
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/04-resilience-and-fault-tolerance/07-chaos-engineering/07-chaos-engineering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chaos Engineering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Databases — Paradigms & Selection
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Databases — Paradigms & Selection
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/05-databases-paradigms-and-selection/01-acid-vs-base/01-acid-vs-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ACID vs BASE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/05-databases-paradigms-and-selection/02-relational-databases/02-relational-databases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relational Databases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/05-databases-paradigms-and-selection/03-key-value-stores/03-key-value-stores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Key-Value Stores
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/05-databases-paradigms-and-selection/04-wide-column-stores/04-wide-column-stores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wide-Column Stores
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/05-databases-paradigms-and-selection/05-document-and-graph-databases/05-document-and-graph-databases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Document & Graph Databases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/05-databases-paradigms-and-selection/06-storage-engines-btree-vs-lsm/06-storage-engines-btree-vs-lsm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage Engines — B-Tree vs LSM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/05-databases-paradigms-and-selection/07-isolation-levels-and-mvcc/07-isolation-levels-and-mvcc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Isolation Levels & MVCC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/05-databases-paradigms-and-selection/08-choosing-a-datastore/08-choosing-a-datastore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choosing a Datastore
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_6" id="__nav_4_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Database Scaling & Partitioning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Database Scaling & Partitioning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/06-database-scaling-and-partitioning/01-partitioning-and-sharding/01-partitioning-and-sharding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Partitioning & Sharding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/06-database-scaling-and-partitioning/02-consistent-hashing/02-consistent-hashing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Consistent Hashing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/06-database-scaling-and-partitioning/03-replication-and-read-replicas/03-replication-and-read-replicas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Replication & Read Replicas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/06-database-scaling-and-partitioning/04-replication-lag-handling/04-replication-lag-handling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Replication Lag Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/06-database-scaling-and-partitioning/05-multiregion-and-geo-partitioning/05-multiregion-and-geo-partitioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Region & Geo-Partitioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/06-database-scaling-and-partitioning/06-online-resharding-and-migration/06-online-resharding-and-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Online Resharding & Migration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Caching & In-Memory Stores
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Caching & In-Memory Stores
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/07-caching-and-in-memory-stores/01-cache-patterns/01-cache-patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cache Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/07-caching-and-in-memory-stores/02-redis-deep-dive/02-redis-deep-dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Redis Deep Dive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/07-caching-and-in-memory-stores/03-memcached/03-memcached/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memcached
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/07-caching-and-in-memory-stores/04-eviction-and-memory/04-eviction-and-memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Eviction & Memory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/07-caching-and-in-memory-stores/05-cache-invalidation/05-cache-invalidation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cache Invalidation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/07-caching-and-in-memory-stores/06-stampede-protection/06-stampede-protection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stampede Protection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/07-caching-and-in-memory-stores/07-cache-consistency-and-multilayer/07-cache-consistency-and-multilayer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cache Consistency & Multi-Layer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kafka & Message Brokers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kafka & Message Brokers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/08-kafka-and-message-brokers/01-architecture-and-the-log/01-architecture-and-the-log/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & The Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/08-kafka-and-message-brokers/02-replication-isr-controller-kraft/02-replication-isr-controller-kraft/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Replication, ISR, Controller & KRaft
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/08-kafka-and-message-brokers/03-producers-and-delivery/03-producers-and-delivery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Producers & Delivery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/08-kafka-and-message-brokers/04-consumers-and-groups/04-consumers-and-groups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Consumers & Groups
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/08-kafka-and-message-brokers/05-rebalancing/05-rebalancing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rebalancing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/08-kafka-and-message-brokers/06-exactly-once-and-transactions/06-exactly-once-and-transactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exactly-Once & Transactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/08-kafka-and-message-brokers/07-retention-and-log-compaction/07-retention-and-log-compaction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Retention & Log Compaction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/08-kafka-and-message-brokers/08-broker-comparison/08-broker-comparison/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Broker Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/08-kafka-and-message-brokers/09-operations-and-troubleshooting/09-operations-and-troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations & Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java Language & Concurrency
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Java Language & Concurrency
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/09-java-language-and-concurrency/01-type-system-and-generics/01-type-system-and-generics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type System & Generics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/09-java-language-and-concurrency/02-collections-framework-internals/02-collections-framework-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Collections Framework Internals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/09-java-language-and-concurrency/03-streams-and-functional/03-streams-and-functional/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Streams & Functional
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/09-java-language-and-concurrency/04-modern-java-features/04-modern-java-features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modern Java Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/09-java-language-and-concurrency/05-java-memory-model/05-java-memory-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java Memory Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/09-java-language-and-concurrency/06-threads-and-context-switching/06-threads-and-context-switching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Threads & Context Switching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/09-java-language-and-concurrency/07-synchronization-and-locks/07-synchronization-and-locks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization & Locks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/09-java-language-and-concurrency/08-atomics-and-cas/08-atomics-and-cas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Atomics & CAS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/09-java-language-and-concurrency/09-executors-and-thread-pools/09-executors-and-thread-pools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Executors & Thread Pools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/09-java-language-and-concurrency/10-completablefuture-and-async/10-completablefuture-and-async/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CompletableFuture & Async
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/09-java-language-and-concurrency/11-virtual-threads-and-structured-concurrency/11-virtual-threads-and-structured-concurrency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Virtual Threads & Structured Concurrency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/09-java-language-and-concurrency/12-concurrent-collections/12-concurrent-collections/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concurrent Collections
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/09-java-language-and-concurrency/13-concurrency-debugging/13-concurrency-debugging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concurrency Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_10" id="__nav_4_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JVM Internals & GC
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    JVM Internals & GC
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/10-jvm-internals-and-gc/01-jvm-architecture-and-memory/01-jvm-architecture-and-memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JVM Architecture & Memory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/10-jvm-internals-and-gc/02-jit-and-object-layout/02-jit-and-object-layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JIT & Object Layout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/10-jvm-internals-and-gc/03-class-loading/03-class-loading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Class Loading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/10-jvm-internals-and-gc/04-gc-fundamentals/04-gc-fundamentals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GC Fundamentals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/10-jvm-internals-and-gc/05-gc-algorithms/05-gc-algorithms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GC Algorithms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/10-jvm-internals-and-gc/06-gc-tuning-and-logs/06-gc-tuning-and-logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GC Tuning & Logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/10-jvm-internals-and-gc/07-oom-and-leak-diagnosis/07-oom-and-leak-diagnosis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OOM & Leak Diagnosis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/10-jvm-internals-and-gc/08-profiling-and-low-latency-tuning/08-profiling-and-low-latency-tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Profiling & Low-Latency Tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_11" id="__nav_4_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spring & Hibernate
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Spring & Hibernate
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/11-spring-and-hibernate/01-ioc-and-dependency-injection/01-ioc-and-dependency-injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IoC & Dependency Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/11-spring-and-hibernate/02-bean-lifecycle-and-scopes/02-bean-lifecycle-and-scopes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bean Lifecycle & Scopes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/11-spring-and-hibernate/03-aop/03-aop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AOP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/11-spring-and-hibernate/04-spring-boot-autoconfiguration/04-spring-boot-autoconfiguration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spring Boot Autoconfiguration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/11-spring-and-hibernate/05-spring-mvc-and-rest/05-spring-mvc-and-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spring MVC & REST
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/11-spring-and-hibernate/06-spring-webflux-reactive/06-spring-webflux-reactive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spring WebFlux & Reactive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/11-spring-and-hibernate/07-spring-data-jpa/07-spring-data-jpa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spring Data JPA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/11-spring-and-hibernate/08-hibernate-orm-internals/08-hibernate-orm-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hibernate ORM Internals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/11-spring-and-hibernate/09-entity-mappings-and-relationships/09-entity-mappings-and-relationships/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Entity Mappings & Relationships
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/11-spring-and-hibernate/10-fetching-strategies-and-n%2B1/10-fetching-strategies-and-n%2B1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fetching Strategies & N+1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/11-spring-and-hibernate/11-transactions-and-spring-tx/11-transactions-and-spring-tx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Transactions & Spring TX
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/11-spring-and-hibernate/12-spring-security-and-testing/12-spring-security-and-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spring Security & Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_12" id="__nav_4_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kubernetes & Containers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kubernetes & Containers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/12-kubernetes-and-containers/01-containers-and-linux-primitives/01-containers-and-linux-primitives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Containers & Linux Primitives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/12-kubernetes-and-containers/02-control-plane-architecture/02-control-plane-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Plane Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/12-kubernetes-and-containers/03-workload-objects/03-workload-objects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workload Objects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/12-kubernetes-and-containers/04-scheduling-and-resources/04-scheduling-and-resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling & Resources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/12-kubernetes-and-containers/05-networking/05-networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/12-kubernetes-and-containers/06-storage/06-storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/12-kubernetes-and-containers/07-autoscaling/07-autoscaling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autoscaling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/12-kubernetes-and-containers/08-config-and-secrets/08-config-and-secrets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Config & Secrets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/12-kubernetes-and-containers/09-rollouts-and-probes/09-rollouts-and-probes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rollouts & Probes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/12-kubernetes-and-containers/10-troubleshooting/10-troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_13" id="__nav_4_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observability & SRE
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Observability & SRE
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/13-observability-and-sre/01-three-pillars/01-three-pillars/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Three Pillars
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/13-observability-and-sre/02-metrics-and-prometheus/02-metrics-and-prometheus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics & Prometheus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/13-observability-and-sre/03-distributed-tracing/03-distributed-tracing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Tracing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/13-observability-and-sre/04-logging-and-aggregation/04-logging-and-aggregation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging & Aggregation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/13-observability-and-sre/05-slo-sli-error-budgets/05-slo-sli-error-budgets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLO, SLI & Error Budgets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/13-observability-and-sre/06-alerting-design/06-alerting-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Alerting Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/13-observability-and-sre/07-grafana-and-dashboards/07-grafana-and-dashboards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Grafana & Dashboards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/13-observability-and-sre/08-incident-response-and-postmortems/08-incident-response-and-postmortems/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Incident Response & Postmortems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_14" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_14" id="__nav_4_14_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security for Backend Systems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_14">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security for Backend Systems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/14-security-for-backend-systems/01-authn-vs-authz/01-authn-vs-authz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AuthN vs AuthZ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/14-security-for-backend-systems/02-oauth2-and-oidc/02-oauth2-and-oidc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OAuth2 & OIDC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/14-security-for-backend-systems/03-jwt-deep-dive/03-jwt-deep-dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JWT Deep Dive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/14-security-for-backend-systems/04-mtls-and-service-identity/04-mtls-and-service-identity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mTLS & Service Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/14-security-for-backend-systems/05-secrets-and-encryption/05-secrets-and-encryption/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secrets & Encryption
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/14-security-for-backend-systems/06-owasp-top-10/06-owasp-top-10/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OWASP Top 10
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/14-security-for-backend-systems/07-api-security/07-api-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/14-security-for-backend-systems/08-request-integrity-and-replay/08-request-integrity-and-replay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Request Integrity & Replay
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/14-security-for-backend-systems/09-data-privacy-and-pci/09-data-privacy-and-pci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Privacy & PCI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_15" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_15" id="__nav_4_15_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Design & Management
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_15_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_15">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Design & Management
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/15-api-design-and-management/01-rest-design/01-rest-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/15-api-design-and-management/02-grpc/02-grpc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    gRPC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/15-api-design-and-management/03-graphql/03-graphql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/15-api-design-and-management/04-versioning-and-compatibility/04-versioning-and-compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Versioning & Compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/15-api-design-and-management/05-error-handling-and-idempotency/05-error-handling-and-idempotency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Handling & Idempotency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/15-api-design-and-management/06-pagination-and-bulk/06-pagination-and-bulk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pagination & Bulk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/15-api-design-and-management/07-webhooks/07-webhooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/15-api-design-and-management/08-api-gateway-and-management/08-api-gateway-and-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Gateway & Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/15-api-design-and-management/09-rate-limiting-and-quotas/09-rate-limiting-and-quotas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rate Limiting & Quotas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_16" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_16" id="__nav_4_16_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI/CD & Release Engineering
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_16_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_16">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CI/CD & Release Engineering
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/16-cicd-and-release-engineering/01-pipeline-fundamentals/01-pipeline-fundamentals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipeline Fundamentals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/16-cicd-and-release-engineering/02-branching-and-feature-flags/02-branching-and-feature-flags/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Branching & Feature Flags
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/16-cicd-and-release-engineering/03-deployment-strategies/03-deployment-strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/16-cicd-and-release-engineering/04-iac-terraform-helm/04-iac-terraform-helm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IaC — Terraform & Helm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/16-cicd-and-release-engineering/05-gitops/05-gitops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitOps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/16-cicd-and-release-engineering/06-testing-in-ci/06-testing-in-ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing in CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/16-cicd-and-release-engineering/07-supply-chain-security/07-supply-chain-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/16-cicd-and-release-engineering/08-dora-metrics/08-dora-metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DORA Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_17" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_17" id="__nav_4_17_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI & LLM Foundations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_17_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_17">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AI & LLM Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/17-ai-and-llm-foundations/01-llm-fundamentals/01-llm-fundamentals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM Fundamentals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/17-ai-and-llm-foundations/02-tokens-and-context-windows/02-tokens-and-context-windows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tokens & Context Windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/17-ai-and-llm-foundations/03-embeddings-and-vector-search/03-embeddings-and-vector-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embeddings & Vector Search
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/17-ai-and-llm-foundations/04-prompt-engineering/04-prompt-engineering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt Engineering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/17-ai-and-llm-foundations/05-function-and-tool-calling/05-function-and-tool-calling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Function & Tool Calling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/17-ai-and-llm-foundations/06-rag-architecture/06-rag-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RAG Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/17-ai-and-llm-foundations/07-chunking-and-retrieval/07-chunking-and-retrieval/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chunking & Retrieval
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/17-ai-and-llm-foundations/08-reranking-and-evaluation/08-reranking-and-evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reranking & Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/17-ai-and-llm-foundations/09-fine-tuning-vs-rag/09-fine-tuning-vs-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fine-Tuning vs RAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/17-ai-and-llm-foundations/10-inference-and-serving/10-inference-and-serving/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inference & Serving
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/17-ai-and-llm-foundations/11-guardrails-and-observability/11-guardrails-and-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guardrails & Observability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_18" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_18" id="__nav_4_18_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP — Model Context Protocol
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_18_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_18">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    MCP — Model Context Protocol
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/18-mcp-model-context-protocol/01-overview-and-why-mcp/01-overview-and-why-mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview & Why MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/18-mcp-model-context-protocol/02-architecture-host-client-server/02-architecture-host-client-server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture — Host, Client & Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/18-mcp-model-context-protocol/03-transports/03-transports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Transports
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/18-mcp-model-context-protocol/04-tools-primitive/04-tools-primitive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tools Primitive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/18-mcp-model-context-protocol/05-resources-primitive/05-resources-primitive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Resources Primitive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/18-mcp-model-context-protocol/06-prompts-primitive/06-prompts-primitive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompts Primitive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/18-mcp-model-context-protocol/07-building-an-mcp-server/07-building-an-mcp-server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building an MCP Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/18-mcp-model-context-protocol/08-client-integration/08-client-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/18-mcp-model-context-protocol/09-auth-and-security/09-auth-and-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth & Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/18-mcp-model-context-protocol/10-sampling-and-roots/10-sampling-and-roots/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sampling & Roots
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_19" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_19" id="__nav_4_19_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agentic AI & Agents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_19_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_19">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agentic AI & Agents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/19-agentic-ai-and-agents/01-agent-fundamentals-and-loop/01-agent-fundamentals-and-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Fundamentals & Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/19-agentic-ai-and-agents/02-react-pattern/02-react-pattern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ReAct Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/19-agentic-ai-and-agents/03-planning-and-decomposition/03-planning-and-decomposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Planning & Decomposition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/19-agentic-ai-and-agents/04-tool-use-and-orchestration/04-tool-use-and-orchestration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool Use & Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/19-agentic-ai-and-agents/05-memory-and-state/05-memory-and-state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory & State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/19-agentic-ai-and-agents/06-multi-agent-systems/06-multi-agent-systems/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Agent Systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/19-agentic-ai-and-agents/07-reflection-and-self-critique/07-reflection-and-self-critique/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reflection & Self-Critique
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/19-agentic-ai-and-agents/08-agent-frameworks/08-agent-frameworks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Frameworks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/19-agentic-ai-and-agents/09-agent-evaluation/09-agent-evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/19-agentic-ai-and-agents/10-failure-modes-and-guardrails/10-failure-modes-and-guardrails/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes & Guardrails
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../concept-prompts/19-agentic-ai-and-agents/11-production-agent-architecture/11-production-agent-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Production Agent Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="lld-traffic-signal-control-system">LLD: Traffic Signal Control System<a class="headerlink" href="#lld-traffic-signal-control-system" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>A staff-level low-level-design walkthrough + revision artifact. Read <strong>PART A</strong> for the full design, <strong>PART C</strong> for the last-minute cheat-sheet, and <code>Solution.java</code> for the complete single-file Java implementation (PART B).</p>
+</blockquote>
+<hr />
+<h1 id="part-a-design-document">PART A — Design Document<a class="headerlink" href="#part-a-design-document" title="Permanent link">&para;</a></h1>
+<h2 id="1-problem-statement">1. Problem statement<a class="headerlink" href="#1-problem-statement" title="Permanent link">&para;</a></h2>
+<p>Design the control software for a <strong>Traffic Signal Control System</strong>. A physical <em>intersection</em> is where two or more roads cross. Each approach to the intersection (e.g. North, South, East, West) has a <strong>traffic signal</strong> (a signal head) that shows one of three lamps — <strong>Red</strong>, <strong>Green</strong>, or <strong>Yellow</strong> (amber). A <strong>controller</strong> cycles each signal through its colors on a timed plan so that conflicting flows of traffic are never given Green simultaneously, while observers (dashboards, loggers, simulators) are notified whenever a signal changes.</p>
+<p>The system must:</p>
+<ul>
+<li>Model signals that transition through a legal lifecycle: <code>Green → Yellow → Red → Green …</code> (never <code>Green → Red</code> directly — the Yellow is the safety clearance interval).</li>
+<li>Run a <strong>timing plan</strong> so each phase (the set of signals that are simultaneously allowed to move) lasts a configurable duration.</li>
+<li><strong>Never</strong> let conflicting directions show Green at the same time (the core safety invariant).</li>
+<li>Notify interested parties (observer screens, audit log) on every change.</li>
+<li>Support different <strong>transition strategies</strong> — fixed-timer, sensor/traffic-actuated, time-of-day plans.</li>
+<li>Support <strong>emergency-vehicle override</strong> (preempt the cycle and force a corridor to Green).</li>
+<li>Be <strong>thread-safe</strong>: a background timer thread drives transitions while API calls (override, reconfigure, query) come from other threads.</li>
+</ul>
+<p>This is a <em>control-logic</em> design problem, not a distributed-systems problem; we focus on object modelling, state legality, and concurrency within one controller process.</p>
+<hr />
+<h2 id="2-clarifying-requirements-questions-to-ask-first">2. Clarifying / requirements questions to ask first<a class="headerlink" href="#2-clarifying-requirements-questions-to-ask-first" title="Permanent link">&para;</a></h2>
+<p>Lead with these in the interview — <em>never</em> start drawing classes. Group them so the interviewer sees structured thinking.</p>
+<h3 id="functional-scope">Functional scope<a class="headerlink" href="#functional-scope" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Granularity:</strong> Are we controlling a <em>single intersection</em>, or a <em>network</em> of synchronized intersections (a "green wave" corridor)? Single first, network as an extension?</li>
+<li><strong>Directions per intersection:</strong> Fixed 4-way (N/S/E/W), or arbitrary N approaches? Are there dedicated left-turn / pedestrian / bicycle signals, or just through-traffic for now?</li>
+<li><strong>Phases:</strong> Is opposing traffic grouped into <em>phases</em> (e.g. N+S share Green, then E+W share Green), or does every direction get its own independent Green slot?</li>
+<li><strong>Color set:</strong> Standard Red/Yellow/Green only, or also flashing-red, flashing-yellow, all-red clearance, pedestrian WALK/DONT-WALK?</li>
+<li><strong>Transition trigger:</strong> Pure <strong>time-based</strong> (fixed durations), <strong>sensor/actuated</strong> (extend Green while cars are detected), or <strong>time-of-day</strong> plans (rush-hour vs night)? Do we need all three, pluggable?</li>
+<li><strong>Emergency override:</strong> Do we need emergency-vehicle / transit-signal preemption (force a corridor Green, then recover gracefully)?</li>
+<li><strong>Manual control:</strong> Should an operator be able to pause, single-step, or force a specific phase?</li>
+</ol>
+<h3 id="non-functional">Non-functional<a class="headerlink" href="#non-functional" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Concurrency model:</strong> One controller per process driving a timer thread, with external threads issuing commands? Do we need it to be thread-safe? (Assume <strong>yes</strong>.)</li>
+<li><strong>Persistence:</strong> Must timing configuration survive restart, or is in-memory config fine for this round?</li>
+<li><strong>Observability:</strong> Who consumes signal-change events — a UI, a logger, a simulator, all of them? (Drives Observer.)</li>
+<li><strong>Scale / timing precision:</strong> Sub-second precision needed, or whole-second granularity? Real wall-clock time or a simulated/virtual clock for testability?</li>
+<li><strong>Failure modes:</strong> What happens on a fault — fail to <strong>all-flashing-red</strong> (safe default)? Is fault handling in scope?</li>
+</ol>
+<h3 id="scope-narrowing-state-explicit-assumptions">Scope-narrowing (state explicit assumptions)<a class="headerlink" href="#scope-narrowing-state-explicit-assumptions" title="Permanent link">&para;</a></h3>
+<ol>
+<li><em>"I'll assume one intersection with configurable directions grouped into phases, pluggable timing strategy, emergency override, an Observer event bus, a virtual-clock-friendly timer, and thread-safety. Network synchronization, pedestrian/turn signals, and persistence are extensions I'll design for but not fully implement. Agreed?"</em></li>
+</ol>
+<blockquote>
+<p>Stating assumption #13 out loud and getting a nod is the single highest-leverage move — it bounds the problem and signals senior judgment.</p>
+</blockquote>
+<hr />
+<h2 id="3-finalized-requirements-assumptions">3. Finalized requirements &amp; assumptions<a class="headerlink" href="#3-finalized-requirements-assumptions" title="Permanent link">&para;</a></h2>
+<p><strong>In scope (built in <code>Solution.java</code>):</strong></p>
+<ul>
+<li>A <code>TrafficController</code> (Singleton-style, one per process via a factory) that owns one <code>Intersection</code>.</li>
+<li>An <code>Intersection</code> composed of multiple <code>Signal</code>s, organized into <strong>phases</strong> (groups of signals allowed Green together).</li>
+<li>Each <code>Signal</code> is a <strong>State machine</strong> over <code>RedState</code>, <code>GreenState</code>, <code>YellowState</code> with the only legal cycle <code>Green → Yellow → Red → Green</code>.</li>
+<li>A pluggable <strong><code>TimingStrategy</code></strong> deciding how long each phase runs and which phase comes next (FixedTimer, Actuated/sensor, TimeOfDay).</li>
+<li>A background timer (driven by an injectable <code>Clock</code>/scheduler so tests use a virtual clock) advancing phases.</li>
+<li><strong>Observer</strong> event bus: <code>SignalObserver</code>s (console dashboard, audit logger) are notified on every signal change and phase change.</li>
+<li><strong>Emergency override</strong>: preempt the running plan, drive a target phase to Green safely (through Yellow/all-red), hold, then resume.</li>
+<li><strong>Thread-safety</strong>: a single lock per intersection guards phase transitions; observers are notified outside the lock; config is swapped atomically.</li>
+<li><strong>Safety invariant</strong>: conflicting phases never simultaneously Green; transitions always pass through Yellow + an all-red clearance gap.</li>
+</ul>
+<p><strong>Out of scope (designed-for, not implemented):</strong>
+- Multi-intersection network synchronization / green-wave offset coordination.
+- Pedestrian, bicycle, and dedicated turn signals (the model generalizes to them).
+- Durable persistence of configuration; distributed deployment; hardware I/O drivers.</p>
+<p><strong>Assumptions:</strong>
+- Whole-second timing granularity; a virtual clock for deterministic demo/tests.
+- Phases are predefined and conflict-free by construction (validated at config time).
+- A single controller process per intersection (no leader election).</p>
+<hr />
+<h2 id="4-problem-extensions-follow-up-variations">4. Problem extensions / follow-up variations<a class="headerlink" href="#4-problem-extensions-follow-up-variations" title="Permanent link">&para;</a></h2>
+<p>This is where senior candidates separate themselves. For each, name the <strong>design impact</strong> and which seam absorbs it.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Extension</th>
+<th>Design impact</th>
+<th>Seam that absorbs it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Timed vs sensor-based transitions</strong></td>
+<td>Green duration becomes dynamic (extend while a loop detector sees cars, cap at max-green)</td>
+<td>New <code>ActuatedTimingStrategy</code> implementing <code>TimingStrategy</code>; <code>Signal</code>/<code>Intersection</code> unchanged. <strong>Open/Closed.</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Time-of-day plans</strong></td>
+<td>Rush-hour vs night-flash vs weekend timings</td>
+<td><code>TimeOfDayTimingStrategy</code> that delegates to a sub-strategy chosen by current time; or hot-swap the strategy via <code>setTimingStrategy</code>.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Multi-direction / N-way intersections</strong></td>
+<td>More than 4 approaches; phases get larger / more numerous</td>
+<td><code>Intersection</code> already holds a <code>List&lt;Signal&gt;</code> and a <code>List&lt;Phase&gt;</code>; no structural change — just more config.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Pedestrian / turn signals</strong></td>
+<td>New "colors" (WALK / FLASH-DONT-WALK / DONT-WALK; protected-left arrows)</td>
+<td><code>Signal</code> is generic over a <code>LampState</code> hierarchy; add <code>WalkState</code> etc. as new <code>State</code> subclasses. <strong>State pattern pays off.</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Emergency-vehicle override / transit preemption</strong></td>
+<td>Interrupt plan, force a corridor Green safely, then recover</td>
+<td><code>Command</code>-style <code>preempt(phaseId)</code> on controller + a <code>PreemptionController</code>; uses the same safe-transition path. Implemented.</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Configurable timing at runtime</strong></td>
+<td>Operator changes durations live without restart</td>
+<td>Strategy is swapped atomically under lock; in-flight phase finishes, new plan applies next cycle. Implemented.</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Synchronization across signals (green wave)</strong></td>
+<td>Adjacent intersections offset their cycles so a platoon hits successive greens</td>
+<td>A <code>CorridorCoordinator</code> holding multiple controllers, issuing offset start-times; controllers expose <code>cycleOffset</code>. Designed.</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Fault handling / fail-safe</strong></td>
+<td>On sensor fault or controller error, fall back to <strong>all-flashing-red</strong></td>
+<td>A <code>FaultState</code> / safe-mode flag forcing every signal to flashing red; recover on clear. Designed (hook shown).</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Multiple subscribers (UI + log + metrics)</strong></td>
+<td>Many consumers of change events</td>
+<td>Observer list already supports N subscribers; add a <code>MetricsObserver</code>. Implemented (2 observers in demo).</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Testability with deterministic time</strong></td>
+<td>Need reproducible tests without sleeping real seconds</td>
+<td>Inject a <code>Clock</code> + manual <code>Scheduler</code>; advance virtual time in tests. Implemented.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-core-entities-responsibilities-relationships">5. Core entities, responsibilities &amp; relationships<a class="headerlink" href="#5-core-entities-responsibilities-relationships" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Entity</th>
+<th>Responsibility</th>
+<th>Key relationships</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TrafficController</code></td>
+<td>Orchestrates one intersection: starts/stops the cycle, drives phase transitions on timer ticks, handles preemption and reconfiguration. Singleton-per-process via factory.</td>
+<td><em>owns</em> one <code>Intersection</code>; <em>uses</em> a <code>TimingStrategy</code>; <em>uses</em> a <code>Scheduler</code>/<code>Clock</code>; <em>holds</em> <code>SignalObserver</code>s.</td>
+</tr>
+<tr>
+<td><code>Intersection</code></td>
+<td>Holds the signals and the legal <code>Phase</code>s; enforces the conflict-free invariant; applies a phase (drives signals to correct states through the safe sequence).</td>
+<td><em>composed of</em> many <code>Signal</code>; <em>defines</em> many <code>Phase</code>.</td>
+</tr>
+<tr>
+<td><code>Signal</code></td>
+<td>A single signal head; a <strong>State machine</strong> that transitions Green→Yellow→Red→Green; notifies on change.</td>
+<td><em>has-a</em> current <code>SignalState</code>.</td>
+</tr>
+<tr>
+<td><code>SignalState</code> (interface)</td>
+<td>Encapsulates behavior of a color: what it shows, what the legal <code>next()</code> is, how long it nominally lasts.</td>
+<td>implemented by <code>RedState</code>, <code>GreenState</code>, <code>YellowState</code> (+ extensions).</td>
+</tr>
+<tr>
+<td><code>Phase</code></td>
+<td>A named set of signal-ids that may be Green together; references the directions it serves.</td>
+<td><em>references</em> <code>Signal</code> ids.</td>
+</tr>
+<tr>
+<td><code>TimingStrategy</code> (interface)</td>
+<td>Decides phase durations and the next phase to run.</td>
+<td>implemented by <code>FixedTimerStrategy</code>, <code>ActuatedTimingStrategy</code>, <code>TimeOfDayStrategy</code>.</td>
+</tr>
+<tr>
+<td><code>SignalObserver</code> (interface)</td>
+<td>Reacts to signal/phase change events.</td>
+<td>implemented by <code>ConsoleDashboardObserver</code>, <code>AuditLogObserver</code>, <code>MetricsObserver</code>.</td>
+</tr>
+<tr>
+<td><code>Clock</code> / <code>Scheduler</code></td>
+<td>Abstracts time so tests can use a virtual clock.</td>
+<td>injected into controller.</td>
+</tr>
+<tr>
+<td><code>SignalEvent</code></td>
+<td>Immutable value object describing what changed.</td>
+<td>passed to observers.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Relationship summary (UML verbs):</strong>
+- <code>TrafficController</code> <strong>composition</strong> <code>Intersection</code> (controller owns it).
+- <code>Intersection</code> <strong>composition</strong> <code>Signal</code> (signals don't outlive the intersection).
+- <code>Signal</code> <strong>aggregation/association</strong> <code>SignalState</code> (state object swapped at runtime; State pattern).
+- <code>TrafficController</code> <strong>association</strong> <code>TimingStrategy</code>, <code>Scheduler</code>, <code>Clock</code>, <code>List&lt;SignalObserver&gt;</code>.
+- <code>RedState</code>/<code>GreenState</code>/<code>YellowState</code> <strong>realize</strong> <code>SignalState</code>.</p>
+<hr />
+<h2 id="6-design-patterns-applied">6. Design patterns applied<a class="headerlink" href="#6-design-patterns-applied" title="Permanent link">&para;</a></h2>
+<p>For each: <em>where</em>, <em>why</em>, <em>rejected alternative</em>, <em>when NOT to use</em>.</p>
+<h3 id="61-state-for-signal-colors">6.1 State — for signal colors<a class="headerlink" href="#61-state-for-signal-colors" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Where:</strong> <code>SignalState</code> interface with <code>RedState</code>/<code>GreenState</code>/<code>YellowState</code>; <code>Signal.transition()</code> delegates to <code>currentState.next()</code>.</li>
+<li><strong>Why:</strong> The legal lifecycle <code>Green→Yellow→Red→Green</code> and per-color behavior (display, default duration, what's legal next) belong <em>with the color</em>. State pattern makes illegal transitions structurally hard and lets us add <code>WalkState</code>/<code>FlashingState</code> without touching <code>Signal</code>.</li>
+<li><strong>Rejected alternative:</strong> A single <code>enum Color</code> + a giant <code>switch</code> in <code>Signal.transition()</code>. Fine for 3 fixed colors, but every new color/extension edits the switch (violates Open/Closed) and scatters the "what's next" logic.</li>
+<li><strong>When NOT to use:</strong> If colors will <em>never</em> grow beyond a fixed tiny set and have no per-state behavior, an enum with a <code>next()</code> field is simpler — don't over-engineer.</li>
+</ul>
+<h3 id="62-strategy-for-timing-plans">6.2 Strategy — for timing plans<a class="headerlink" href="#62-strategy-for-timing-plans" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Where:</strong> <code>TimingStrategy</code> interface; <code>FixedTimerStrategy</code>, <code>ActuatedTimingStrategy</code>, <code>TimeOfDayStrategy</code>. Controller asks the strategy for the next phase and its duration.</li>
+<li><strong>Why:</strong> Timing policy is the most-varied requirement (fixed / sensor / time-of-day). Strategy isolates each policy and lets us hot-swap at runtime (<code>setTimingStrategy</code>) — directly serving extensions #1, #2, #6.</li>
+<li><strong>Rejected alternative:</strong> <code>if (mode == ACTUATED) … else if …</code> inside the controller. Couples controller to every policy and makes runtime swapping ugly.</li>
+<li><strong>When NOT to use:</strong> If there's exactly one timing policy forever, the indirection is dead weight.</li>
+</ul>
+<h3 id="63-observer-for-signal-change-notifications">6.3 Observer — for signal-change notifications<a class="headerlink" href="#63-observer-for-signal-change-notifications" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Where:</strong> <code>SignalObserver</code> notified by the controller on every <code>SignalEvent</code> (color change, phase change, preemption).</li>
+<li><strong>Why:</strong> Multiple unrelated consumers (UI dashboard, audit log, metrics) want change events with no coupling to the control logic. Add/remove subscribers freely (extension #9).</li>
+<li><strong>Rejected alternative:</strong> Controller directly calls <code>dashboard.update()</code> + <code>logger.log()</code>. Couples control logic to every sink and breaks Dependency-Inversion.</li>
+<li><strong>When NOT to use:</strong> If there's a single, fixed consumer that's part of the same module, a direct call is clearer.</li>
+</ul>
+<h3 id="64-singleton-factory-guarded-for-the-controller">6.4 Singleton (factory-guarded) — for the controller<a class="headerlink" href="#64-singleton-factory-guarded-for-the-controller" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Where:</strong> <code>TrafficControllerFactory.getController(intersectionId)</code> returns one controller instance per intersection id.</li>
+<li><strong>Why:</strong> There must be exactly one authority driving a given intersection's lights (two controllers = conflicting Greens = crashes). A guarded factory enforces "one per intersection."</li>
+<li><strong>Rejected alternative:</strong> A classic global <code>Singleton.getInstance()</code>. Harder to test (global mutable state), and we actually want <em>one per intersection</em>, not one globally. The factory + map is the testable form (you can clear it between tests / inject a clock).</li>
+<li><strong>When NOT to use:</strong> When you need many independent controllers or want full DI — prefer constructing and injecting controllers explicitly. We use the factory only to <em>guarantee uniqueness per intersection</em>, and still allow dependency injection of clock/strategy.</li>
+</ul>
+<h3 id="65-command-for-preemption-operator-actions-lightweight">6.5 Command — for preemption / operator actions (lightweight)<a class="headerlink" href="#65-command-for-preemption-operator-actions-lightweight" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Where:</strong> Emergency preemption and operator pause/resume modeled as discrete operations (<code>preempt</code>, <code>clearPreemption</code>, <code>pause</code>, <code>resume</code>) that queue safely against the timer thread.</li>
+<li><strong>Why:</strong> Encapsulating "force corridor X green" as an action lets us queue, log, and undo it (recover prior plan). </li>
+<li><strong>Rejected alternative:</strong> Direct mutation from external threads — races with the timer thread.</li>
+<li><strong>When NOT to use:</strong> If there were no asynchronous external actions, plain method calls suffice.</li>
+</ul>
+<h3 id="solid-in-play">SOLID in play<a class="headerlink" href="#solid-in-play" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>S (Single Responsibility):</strong> <code>Signal</code> = state lifecycle; <code>Intersection</code> = invariant + phase application; <code>TimingStrategy</code> = timing; <code>Observer</code> = reaction. Each changes for one reason.</li>
+<li><strong>O (Open/Closed):</strong> New timing policies, new colors, new observers all add classes, no edits to existing ones.</li>
+<li><strong>L (Liskov):</strong> Any <code>SignalState</code> / <code>TimingStrategy</code> / <code>SignalObserver</code> is substitutable; the controller never type-checks subclasses.</li>
+<li><strong>I (Interface Segregation):</strong> Small focused interfaces (<code>SignalState</code>, <code>TimingStrategy</code>, <code>SignalObserver</code>) instead of one fat "TrafficThing".</li>
+<li><strong>D (Dependency Inversion):</strong> Controller depends on the <code>TimingStrategy</code>/<code>Clock</code>/<code>Scheduler</code>/<code>SignalObserver</code> abstractions, injected in, not concretes.</li>
+</ul>
+<hr />
+<h2 id="7-class-diagram">7. Class diagram<a class="headerlink" href="#7-class-diagram" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>classDiagram
+    direction LR
+
+    class TrafficControllerFactory {
+        -Map~String,TrafficController~ controllers
+        +getController(id, intersection, strategy, clock, scheduler) TrafficController
+        +clear()
+    }
+
+    class TrafficController {
+        -Intersection intersection
+        -TimingStrategy timingStrategy
+        -Clock clock
+        -Scheduler scheduler
+        -List~SignalObserver~ observers
+        -ControllerMode mode
+        -ReentrantLock lock
+        +start()
+        +stop()
+        +tick()
+        +setTimingStrategy(TimingStrategy)
+        +preempt(phaseId)
+        +clearPreemption()
+        +pause()
+        +resume()
+        +addObserver(SignalObserver)
+        +removeObserver(SignalObserver)
+    }
+
+    class Intersection {
+        -String id
+        -Map~String,Signal~ signals
+        -List~Phase~ phases
+        -Phase activePhase
+        +applyPhase(Phase) List~SignalEvent~
+        +allRed() List~SignalEvent~
+        +phases() List~Phase~
+        +validateConflictFree()
+    }
+
+    class Signal {
+        -String id
+        -Direction direction
+        -SignalState state
+        +transitionTo(SignalState) SignalEvent
+        +advance() SignalEvent
+        +currentColor() Color
+    }
+
+    class SignalState {
+        &lt;&lt;interface&gt;&gt;
+        +color() Color
+        +next() SignalState
+        +defaultDurationSec() int
+        +isGo() boolean
+    }
+    class RedState
+    class GreenState
+    class YellowState
+
+    class Phase {
+        -String id
+        -Set~String~ greenSignalIds
+        -int minGreenSec
+        -int maxGreenSec
+        +servesSignal(id) boolean
+    }
+
+    class TimingStrategy {
+        &lt;&lt;interface&gt;&gt;
+        +nextPhase(ctx) Phase
+        +greenDurationSec(Phase, ctx) int
+        +yellowDurationSec() int
+        +allRedClearanceSec() int
+    }
+    class FixedTimerStrategy
+    class ActuatedTimingStrategy
+    class TimeOfDayStrategy
+
+    class SignalObserver {
+        &lt;&lt;interface&gt;&gt;
+        +onEvent(SignalEvent)
+    }
+    class ConsoleDashboardObserver
+    class AuditLogObserver
+    class MetricsObserver
+
+    class SignalEvent {
+        +String signalId
+        +Color from
+        +Color to
+        +EventType type
+        +long timestamp
+    }
+
+    class Clock {
+        &lt;&lt;interface&gt;&gt;
+        +nowMillis() long
+    }
+    class Scheduler {
+        &lt;&lt;interface&gt;&gt;
+        +scheduleEvery(periodSec, task)
+        +shutdown()
+    }
+
+    TrafficControllerFactory ..&gt; TrafficController : creates
+    TrafficController *-- Intersection : owns
+    TrafficController --&gt; TimingStrategy : uses
+    TrafficController --&gt; Clock : uses
+    TrafficController --&gt; Scheduler : uses
+    TrafficController --&gt; SignalObserver : notifies
+    Intersection *-- Signal : composed of
+    Intersection o-- Phase : defines
+    Signal --&gt; SignalState : has-a (swappable)
+    SignalState &lt;|.. RedState
+    SignalState &lt;|.. GreenState
+    SignalState &lt;|.. YellowState
+    TimingStrategy &lt;|.. FixedTimerStrategy
+    TimingStrategy &lt;|.. ActuatedTimingStrategy
+    TimingStrategy &lt;|.. TimeOfDayStrategy
+    SignalObserver &lt;|.. ConsoleDashboardObserver
+    SignalObserver &lt;|.. AuditLogObserver
+    SignalObserver &lt;|.. MetricsObserver
+    TrafficController ..&gt; SignalEvent : emits</code></pre>
+<h3 id="brief-text-uml">Brief text UML<a class="headerlink" href="#brief-text-uml" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>TrafficControllerFactory ──creates──&gt; TrafficController (one per intersection id)
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>TrafficController ◆── Intersection ◆── Signal ──&gt; SignalState {Red|Green|Yellow}
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>TrafficController ──&gt; TimingStrategy {Fixed|Actuated|TimeOfDay}
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>TrafficController ──&gt; Scheduler, Clock        (injected; virtual clock in tests)
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>TrafficController ──&gt; *SignalObserver {ConsoleDashboard|AuditLog|Metrics}
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>Intersection ──o Phase (named set of green signal ids; min/max green)
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>SignalEvent: immutable {signalId, from, to, type, timestamp}
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>◆ = composition, ──o = aggregation, ──&gt; = association, {..} = realizations
+</span></code></pre></div>
+<h3 id="key-public-apis">Key public APIs<a class="headerlink" href="#key-public-apis" title="Permanent link">&para;</a></h3>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Controller</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">start</span><span class="p">();</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kt">void</span><span class="w"> </span><span class="nf">stop</span><span class="p">();</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kt">void</span><span class="w"> </span><span class="nf">setTimingStrategy</span><span class="p">(</span><span class="n">TimingStrategy</span><span class="w"> </span><span class="n">s</span><span class="p">);</span><span class="w">   </span><span class="c1">// hot-swap, atomic under lock</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="kt">void</span><span class="w"> </span><span class="nf">preempt</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">phaseId</span><span class="p">);</span><span class="w">               </span><span class="c1">// emergency override</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="kt">void</span><span class="w"> </span><span class="nf">clearPreemption</span><span class="p">();</span><span class="w">                     </span><span class="c1">// resume normal plan</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="kt">void</span><span class="w"> </span><span class="nf">pause</span><span class="p">();</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">resume</span><span class="p">();</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="kt">void</span><span class="w"> </span><span class="nf">addObserver</span><span class="p">(</span><span class="n">SignalObserver</span><span class="w"> </span><span class="n">o</span><span class="p">);</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">removeObserver</span><span class="p">(</span><span class="n">SignalObserver</span><span class="w"> </span><span class="n">o</span><span class="p">);</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="kt">void</span><span class="w"> </span><span class="nf">tick</span><span class="p">();</span><span class="w">                                </span><span class="c1">// advance one timer step (also called by Scheduler)</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1">// Signal (State pattern)</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="n">SignalEvent</span><span class="w"> </span><span class="nf">advance</span><span class="p">();</span><span class="w">                      </span><span class="c1">// delegates to state.next()</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="n">Color</span><span class="w"> </span><span class="nf">currentColor</span><span class="p">();</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="c1">// Intersection</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="n">List</span><span class="o">&lt;</span><span class="n">SignalEvent</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">applyPhase</span><span class="p">(</span><span class="n">Phase</span><span class="w"> </span><span class="n">p</span><span class="p">);</span><span class="w">      </span><span class="c1">// safely drive signals: conflicting greens -&gt; yellow -&gt; all-red -&gt; target green</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="kt">void</span><span class="w"> </span><span class="nf">validateConflictFree</span><span class="p">();</span><span class="w">                </span><span class="c1">// throws if two conflicting phases overlap illegally</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="c1">// Strategy</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="n">Phase</span><span class="w"> </span><span class="nf">nextPhase</span><span class="p">(</span><span class="n">TimingContext</span><span class="w"> </span><span class="n">ctx</span><span class="p">);</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="kt">int</span><span class="w"> </span><span class="nf">greenDurationSec</span><span class="p">(</span><span class="n">Phase</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">TimingContext</span><span class="w"> </span><span class="n">ctx</span><span class="p">);</span>
+</span></code></pre></div>
+<hr />
+<h2 id="8-key-flows">8. Key flows<a class="headerlink" href="#8-key-flows" title="Permanent link">&para;</a></h2>
+<h3 id="81-normal-phase-transition-the-safe-sequence">8.1 Normal phase transition (the safe sequence)<a class="headerlink" href="#81-normal-phase-transition-the-safe-sequence" title="Permanent link">&para;</a></h3>
+<p>The core safety rule: <strong>you never go straight from one phase's Green to another phase's Green.</strong> You first drop the outgoing greens to <strong>Yellow</strong>, hold the yellow, then go <strong>all-red</strong> for a short clearance gap, then raise the incoming phase to <strong>Green</strong>.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant Sched as Scheduler
+    participant Ctrl as TrafficController
+    participant Strat as TimingStrategy
+    participant Int as Intersection
+    participant Sig as Signal(s)
+    participant Obs as Observers
+
+    Sched-&gt;&gt;Ctrl: tick()  (green time elapsed)
+    Ctrl-&gt;&gt;Strat: nextPhase(ctx)
+    Strat--&gt;&gt;Ctrl: Phase B
+    Ctrl-&gt;&gt;Int: applyPhase(Phase B)
+    Int-&gt;&gt;Sig: outgoing greens -&gt; Yellow
+    Sig--&gt;&gt;Int: SignalEvents
+    Note over Int: hold yellowDurationSec
+    Int-&gt;&gt;Sig: all -&gt; Red (all-red clearance)
+    Note over Int: hold allRedClearanceSec
+    Int-&gt;&gt;Sig: Phase B signals -&gt; Green
+    Sig--&gt;&gt;Int: SignalEvents
+    Int--&gt;&gt;Ctrl: List~SignalEvent~
+    Ctrl-&gt;&gt;Obs: onEvent(e) for each (outside lock)
+    Ctrl-&gt;&gt;Sched: schedule next tick after greenDuration</code></pre>
+<h3 id="82-emergency-vehicle-preemption">8.2 Emergency-vehicle preemption<a class="headerlink" href="#82-emergency-vehicle-preemption" title="Permanent link">&para;</a></h3>
+<ol>
+<li>External thread calls <code>controller.preempt("NS_PHASE")</code>.</li>
+<li>Controller acquires the lock, sets mode = <code>PREEMPTED</code>, remembers the current plan position.</li>
+<li>It runs the <strong>same safe sequence</strong> to drive the target phase to Green (yellow-out the conflicting greens, all-red gap, then target Green).</li>
+<li>It holds the preempted Green (no auto-advance) until <code>clearPreemption()</code>.</li>
+<li><code>clearPreemption()</code> restores mode = <code>RUNNING</code> and lets the strategy pick the next phase from where it makes sense (typically the preempted phase's normal successor), again via the safe sequence.</li>
+</ol>
+<h3 id="83-runtime-reconfiguration">8.3 Runtime reconfiguration<a class="headerlink" href="#83-runtime-reconfiguration" title="Permanent link">&para;</a></h3>
+<ol>
+<li><code>setTimingStrategy(newStrategy)</code> acquires the lock and swaps the strategy reference atomically.</li>
+<li>The currently running phase finishes its scheduled green; the <strong>next</strong> <code>nextPhase</code>/<code>greenDurationSec</code> queries hit the new strategy. No restart, no unsafe mid-phase change.</li>
+</ol>
+<h3 id="84-signal-state-lifecycle">8.4 Signal state lifecycle<a class="headerlink" href="#84-signal-state-lifecycle" title="Permanent link">&para;</a></h3>
+<p><div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>GreenState.next()  -&gt; YellowState
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>YellowState.next() -&gt; RedState
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>RedState.next()    -&gt; GreenState     (only when its phase is selected)
+</span></code></pre></div>
+<code>Signal.advance()</code> calls <code>state.next()</code>, swaps the state object, and returns a <code>SignalEvent</code>. Illegal jumps (Green→Red) are simply <em>not expressible</em> — there's no method for them.</p>
+<hr />
+<h2 id="9-concurrency-edge-cases-extensibility">9. Concurrency, edge cases &amp; extensibility<a class="headerlink" href="#9-concurrency-edge-cases-extensibility" title="Permanent link">&para;</a></h2>
+<h3 id="concurrency-thread-safety">Concurrency / thread-safety<a class="headerlink" href="#concurrency-thread-safety" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Two kinds of threads:</strong> (a) the <strong>timer/scheduler thread</strong> firing <code>tick()</code>; (b) <strong>external command threads</strong> (<code>preempt</code>, <code>setTimingStrategy</code>, <code>pause</code>). They both mutate the same intersection state, so they race.</li>
+<li><strong>Strategy:</strong> a single <code>ReentrantLock</code> per <code>TrafficController</code> guards every state-mutating section (<code>tick</code>, <code>applyPhase</code>, <code>preempt</code>, <code>setTimingStrategy</code>, <code>pause/resume</code>). Phase application is short and the lock is <em>coarse</em> (intersection-level) — correctness over micro-parallelism, which is the right call for safety-critical control.</li>
+<li><strong>Observer notification happens OUTSIDE the lock:</strong> we collect <code>SignalEvent</code>s under the lock, release, then notify. This prevents a slow/blocking observer from stalling the control loop or deadlocking if it calls back in.</li>
+<li><strong>Virtual clock + manual scheduler</strong> make the whole thing deterministic in tests: we advance time and call <code>tick()</code> ourselves, no <code>Thread.sleep</code>, no flaky timing. The production scheduler uses a <code>ScheduledExecutorService</code>.</li>
+<li><strong>Atomic strategy swap:</strong> the strategy reference is read under the lock; swapping it mid-cycle never produces a half-applied plan.</li>
+<li><strong>Idempotent stop:</strong> <code>stop()</code> cancels the scheduler and is safe to call twice.</li>
+</ul>
+<h3 id="edge-cases">Edge cases<a class="headerlink" href="#edge-cases" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Green→Green forbidden:</strong> always routed through Yellow + all-red; enforced in <code>applyPhase</code>, not trusted to callers.</li>
+<li><strong>Conflict-free validation at config time:</strong> <code>validateConflictFree()</code> rejects a phase set where two phases that share no green signals are nonetheless allowed to overlap — fail fast at startup, not on the road.</li>
+<li><strong>Min/max green (actuated):</strong> <code>ActuatedTimingStrategy</code> clamps extensions to <code>[minGreen, maxGreen]</code> so a busy direction can't starve cross traffic forever.</li>
+<li><strong>Preempt during a transition:</strong> preemption itself runs the safe sequence, so preempting mid-yellow still finishes safely.</li>
+<li><strong>Double preempt / clear without preempt:</strong> guarded — clearing when not preempted is a no-op; preempting an unknown phase id throws.</li>
+<li><strong>Observer throws:</strong> notification loop catches and logs per-observer so one bad sink can't break the others or the control loop.</li>
+<li><strong>Fault / fail-safe (designed):</strong> a <code>safeMode</code> flag drives every signal to flashing-red and suspends the plan until cleared.</li>
+</ul>
+<h3 id="extensibility-recap-ties-back-to-4">Extensibility recap (ties back to §4)<a class="headerlink" href="#extensibility-recap-ties-back-to-4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>New <strong>timing policy</strong> → new <code>TimingStrategy</code> (OCP).</li>
+<li>New <strong>color/lamp</strong> (WALK, arrows, flashing) → new <code>SignalState</code> subclass; <code>Signal</code>/controller untouched.</li>
+<li>New <strong>event consumer</strong> → new <code>SignalObserver</code>.</li>
+<li><strong>Network/green-wave</strong> → wrap N controllers in a <code>CorridorCoordinator</code> that sets per-controller <code>cycleOffset</code>s; each controller stays single-intersection-correct.</li>
+<li><strong>N-way intersections</strong> → just more <code>Signal</code>s and <code>Phase</code>s in config; no code change.</li>
+</ul>
+<hr />
+<h2 id="10-likely-interview-questions">10. Likely interview questions<a class="headerlink" href="#10-likely-interview-questions" title="Permanent link">&para;</a></h2>
+<p><strong>Q1. Why State for the colors instead of an enum?</strong><br />
+Because each color owns behavior — its legal successor, default duration, and whether it's a "go" state — and the set of colors grows (pedestrian WALK, flashing, arrows). State localizes that behavior and makes illegal transitions inexpressible. An enum + <code>switch</code> works for 3 fixed colors but violates OCP the moment you add a fourth. <em>Deep probe:</em> "What if you only ever have 3 colors?" → then an enum with a <code>next</code> field is simpler and I'd use it; don't pattern-stuff. <em>(senior-signal)</em></p>
+<p><strong>Q2. How do you guarantee two conflicting directions are never green together?</strong><br />
+The invariant is enforced in one place — <code>Intersection.applyPhase</code> — which always routes a phase change through Yellow → all-red clearance → target Green, and <code>validateConflictFree()</code> rejects illegal phase configs at startup. Callers can't bypass it; there's no public "set this signal green" that skips the sequence. <em>Deep probe:</em> "What about a bug in a strategy returning a bad phase?" → the strategy only chooses <em>which</em> predefined, pre-validated phase, never raw signal states, so it can't create a conflict.</p>
+<p><strong>Q3. Walk me through the threading. Who can mutate state and how do you keep it safe?</strong><br />
+The scheduler thread fires <code>tick()</code>; external threads call <code>preempt</code>/<code>setTimingStrategy</code>/<code>pause</code>. All state-mutating sections take one <code>ReentrantLock</code> per controller. Observers are notified <em>outside</em> the lock (collect events under lock, notify after) to avoid stalls/deadlocks. Time is abstracted behind <code>Clock</code>/<code>Scheduler</code> so tests advance a virtual clock deterministically. <em>Deep probe:</em> "Why not lock-per-signal?" → the invariant spans signals (a phase touches several), so the consistency boundary is the intersection; finer locks would let a partial phase be observed. <em>(senior-signal)</em></p>
+<p><strong>Q4. How does emergency-vehicle override work without creating an unsafe transition?</strong><br />
+<code>preempt(phaseId)</code> sets mode=PREEMPTED and drives the target phase Green through the <em>same</em> safe sequence (yellow-out conflicts, all-red gap, then green), then holds. <code>clearPreemption()</code> resumes the normal plan. It reuses the one safe-transition path, so preemption can't skip the clearance interval. <em>Deep probe:</em> "Two emergency vehicles from crossing directions?" → preemption requests queue; the controller serves them one safe transition at a time, never both green.</p>
+<p><strong>Q5. Strategy vs a config flag for timing modes — defend Strategy.</strong><br />
+The timing policies (fixed, actuated, time-of-day) have genuinely different <em>algorithms</em>, not just different numbers. Strategy lets each live in its own class, be unit-tested in isolation, and be hot-swapped at runtime via <code>setTimingStrategy</code>. A flag-driven <code>if/else</code> in the controller couples it to every policy and grows unboundedly. <em>When not:</em> if there were one timing policy forever, I'd inline it. <em>(senior-signal)</em></p>
+<p><strong>Q6. Why a factory-guarded singleton rather than a classic Singleton or plain DI?</strong><br />
+We need exactly one controller <em>per intersection</em> (two would fight over the lights), not one globally, and we still want to inject clock/strategy for testing. A factory keyed by intersection-id enforces uniqueness while allowing DI and a <code>clear()</code> for test isolation — avoiding the global-mutable-state pain of a textbook Singleton.</p>
+<p><strong>Q7. How would you add pedestrian WALK/DONT-WALK signals?</strong><br />
+Add <code>WalkState</code>, <code>FlashingDontWalkState</code>, <code>DontWalkState</code> as new <code>SignalState</code> subclasses and include pedestrian signals in the relevant phases; <code>Signal</code>, <code>Intersection</code>, and the controller don't change. That's the payoff of the State pattern + phase model.</p>
+<p><strong>Q8. How do you make this deterministically testable given it's time-driven?</strong><br />
+Inject a <code>Clock</code> and a <code>Scheduler</code>. In tests use a <code>ManualClock</code> and a manual scheduler where the test calls <code>tick()</code> and advances virtual time — no <code>Thread.sleep</code>, no flakiness. Production wires a <code>ScheduledExecutorService</code> and system clock.</p>
+<p><strong>Q9. Extend this to a coordinated corridor (green wave).</strong><br />
+Wrap N single-intersection controllers in a <code>CorridorCoordinator</code> that assigns each a <code>cycleOffset</code> so a platoon travelling at the design speed hits successive greens. Each controller remains independently safe; the coordinator only sets offsets and a common cycle length. No change to the per-intersection safety logic. <em>Deep probe:</em> "What if speeds vary by time of day?" → the coordinator recomputes offsets per <code>TimeOfDayStrategy</code>. <em>(senior-signal)</em></p>
+<p><strong>Q10. What's your failure/fail-safe behavior?</strong><br />
+On detected fault (sensor failure, controller exception), enter <code>safeMode</code>: drive all signals to flashing-red and suspend the plan until an operator clears it — the universally understood "treat as all-way stop" fallback. The mode flag is checked in <code>tick()</code>. <em>Deep probe:</em> "Power loss mid-yellow?" → on restart the controller boots into all-red, validates config, then resumes from a known-safe phase rather than guessing the prior state.</p>
+<hr />
+<h1 id="part-c-cheat-sheet-self-test">PART C — Cheat-sheet &amp; self-test<a class="headerlink" href="#part-c-cheat-sheet-self-test" title="Permanent link">&para;</a></h1>
+<h3 id="patterns-key-decisions-recap">Patterns &amp; key decisions (recap)<a class="headerlink" href="#patterns-key-decisions-recap" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>State</strong> → signal colors (<code>Red/Green/Yellow</code>, extensible to WALK/flash/arrows); legal cycle <code>G→Y→R→G</code>, illegal jumps inexpressible.</li>
+<li><strong>Strategy</strong> → timing plans (<code>Fixed / Actuated / TimeOfDay</code>), hot-swappable at runtime.</li>
+<li><strong>Observer</strong> → change events to <code>ConsoleDashboard / AuditLog / Metrics</code>; notify <em>outside</em> the lock.</li>
+<li><strong>Singleton (factory-guarded)</strong> → one <code>TrafficController</code> per intersection id; testable, injectable.</li>
+<li><strong>Command (light)</strong> → <code>preempt / clearPreemption / pause / resume</code> as safe queued actions.</li>
+<li><strong>Safety invariant</strong> centralized in <code>Intersection.applyPhase</code>: always <code>Yellow → all-red clearance → target Green</code>; conflicts validated at config time.</li>
+<li><strong>Concurrency:</strong> one <code>ReentrantLock</code> per controller; events collected under lock, fired after; <code>Clock</code>/<code>Scheduler</code> injected for deterministic tests.</li>
+<li><strong>SOLID:</strong> SRP per class; OCP via the three abstractions; DIP via injection; ISP via small interfaces; LSP across all realizations.</li>
+</ul>
+<h3 id="self-test-no-answers">Self-test (no answers)<a class="headerlink" href="#self-test-no-answers" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Why is the Green→Green transition impossible to express in this design, and which single method enforces it?</li>
+<li>You must add a <em>protected left-turn arrow</em> phase that may run concurrently with the through-Green in the same direction but not the opposing through-Green. What changes — config, classes, or both?</li>
+<li>Where exactly do observers get notified, and what would break if you moved that inside the lock?</li>
+<li>Two emergency vehicles approach from N and E within the same second. Trace the sequence of states the intersection passes through.</li>
+<li>Justify the factory-guarded singleton over (a) a classic global singleton and (b) plain dependency injection — give one concrete failure each alternative would cause.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "search.highlight", "search.share", "content.code.copy", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

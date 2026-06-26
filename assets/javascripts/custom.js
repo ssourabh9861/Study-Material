@@ -281,16 +281,25 @@
     var scrollWrap = document.querySelector('.md-sidebar--secondary .md-sidebar__scrollwrap');
     if (!scrollWrap) return;
 
-    var linkRect = link.getBoundingClientRect();
-    var wrapRect = scrollWrap.getBoundingClientRect();
-    var wrapH    = scrollWrap.clientHeight;
+    // Walk offsetParent chain to get link's position within the scrollwrap content.
+    // getBoundingClientRect is unreliable here because the scrollwrap is
+    // position:absolute and clipped elements report out-of-viewport coords.
+    var offsetTop = 0;
+    var el = link;
+    while (el && el !== scrollWrap) {
+      offsetTop += el.offsetTop;
+      el = el.offsetParent;
+    }
+    if (!el) return; // link is not a descendant of scrollWrap
 
-    // Viewport-relative coords give true position inside the scroll container
-    var relTop    = linkRect.top    - wrapRect.top;
-    var relBottom = linkRect.bottom - wrapRect.top;
+    var wrapH     = scrollWrap.clientHeight;
+    var scrollTop = scrollWrap.scrollTop;
 
-    if (relTop < 40 || relBottom > wrapH - 40) {
-      scrollWrap.scrollTop += relTop - wrapH / 2;
+    if (offsetTop < scrollTop + 40 || offsetTop > scrollTop + wrapH - 40) {
+      scrollWrap.scrollTo({
+        top: Math.max(0, offsetTop - Math.round(wrapH / 2)),
+        behavior: 'smooth'
+      });
     }
   }
 

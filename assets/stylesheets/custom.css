@@ -81,16 +81,8 @@
 }
 
 /* ---------- Sidebar Enhancements ---------- */
-.md-sidebar {
-  position: sticky !important;
-  top: 56px;
-  max-height: calc(100vh - 56px);
-}
-
+/* Only style the scrollbar — MkDocs manages position/overflow internally */
 .md-sidebar__scrollwrap {
-  max-height: calc(100vh - 56px) !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
   scrollbar-width: thin;
   scrollbar-color: var(--gm-purple) transparent;
 }

@@ -280,11 +280,17 @@
   function scrollTOCToActive(link) {
     var scrollWrap = document.querySelector('.md-sidebar--secondary .md-sidebar__scrollwrap');
     if (!scrollWrap) return;
-    var linkTop = link.offsetTop;
-    var wrapH = scrollWrap.clientHeight;
-    var current = scrollWrap.scrollTop;
-    if (linkTop < current + 40 || linkTop > current + wrapH - 80) {
-      scrollWrap.scrollTo({ top: linkTop - wrapH / 2, behavior: 'smooth' });
+
+    var linkRect = link.getBoundingClientRect();
+    var wrapRect = scrollWrap.getBoundingClientRect();
+    var wrapH    = scrollWrap.clientHeight;
+
+    // Viewport-relative coords give true position inside the scroll container
+    var relTop    = linkRect.top    - wrapRect.top;
+    var relBottom = linkRect.bottom - wrapRect.top;
+
+    if (relTop < 40 || relBottom > wrapH - 40) {
+      scrollWrap.scrollTop += relTop - wrapH / 2;
     }
   }
 

@@ -1,0 +1,42 @@
+# Index & Progress Tracker — LLD
+
+**38 LLD / machine-coding problems.** Each generates a design doc + a single-file `Solution.java`. Tick when done. Generated: 2026-06-23
+
+- [x] `01-parking-lot` — Parking lot
+- [x] `02-splitwise` — Splitwise
+- [x] `03-movie-ticket-booking-bookmyshow` — Movie ticket booking bookmyshow
+- [x] `04-elevator-system` — Elevator system
+- [x] `05-vending-machine` — Vending machine
+- [x] `06-atm` — Atm
+- [x] `07-library-management` — Library management
+- [x] `08-chess` — Chess
+- [x] `09-tic-tac-toe` — Tic tac toe
+- [x] `10-snake-and-ladder` — Snake and ladder
+- [x] `11-deck-of-cards-and-blackjack` — Deck of cards and blackjack
+- [x] `12-logging-framework` — Logging framework
+- [x] `13-rate-limiter` — Rate limiter
+- [x] `14-lru-cache` — Lru cache
+- [x] `15-in-memory-key-value-store` — In memory key value store
+- [x] `16-file-system` — File system
+- [x] `17-text-editor` — Text editor
+- [x] `18-notification-system` — Notification system
+- [x] `19-food-delivery-swiggy` — Food delivery swiggy
+- [x] `20-cab-booking-uber` — Cab booking uber
+- [x] `21-hotel-booking` — Hotel booking
+- [x] `22-online-shopping-cart-amazon` — Online shopping cart amazon
+- [x] `23-payment-gateway` — Payment gateway
+- [x] `24-digital-wallet` — Digital wallet
+- [x] `25-meeting-scheduler-calendar` — Meeting scheduler calendar
+- [x] `26-restaurant-management` — Restaurant management
+- [x] `27-traffic-signal-control` — Traffic signal control
+- [x] `28-stock-exchange-matching-engine` — Stock exchange matching engine
+- [x] `29-pub-sub-system` — Pub sub system
+- [x] `30-message-queue` — Message queue
+- [x] `31-url-shortener` — Url shortener
+- [x] `32-inventory-management` — Inventory management
+- [x] `33-car-rental` — Car rental
+- [x] `34-airline-reservation` — Airline reservation
+- [x] `35-chat-application` — Chat application
+- [x] `36-online-auction` — Online auction
+- [x] `37-jukebox-music-player` — Jukebox music player
+- [x] `38-task-management-jira` — Task management jira

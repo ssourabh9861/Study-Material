@@ -1,0 +1,295 @@
+{
+  "intervals__merge-intervals-insert-interval": {
+    "title": "Merge Intervals / Insert Interval",
+    "topic": "Intervals",
+    "subtopic": "Intervals",
+    "difficulty": "Medium",
+    "pattern": "Sort by start then sweep (merge); linear 3-phase scan for insert into a pre-sorted list",
+    "notes": "",
+    "statement": "Two related tasks. **Merge Intervals:** given a list of `[start, end]` intervals in any order, merge all overlapping intervals and return the non-overlapping result. **Insert Interval:** given a list already sorted by start and non-overlapping, insert a `newInterval` and merge as needed.",
+    "examples": [
+      { "input": "intervals = [[1,3],[2,6],[8,10],[15,18]]", "output": "[[1,6],[8,10],[15,18]]", "explanation": "[1,3] and [2,6] overlap and merge into [1,6]." },
+      { "input": "intervals = [[1,3],[6,9]], newInterval = [2,5]", "output": "[[1,5],[6,9]]", "explanation": "[2,5] overlaps [1,3] and merges into [1,5]." }
+    ],
+    "constraints": [
+      "1 <= intervals.length <= 10^4",
+      "intervals[i].length == 2",
+      "0 <= start <= end <= 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Sort + sweep (merge), linear 3-phase scan (insert)",
+        "idea": "For **merge**, sort by start; walk left to right keeping the last interval in the result — if the current start is beyond the last end, append it, otherwise extend the last end by `max`. For **insert**, since the list is already sorted you never sort again: copy intervals ending before the new one, absorb every interval that overlaps into `newInterval` via min/max, then copy the rest.",
+        "time": "O(n log n) merge, O(n) insert",
+        "space": "O(n)",
+        "code": "public int[][] merge(int[][] intervals) {\n    Arrays.sort(intervals, (a, b) -> Integer.compare(a[0], b[0]));\n    List<int[]> res = new ArrayList<>();\n    for (int[] cur : intervals) {\n        if (res.isEmpty() || res.get(res.size() - 1)[1] < cur[0]) {\n            res.add(new int[]{cur[0], cur[1]});\n        } else {\n            int[] last = res.get(res.size() - 1);\n            last[1] = Math.max(last[1], cur[1]);\n        }\n    }\n    return res.toArray(new int[res.size()][]);\n}\n\npublic int[][] insert(int[][] intervals, int[] newInterval) {\n    List<int[]> res = new ArrayList<>();\n    int i = 0, n = intervals.length;\n    int lo = newInterval[0], hi = newInterval[1];\n    while (i < n && intervals[i][1] < lo) res.add(intervals[i++]);\n    while (i < n && intervals[i][0] <= hi) {\n        lo = Math.min(lo, intervals[i][0]);\n        hi = Math.max(hi, intervals[i][1]);\n        i++;\n    }\n    res.add(new int[]{lo, hi});\n    while (i < n) res.add(intervals[i++]);\n    return res.toArray(new int[res.size()][]);\n}"
+      }
+    ],
+    "insight": "Sort by start, then a new interval only ever extends the previous one's end; for insert, the pre-sorted invariant lets you merge in one linear pass with no re-sort."
+  },
+  "intervals__meeting-rooms-ii": {
+    "title": "Meeting Rooms II",
+    "topic": "Intervals",
+    "subtopic": "Intervals",
+    "difficulty": "Medium",
+    "pattern": "Min-heap of end times (or chronological start/end sweep)",
+    "notes": "",
+    "statement": "Given meeting time intervals `[start, end]`, return the minimum number of conference rooms required so that no two overlapping meetings share a room.",
+    "examples": [
+      { "input": "intervals = [[0,30],[5,10],[15,20]]", "output": "2", "explanation": "[0,30] overlaps both others; [5,10] and [15,20] don't overlap each other, so 2 rooms suffice." },
+      { "input": "intervals = [[7,10],[2,4]]", "output": "1", "explanation": "The meetings don't overlap." }
+    ],
+    "constraints": [
+      "1 <= intervals.length <= 10^4",
+      "0 <= start < end <= 10^6"
+    ],
+    "approaches": [
+      {
+        "name": "Min-heap of end times",
+        "idea": "Sort meetings by start. Keep a min-heap of end times of meetings currently occupying a room. For each meeting, if the earliest-ending room frees before this meeting starts (`peek <= start`), reuse it (poll); then push this meeting's end. The heap size at any point is the number of concurrent rooms, and its maximum — equivalently the final size after this greedy reuse — is the answer.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public int minMeetingRooms(int[][] intervals) {\n    Arrays.sort(intervals, (a, b) -> Integer.compare(a[0], b[0]));\n    PriorityQueue<Integer> pq = new PriorityQueue<>(); // end times of busy rooms\n    for (int[] it : intervals) {\n        if (!pq.isEmpty() && pq.peek() <= it[0]) pq.poll();\n        pq.offer(it[1]);\n    }\n    return pq.size();\n}"
+      },
+      {
+        "name": "Chronological start/end sweep",
+        "idea": "Separate and sort all start times and all end times. Sweep starts with a two-pointer over ends: each start opens a room; whenever the next-to-finish end is at or before the current start, close a room. Track the running maximum of open rooms. Avoids the heap.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public int minMeetingRooms(int[][] intervals) {\n    int n = intervals.length;\n    int[] starts = new int[n], ends = new int[n];\n    for (int i = 0; i < n; i++) { starts[i] = intervals[i][0]; ends[i] = intervals[i][1]; }\n    Arrays.sort(starts);\n    Arrays.sort(ends);\n    int rooms = 0, max = 0, e = 0;\n    for (int s = 0; s < n; s++) {\n        while (e < n && ends[e] <= starts[s]) { rooms--; e++; }\n        rooms++;\n        max = Math.max(max, rooms);\n    }\n    return max;\n}"
+      }
+    ],
+    "insight": "The answer is the maximum number of intervals overlapping at any instant; a min-heap on end times reuses the earliest-freed room greedily."
+  },
+  "intervals__non-overlapping-intervals": {
+    "title": "Non-overlapping Intervals",
+    "topic": "Intervals",
+    "subtopic": "Intervals",
+    "difficulty": "Medium",
+    "pattern": "Greedy: keep intervals with earliest end (activity selection)",
+    "notes": "",
+    "statement": "Given a set of intervals, return the minimum number of intervals you must remove so that the rest are non-overlapping. Intervals sharing only an endpoint (e.g. `[1,2]` and `[2,3]`) are considered non-overlapping.",
+    "examples": [
+      { "input": "intervals = [[1,2],[2,3],[3,4],[1,3]]", "output": "1", "explanation": "Remove [1,3] and the rest are non-overlapping." },
+      { "input": "intervals = [[1,2],[1,2],[1,2]]", "output": "2", "explanation": "Keep one [1,2], remove the other two." }
+    ],
+    "constraints": [
+      "1 <= intervals.length <= 10^5",
+      "-5*10^4 <= start < end <= 5*10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Greedy by earliest end",
+        "idea": "This is classic activity selection: to keep the most non-overlapping intervals, always keep the one that ends earliest, since it leaves the most room for the rest. Sort by end; scan keeping `prevEnd`. If the next interval starts at or after `prevEnd` it fits (advance `prevEnd`); otherwise it overlaps and must be removed. Removals = total minus the maximum kept.",
+        "time": "O(n log n)",
+        "space": "O(1)",
+        "code": "public int eraseOverlapIntervals(int[][] intervals) {\n    Arrays.sort(intervals, (a, b) -> Integer.compare(a[1], b[1]));\n    int removed = 0;\n    long prevEnd = Long.MIN_VALUE;\n    for (int[] it : intervals) {\n        if (it[0] >= prevEnd) {\n            prevEnd = it[1];\n        } else {\n            removed++;\n        }\n    }\n    return removed;\n}"
+      }
+    ],
+    "insight": "Maximizing kept intervals = greedily keeping the earliest finisher; removals fall out as the complement."
+  },
+  "intervals__employee-free-time": {
+    "title": "Employee Free Time",
+    "topic": "Intervals",
+    "subtopic": "Intervals",
+    "difficulty": "Hard",
+    "pattern": "Flatten + sort + merge, then emit gaps",
+    "notes": "",
+    "statement": "You are given `schedule`, a list of employees, each a list of non-overlapping busy `Interval`s sorted by start. Return the list of finite common free-time intervals for all employees, sorted, that have positive length.",
+    "examples": [
+      { "input": "schedule = [[[1,2],[5,6]],[[1,3]],[[4,10]]]", "output": "[[3,4]]", "explanation": "Merged busy time is [1,3] and [4,10], leaving the common gap [3,4]." },
+      { "input": "schedule = [[[1,3],[6,7]],[[2,4]],[[2,5],[9,12]]]", "output": "[[5,6],[7,9]]", "explanation": "Merged busy = [1,5],[6,7],[9,12]; gaps [5,6] and [7,9]." }
+    ],
+    "constraints": [
+      "1 <= schedule.length, schedule[i].length <= 50",
+      "0 <= Interval.start < Interval.end <= 10^8"
+    ],
+    "approaches": [
+      {
+        "name": "Flatten, sort by start, sweep for gaps",
+        "idea": "Common free time is exactly the gaps left after merging everyone's busy intervals. Pour all intervals into one list, sort by start, then sweep tracking the running maximum end: whenever the next interval starts strictly after that running end, the span between is a free interval; otherwise extend the running end. Emit each such gap.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "class Interval {\n    public int start, end;\n    public Interval() {}\n    public Interval(int start, int end) { this.start = start; this.end = end; }\n}\n\npublic List<Interval> employeeFreeTime(List<List<Interval>> schedule) {\n    List<Interval> all = new ArrayList<>();\n    for (List<Interval> emp : schedule) all.addAll(emp);\n    all.sort((a, b) -> Integer.compare(a.start, b.start));\n    List<Interval> res = new ArrayList<>();\n    int prevEnd = all.get(0).end;\n    for (Interval iv : all) {\n        if (iv.start > prevEnd) {\n            res.add(new Interval(prevEnd, iv.start));\n            prevEnd = iv.end;\n        } else {\n            prevEnd = Math.max(prevEnd, iv.end);\n        }\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "Free time = the holes in the union of all busy intervals; merge everything, then whatever the sweep skips over is a free slot."
+  },
+  "intervals__minimum-number-of-arrows-to-burst-balloons": {
+    "title": "Minimum Number of Arrows to Burst Balloons",
+    "topic": "Intervals",
+    "subtopic": "Intervals",
+    "difficulty": "Medium",
+    "pattern": "Greedy: shoot at the smallest current end",
+    "notes": "",
+    "statement": "Each balloon spans a horizontal interval `[xstart, xend]`. An arrow shot straight up at `x` bursts every balloon whose interval contains `x` (endpoints inclusive). Return the minimum number of arrows needed to burst all balloons.",
+    "examples": [
+      { "input": "points = [[10,16],[2,8],[1,6],[7,12]]", "output": "2", "explanation": "Shoot at x=6 (bursts [1,6],[2,8]) and x=12 (bursts [7,12],[10,16])." },
+      { "input": "points = [[1,2],[3,4],[5,6],[7,8]]", "output": "4", "explanation": "No two balloons overlap." }
+    ],
+    "constraints": [
+      "1 <= points.length <= 10^5",
+      "points[i].length == 2",
+      "-2^31 <= xstart <= xend <= 2^31 - 1"
+    ],
+    "approaches": [
+      {
+        "name": "Greedy by earliest end",
+        "idea": "Sort balloons by end coordinate. Fire the first arrow at the smallest end; it bursts every balloon that started at or before that point. Whenever a balloon starts strictly after the current arrow position, it needs a new arrow placed at its end. This maximizes balloons per arrow, mirroring interval-point covering. Use `long` for the arrow position to avoid 32-bit overflow.",
+        "time": "O(n log n)",
+        "space": "O(1)",
+        "code": "public int findMinArrowShots(int[][] points) {\n    Arrays.sort(points, (a, b) -> Integer.compare(a[1], b[1]));\n    int arrows = 1;\n    long arrow = points[0][1];\n    for (int[] p : points) {\n        if (p[0] > arrow) {\n            arrows++;\n            arrow = p[1];\n        }\n    }\n    return arrows;\n}"
+      }
+    ],
+    "insight": "Placing each arrow at the smallest overlapping end bursts the most balloons; it's the same greedy as covering intervals by points."
+  },
+  "intervals__data-stream-as-disjoint-intervals": {
+    "title": "Data Stream as Disjoint Intervals",
+    "topic": "Intervals",
+    "subtopic": "Intervals",
+    "difficulty": "Hard",
+    "pattern": "TreeMap of disjoint intervals, merge neighbors on insert",
+    "notes": "",
+    "statement": "Design `SummaryRanges`: `addNum(value)` ingests integers from a stream; `getIntervals()` returns the current numbers summarized as a sorted list of disjoint non-overlapping intervals `[a, b]`.",
+    "examples": [
+      { "input": "addNum(1), getIntervals(), addNum(3), getIntervals(), addNum(2), getIntervals()", "output": "[[1,1]], then [[1,1],[3,3]], then [[1,3]]", "explanation": "Adding 2 bridges 1 and 3 into a single interval [1,3]." }
+    ],
+    "constraints": [
+      "0 <= value <= 10^4",
+      "At most 3*10^4 calls to addNum and getIntervals",
+      "At most 10^2 calls to getIntervals"
+    ],
+    "approaches": [
+      {
+        "name": "TreeMap keyed by interval start",
+        "idea": "Store disjoint intervals in a `TreeMap` keyed by start with the value being `[start, end]`. On `addNum`, look at the nearest interval to the left (`lowerKey`) and right (`higherKey`): if the value bridges both adjacent intervals, merge them; if it touches or lies inside the left interval, extend it; if it is immediately left of the right interval, prepend; otherwise create a new singleton `[v, v]`. Each op is O(log n).",
+        "time": "O(log n) per addNum, O(n) per getIntervals",
+        "space": "O(n)",
+        "code": "class SummaryRanges {\n    private TreeMap<Integer, int[]> tree;\n\n    public SummaryRanges() {\n        tree = new TreeMap<>();\n    }\n\n    public void addNum(int value) {\n        if (tree.containsKey(value)) return;\n        Integer lo = tree.lowerKey(value);\n        Integer hi = tree.higherKey(value);\n        boolean touchLo = lo != null && tree.get(lo)[1] + 1 >= value;\n        boolean touchHi = hi != null && value + 1 == hi;\n        if (touchLo && touchHi) {\n            tree.get(lo)[1] = tree.get(hi)[1];\n            tree.remove(hi);\n        } else if (touchLo) {\n            tree.get(lo)[1] = Math.max(tree.get(lo)[1], value);\n        } else if (touchHi) {\n            tree.put(value, new int[]{value, tree.get(hi)[1]});\n            tree.remove(hi);\n        } else {\n            tree.put(value, new int[]{value, value});\n        }\n    }\n\n    public int[][] getIntervals() {\n        int[][] res = new int[tree.size()][];\n        int i = 0;\n        for (int[] iv : tree.values()) res[i++] = iv;\n        return res;\n    }\n}"
+      }
+    ],
+    "insight": "Keep intervals disjoint and sorted in a TreeMap; a new value only ever touches its immediate left/right neighbor, so merging is a constant-case check around lowerKey/higherKey."
+  },
+  "intervals__range-module": {
+    "title": "Range Module",
+    "topic": "Intervals",
+    "subtopic": "Intervals",
+    "difficulty": "Hard",
+    "pattern": "TreeMap of disjoint intervals (start -> end) with floorKey merge/split",
+    "notes": "",
+    "statement": "Design `RangeModule` tracking half-open ranges `[left, right)`. `addRange(left, right)` adds the range (merging overlaps); `queryRange(left, right)` returns true only if every real number in `[left, right)` is currently tracked; `removeRange(left, right)` stops tracking every number in that range.",
+    "examples": [
+      { "input": "addRange(10,20), removeRange(14,16), queryRange(10,14), queryRange(13,15), queryRange(16,17)", "output": "true, false, true", "explanation": "[10,20) minus [14,16) leaves [10,14) and [16,20); [13,15) is only partially covered." }
+    ],
+    "constraints": [
+      "1 <= left < right <= 10^9",
+      "At most 10^4 calls total to addRange, queryRange, and removeRange"
+    ],
+    "approaches": [
+      {
+        "name": "TreeMap of disjoint intervals with floorKey",
+        "idea": "Maintain disjoint intervals as a `TreeMap` from start to end. For `addRange`, use `floorKey` on both ends to find intervals that can absorb the new one, widen `[left, right)` to swallow them, clear everything strictly inside `[left, right)`, then insert the merged interval. `queryRange` checks the floor interval covers `right`. `removeRange` re-inserts the surviving right tail and left head around the cut before clearing the interior.",
+        "time": "O(log n + k) per op (k = intervals cleared)",
+        "space": "O(n)",
+        "code": "class RangeModule {\n    private TreeMap<Integer, Integer> map; // start -> end (half-open [start, end))\n\n    public RangeModule() {\n        map = new TreeMap<>();\n    }\n\n    public void addRange(int left, int right) {\n        Integer start = map.floorKey(left);\n        Integer end = map.floorKey(right);\n        if (start != null && map.get(start) >= left) left = start;\n        if (end != null && map.get(end) > right) right = map.get(end);\n        map.subMap(left, right).clear();\n        map.put(left, right);\n    }\n\n    public boolean queryRange(int left, int right) {\n        Integer start = map.floorKey(left);\n        return start != null && map.get(start) >= right;\n    }\n\n    public void removeRange(int left, int right) {\n        Integer start = map.floorKey(left);\n        Integer end = map.floorKey(right);\n        if (end != null && map.get(end) > right) map.put(right, map.get(end));\n        if (start != null && map.get(start) > left) map.put(start, left);\n        map.subMap(left, right).clear();\n    }\n}"
+      }
+    ],
+    "insight": "Store maximal disjoint intervals in a TreeMap; floorKey finds the interval that could contain each boundary, so add/remove reduce to widen-then-clear and split-then-clear."
+  },
+  "intervals__maximum-profit-in-job-scheduling": {
+    "title": "Maximum Profit in Job Scheduling",
+    "topic": "Intervals",
+    "subtopic": "Intervals",
+    "difficulty": "Hard",
+    "pattern": "DP over jobs sorted by end + binary search for last compatible job",
+    "notes": "",
+    "statement": "You have `n` jobs, each with `startTime[i]`, `endTime[i]`, and `profit[i]`. No two chosen jobs may overlap in time (a job ending at `t` and another starting at `t` are compatible). Return the maximum total profit obtainable.",
+    "examples": [
+      { "input": "startTime = [1,2,3,3], endTime = [3,4,5,6], profit = [50,10,40,70]", "output": "120", "explanation": "Take job 0 ([1,3], 50) and job 3 ([3,6], 70)." },
+      { "input": "startTime = [1,2,3,4,6], endTime = [3,5,10,6,9], profit = [20,20,100,70,60]", "output": "150", "explanation": "Take jobs [1,3]=20, [4,6]=70, [6,9]=60." }
+    ],
+    "constraints": [
+      "1 <= n <= 5*10^4",
+      "1 <= startTime[i] < endTime[i] <= 10^9",
+      "1 <= profit[i] <= 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Sort by end + TreeMap DP (weighted interval scheduling)",
+        "idea": "This is weighted interval scheduling. Sort jobs by end time. Keep a `TreeMap` from end time to the best total profit achievable using only jobs that end by then; the map is kept monotonically increasing in value. For each job, `floorEntry(start)` gives the best profit from compatible earlier jobs; add this job's profit, and record it only if it beats the current running maximum. The last entry's value is the answer.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public int jobScheduling(int[] startTime, int[] endTime, int[] profit) {\n    int n = startTime.length;\n    int[][] jobs = new int[n][3];\n    for (int i = 0; i < n; i++) jobs[i] = new int[]{startTime[i], endTime[i], profit[i]};\n    Arrays.sort(jobs, (a, b) -> Integer.compare(a[1], b[1]));\n    TreeMap<Integer, Integer> dp = new TreeMap<>(); // endTime -> best profit up to endTime\n    dp.put(0, 0);\n    for (int[] job : jobs) {\n        int best = dp.floorEntry(job[0]).getValue() + job[2];\n        if (best > dp.lastEntry().getValue()) dp.put(job[1], best);\n    }\n    return dp.lastEntry().getValue();\n}"
+      }
+    ],
+    "insight": "Sort by end and let a monotone TreeMap answer 'best profit among jobs finishing by my start' in O(log n) via floorEntry."
+  },
+  "intervals__my-calendar-ii-iii": {
+    "title": "My Calendar II / III",
+    "topic": "Intervals",
+    "subtopic": "Intervals",
+    "difficulty": "Hard",
+    "pattern": "Sweep with a difference map (boundary counting)",
+    "notes": "",
+    "statement": "Book half-open events `[start, end)`. **My Calendar II:** `book` succeeds unless it would cause a *triple* booking (three events overlapping at some point); return whether the booking was added. **My Calendar III:** every `book` always succeeds; return the current maximum *k*-booking (the largest number of events overlapping at any single point).",
+    "examples": [
+      { "input": "MyCalendarTwo: book(10,20)=true, book(50,60)=true, book(10,40)=true, book(5,15)=false, book(5,10)=true, book(25,55)=true", "output": "true,true,true,false,true,true", "explanation": "book(5,15) would triple-book [10,15), so it's rejected." },
+      { "input": "MyCalendarThree: book(10,20)=1, book(50,60)=1, book(10,40)=2, book(5,15)=3, book(5,10)=3, book(25,55)=3", "output": "1,1,2,3,3,3", "explanation": "After [5,15) the interval [10,15) is triple-booked, so the max k-booking is 3." }
+    ],
+    "constraints": [
+      "0 <= start < end <= 10^9",
+      "At most 1000 calls to book"
+    ],
+    "approaches": [
+      {
+        "name": "My Calendar III — difference map sweep",
+        "idea": "Maintain a `TreeMap` of boundary deltas: `+1` at each start, `-1` at each end. After inserting a new event's two boundaries, sweep the map in key order accumulating the running number of active events; the maximum running value is the current max k-booking. General and returns the overlap count directly.",
+        "time": "O(n) per book (n boundaries), O(n^2) overall",
+        "space": "O(n)",
+        "code": "class MyCalendarThree {\n    private TreeMap<Integer, Integer> delta;\n\n    public MyCalendarThree() {\n        delta = new TreeMap<>();\n    }\n\n    public int book(int startTime, int endTime) {\n        delta.merge(startTime, 1, Integer::sum);\n        delta.merge(endTime, -1, Integer::sum);\n        int active = 0, max = 0;\n        for (int v : delta.values()) {\n            active += v;\n            max = Math.max(max, active);\n        }\n        return max;\n    }\n}"
+      },
+      {
+        "name": "My Calendar II — track overlaps explicitly",
+        "idea": "Keep two lists: all booked intervals, and the pairwise overlap intervals (double-booked regions). A new booking is rejected if it intersects any existing double-booked region (that would make a triple). Otherwise, record its intersection with each existing booking as new double-booked regions and add the booking. Intervals `[a,b)` and `[c,d)` intersect iff `a < d && c < b`.",
+        "time": "O(n) per book, O(n^2) overall",
+        "space": "O(n)",
+        "code": "class MyCalendarTwo {\n    private List<int[]> bookings;\n    private List<int[]> overlaps;\n\n    public MyCalendarTwo() {\n        bookings = new ArrayList<>();\n        overlaps = new ArrayList<>();\n    }\n\n    public boolean book(int start, int end) {\n        for (int[] o : overlaps) {\n            if (start < o[1] && o[0] < end) return false; // would triple-book\n        }\n        for (int[] b : bookings) {\n            if (start < b[1] && b[0] < end) {\n                overlaps.add(new int[]{Math.max(start, b[0]), Math.min(end, b[1])});\n            }\n        }\n        bookings.add(new int[]{start, end});\n        return true;\n    }\n}"
+      }
+    ],
+    "insight": "Overlap counting is boundary counting: +1 at starts, -1 at ends, sweep for the running max; for the 'no triple' variant, precompute the double-booked regions and reject anything hitting them."
+  },
+  "intervals__the-skyline-problem": {
+    "title": "The Skyline Problem",
+    "topic": "Intervals",
+    "subtopic": "Intervals",
+    "difficulty": "Hard",
+    "pattern": "Sweep line + max-structure (TreeMap multiset), or divide & conquer",
+    "notes": "",
+    "statement": "Buildings are `[left, right, height]`. Return the skyline as a list of key points `[x, height]` — the left endpoint of each horizontal segment — sorted by x. The last point has height 0, and no two consecutive segments may have equal height.",
+    "examples": [
+      { "input": "buildings = [[2,9,10],[3,7,15],[5,12,12],[15,20,10],[19,24,8]]", "output": "[[2,10],[3,15],[7,12],[12,0],[15,10],[20,8],[24,0]]", "explanation": "Each key point marks where the tallest active building's height changes." }
+    ],
+    "constraints": [
+      "1 <= n <= 10^4",
+      "0 <= left < right <= 2^31 - 1",
+      "1 <= height <= 2^31 - 1"
+    ],
+    "approaches": [
+      {
+        "name": "Sweep line with a TreeMap multiset of active heights",
+        "idea": "Turn each building into two events: a start at its left with height `-h` and an end at its right with height `+h`. Sort by x; on ties, process starts before ends and, among starts, taller first (this is exactly what sorting by the signed height achieves). Maintain a multiset of currently-active heights (TreeMap height to count) seeded with ground level 0. After each event, the largest active height is the skyline there; emit a key point only when that maximum changes.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public List<List<Integer>> getSkyline(int[][] buildings) {\n    List<int[]> events = new ArrayList<>();\n    for (int[] b : buildings) {\n        events.add(new int[]{b[0], -b[2]}); // start: negative height\n        events.add(new int[]{b[1],  b[2]}); // end:   positive height\n    }\n    // sort by x; ties: starts (neg) before ends (pos); among starts, taller (more negative) first\n    events.sort((a, c) -> a[0] != c[0] ? Integer.compare(a[0], c[0]) : Integer.compare(a[1], c[1]));\n\n    List<List<Integer>> res = new ArrayList<>();\n    TreeMap<Integer, Integer> active = new TreeMap<>(); // height -> count\n    active.put(0, 1); // ground level\n    int prevMax = 0;\n    for (int[] e : events) {\n        int h = e[1];\n        if (h < 0) {\n            active.merge(-h, 1, Integer::sum);\n        } else {\n            int c = active.get(h);\n            if (c == 1) active.remove(h); else active.put(h, c - 1);\n        }\n        int curMax = active.lastKey();\n        if (curMax != prevMax) {\n            res.add(Arrays.asList(e[0], curMax));\n            prevMax = curMax;\n        }\n    }\n    return res;\n}"
+      },
+      {
+        "name": "Divide & conquer",
+        "idea": "Split the buildings in half, recursively compute the two sub-skylines, then merge them like merge-sort while tracking the running height contributed by each side and emitting a point whenever the combined max height changes. Also O(n log n); mirrors the segment-tree framing.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "// Merge two skylines like merge-sort, tracking each side's current height.\npublic List<List<Integer>> getSkyline(int[][] buildings) {\n    return divide(buildings, 0, buildings.length - 1);\n}\n\nprivate List<List<Integer>> divide(int[][] b, int lo, int hi) {\n    List<List<Integer>> res = new ArrayList<>();\n    if (lo > hi) return res;\n    if (lo == hi) {\n        res.add(Arrays.asList(b[lo][0], b[lo][2]));\n        res.add(Arrays.asList(b[lo][1], 0));\n        return res;\n    }\n    int mid = (lo + hi) >>> 1;\n    List<List<Integer>> left = divide(b, lo, mid);\n    List<List<Integer>> right = divide(b, mid + 1, hi);\n    return mergeSkylines(left, right);\n}\n\nprivate List<List<Integer>> mergeSkylines(List<List<Integer>> a, List<List<Integer>> c) {\n    List<List<Integer>> res = new ArrayList<>();\n    int i = 0, j = 0, hA = 0, hC = 0, prev = -1;\n    while (i < a.size() && j < c.size()) {\n        int x;\n        if (a.get(i).get(0) < c.get(j).get(0)) {\n            x = a.get(i).get(0); hA = a.get(i).get(1); i++;\n        } else if (a.get(i).get(0) > c.get(j).get(0)) {\n            x = c.get(j).get(0); hC = c.get(j).get(1); j++;\n        } else {\n            x = a.get(i).get(0); hA = a.get(i).get(1); hC = c.get(j).get(1); i++; j++;\n        }\n        int h = Math.max(hA, hC);\n        if (h != prev) { res.add(Arrays.asList(x, h)); prev = h; }\n    }\n    while (i < a.size()) {\n        int x = a.get(i).get(0), h = a.get(i).get(1); i++;\n        if (h != prev) { res.add(Arrays.asList(x, h)); prev = h; }\n    }\n    while (j < c.size()) {\n        int x = c.get(j).get(0), h = c.get(j).get(1); j++;\n        if (h != prev) { res.add(Arrays.asList(x, h)); prev = h; }\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "Turn buildings into start/end events, sweep left to right, and let a max-structure give the current tallest active building; emit a point only when that max changes. The tie-break encoding (negative height for starts) is the whole trick."
+  }
+}

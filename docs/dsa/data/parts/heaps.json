@@ -1,0 +1,317 @@
+{
+  "heaps__find-median-from-data-stream": {
+    "title": "Find Median from Data Stream",
+    "topic": "Heaps",
+    "subtopic": "Heaps",
+    "difficulty": "Hard",
+    "pattern": "Two heaps (balanced max-heap + min-heap)",
+    "notes": "",
+    "statement": "Design a data structure that supports `addNum(int num)` to ingest a stream of integers and `findMedian()` to return the median of all elements seen so far. The median is the middle value when the count is odd, or the average of the two middle values when it is even.",
+    "examples": [
+      { "input": "addNum(1); addNum(2); findMedian(); addNum(3); findMedian();", "output": "1.5, then 2.0", "explanation": "After 1,2 median is (1+2)/2=1.5; after adding 3 median is 2." }
+    ],
+    "constraints": [
+      "-10^5 <= num <= 10^5",
+      "At most 5 * 10^4 calls to addNum and findMedian",
+      "findMedian is only called after at least one addNum"
+    ],
+    "approaches": [
+      {
+        "name": "Balanced two heaps",
+        "idea": "Keep a max-heap `lo` for the smaller half and a min-heap `hi` for the larger half, invariant `lo.size() == hi.size()` or `lo.size() == hi.size() + 1`. On insert, push into `lo`, move its max into `hi`, then rebalance so `hi` is never larger. The median is `lo.peek()` (odd total) or the average of both tops (even total). Each op is O(log n).",
+        "time": "O(log n) per addNum, O(1) per findMedian",
+        "space": "O(n)",
+        "code": "class MedianFinder {\n    private PriorityQueue<Integer> lo = new PriorityQueue<>(Collections.reverseOrder()); // smaller half, max on top\n    private PriorityQueue<Integer> hi = new PriorityQueue<>();                            // larger half, min on top\n\n    public MedianFinder() {}\n\n    public void addNum(int num) {\n        lo.offer(num);\n        hi.offer(lo.poll());          // push the max of lo into hi\n        if (hi.size() > lo.size()) {  // keep lo >= hi in size\n            lo.offer(hi.poll());\n        }\n    }\n\n    public double findMedian() {\n        if (lo.size() > hi.size()) return lo.peek();\n        return (lo.peek() + hi.peek()) / 2.0;\n    }\n}"
+      }
+    ],
+    "insight": "Split the stream around the median with a max-heap below and a min-heap above; keep their sizes within one so both middles are always at the tops."
+  },
+  "heaps__merge-k-sorted-lists": {
+    "title": "Merge k Sorted Lists",
+    "topic": "Heaps",
+    "subtopic": "Heaps",
+    "difficulty": "Hard",
+    "pattern": "Min-heap over list heads",
+    "notes": "",
+    "statement": "You are given an array of `k` sorted linked lists in ascending order. Merge them into one sorted linked list and return its head.",
+    "examples": [
+      { "input": "lists = [[1,4,5],[1,3,4],[2,6]]", "output": "[1,1,2,3,4,4,5,6]", "explanation": "" }
+    ],
+    "constraints": [
+      "0 <= k <= 10^4",
+      "0 <= lists[i].length <= 500",
+      "-10^4 <= lists[i][j] <= 10^4",
+      "lists[i] is sorted ascending; total nodes <= 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Min-heap of current heads",
+        "idea": "Push the head of every non-empty list into a min-heap keyed by node value. Repeatedly poll the smallest node, append it to the result tail, and push that node's `next` if present. The heap holds at most `k` nodes, so each of the `N` total pops costs O(log k).",
+        "time": "O(N log k) where N is total nodes",
+        "space": "O(k)",
+        "code": "class ListNode {\n    int val;\n    ListNode next;\n    ListNode() {}\n    ListNode(int val) { this.val = val; }\n    ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n}\n\npublic ListNode mergeKLists(ListNode[] lists) {\n    PriorityQueue<ListNode> pq = new PriorityQueue<>((a, b) -> a.val - b.val);\n    for (ListNode node : lists) {\n        if (node != null) pq.offer(node);\n    }\n    ListNode dummy = new ListNode(0);\n    ListNode tail = dummy;\n    while (!pq.isEmpty()) {\n        ListNode node = pq.poll();\n        tail.next = node;\n        tail = node;\n        if (node.next != null) pq.offer(node.next);\n    }\n    return dummy.next;\n}"
+      }
+    ],
+    "insight": "The next node in the merged list is always the minimum among the k current heads, so a k-sized min-heap gives it in O(log k)."
+  },
+  "heaps__sliding-window-median": {
+    "title": "Sliding Window Median",
+    "topic": "Heaps",
+    "subtopic": "Heaps",
+    "difficulty": "Hard",
+    "pattern": "Balanced two-multiset ordered by (value, index)",
+    "notes": "",
+    "statement": "Given an integer array `nums` and window size `k`, the window slides from left to right one position at a time. For each window position return the median of the `k` elements. Return the medians as a `double[]`.",
+    "examples": [
+      { "input": "nums = [1,3,-1,-3,5,3,6,7], k = 3", "output": "[1.0,-1.0,-1.0,3.0,5.0,6.0]", "explanation": "Medians of each consecutive window of size 3." }
+    ],
+    "constraints": [
+      "1 <= k <= nums.length <= 10^5",
+      "-2^31 <= nums[i] <= 2^31 - 1"
+    ],
+    "approaches": [
+      {
+        "name": "Two ordered sets of indices",
+        "idea": "Store window elements as indices in two `TreeSet`s ordered by `(value, index)` so duplicate values are handled cleanly: `lo` (reversed, holds the smaller half with its max first) and `hi` (holds the larger half with its min first). Insert keeps `lo.size() == hi.size()` or one more; removing an outgoing index is an O(log k) set delete followed by a rebalance. The median is `nums[lo.first()]` (odd `k`) or the average of both fronts (even `k`).",
+        "time": "O(n log k)",
+        "space": "O(k)",
+        "code": "public double[] medianSlidingWindow(int[] nums, int k) {\n    Comparator<Integer> byVal = (a, b) ->\n        nums[a] != nums[b] ? Integer.compare(nums[a], nums[b]) : Integer.compare(a, b);\n    TreeSet<Integer> lo = new TreeSet<>(byVal.reversed()); // smaller half, max at first()\n    TreeSet<Integer> hi = new TreeSet<>(byVal);            // larger half, min at first()\n    int n = nums.length;\n    double[] ans = new double[n - k + 1];\n    for (int i = 0; i < n; i++) {\n        // insert index i, keeping lo balanced and >= hi in size\n        lo.add(i);\n        hi.add(lo.first());\n        lo.remove(lo.first());\n        if (hi.size() > lo.size()) {\n            lo.add(hi.first());\n            hi.remove(hi.first());\n        }\n        // remove the index leaving the window\n        if (i >= k) {\n            int out = i - k;\n            if (!lo.remove(out)) hi.remove(out);\n            if (lo.size() < hi.size()) {\n                lo.add(hi.first());\n                hi.remove(hi.first());\n            } else if (lo.size() > hi.size() + 1) {\n                hi.add(lo.first());\n                lo.remove(lo.first());\n            }\n        }\n        if (i >= k - 1) {\n            ans[i - k + 1] = (k % 2 == 1)\n                ? (double) nums[lo.first()]\n                : ((double) nums[lo.first()] + (double) nums[hi.first()]) / 2.0;\n        }\n    }\n    return ans;\n}"
+      }
+    ],
+    "insight": "Ordering the two heaps by (value, index) instead of raw value turns messy lazy-deletion of duplicates into a clean O(log k) set remove."
+  },
+  "heaps__top-k-frequent-elements-words": {
+    "title": "Top K Frequent Elements / Words",
+    "topic": "Heaps",
+    "subtopic": "Heaps",
+    "difficulty": "Medium",
+    "pattern": "Frequency map + size-k heap / bucket sort",
+    "notes": "",
+    "statement": "Given an integer array `nums` and an integer `k`, return the `k` most frequent elements. The answer may be returned in any order.",
+    "examples": [
+      { "input": "nums = [1,1,1,2,2,3], k = 2", "output": "[1,2]", "explanation": "1 appears 3 times, 2 appears twice." }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 10^5",
+      "-10^4 <= nums[i] <= 10^4",
+      "1 <= k <= number of distinct elements",
+      "The answer is guaranteed to be unique"
+    ],
+    "approaches": [
+      {
+        "name": "Size-k min-heap by frequency",
+        "idea": "Count frequencies in a hash map, then push distinct keys into a min-heap ordered by frequency, evicting whenever size exceeds `k`. The heap ends holding exactly the `k` most frequent keys. Maintaining a bounded heap costs O(m log k) over `m` distinct values.",
+        "time": "O(m log k), m distinct values",
+        "space": "O(m)",
+        "code": "public int[] topKFrequent(int[] nums, int k) {\n    Map<Integer, Integer> count = new HashMap<>();\n    for (int x : nums) count.merge(x, 1, Integer::sum);\n    PriorityQueue<Integer> heap = new PriorityQueue<>((a, b) -> count.get(a) - count.get(b));\n    for (int num : count.keySet()) {\n        heap.offer(num);\n        if (heap.size() > k) heap.poll();   // drop least frequent\n    }\n    int[] res = new int[k];\n    for (int i = k - 1; i >= 0; i--) res[i] = heap.poll();\n    return res;\n}"
+      },
+      {
+        "name": "Bucket sort by frequency",
+        "idea": "A frequency can be at most `n`, so index buckets by frequency and place each value in `buckets[freq]`. Scanning buckets from the highest frequency down collects the top `k` in linear time, avoiding the log factor entirely.",
+        "time": "O(n)",
+        "space": "O(n)",
+        "code": "public int[] topKFrequent(int[] nums, int k) {\n    Map<Integer, Integer> count = new HashMap<>();\n    for (int x : nums) count.merge(x, 1, Integer::sum);\n    List<Integer>[] buckets = new List[nums.length + 1];\n    for (Map.Entry<Integer, Integer> e : count.entrySet()) {\n        int f = e.getValue();\n        if (buckets[f] == null) buckets[f] = new ArrayList<>();\n        buckets[f].add(e.getKey());\n    }\n    int[] res = new int[k];\n    int idx = 0;\n    for (int f = buckets.length - 1; f >= 0 && idx < k; f--) {\n        if (buckets[f] == null) continue;\n        for (int num : buckets[f]) {\n            res[idx++] = num;\n            if (idx == k) break;\n        }\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "A bounded size-k heap keeps only the current top-k; when frequencies are bounded by n, bucket sort beats the heap at O(n)."
+  },
+  "heaps__task-scheduler": {
+    "title": "Task Scheduler",
+    "topic": "Heaps",
+    "subtopic": "Heaps",
+    "difficulty": "Medium",
+    "pattern": "Greedy counting / most-frequent-first",
+    "notes": "",
+    "statement": "Given a char array `tasks` of CPU tasks and a cooldown `n`, two identical tasks must be separated by at least `n` intervals. Each interval the CPU runs one task or idles. Return the minimum number of intervals to finish all tasks.",
+    "examples": [
+      { "input": "tasks = [\"A\",\"A\",\"A\",\"B\",\"B\",\"B\"], n = 2", "output": "8", "explanation": "A B idle A B idle A B takes 8 intervals." }
+    ],
+    "constraints": [
+      "1 <= tasks.length <= 10^4",
+      "tasks[i] is an uppercase English letter",
+      "0 <= n <= 100"
+    ],
+    "approaches": [
+      {
+        "name": "Greedy frame formula",
+        "idea": "Let `maxFreq` be the largest task frequency and `countMax` how many tasks hit it. The most frequent task forms `maxFreq - 1` full frames of length `n + 1`, plus a final slot for each maximal task: `(maxFreq - 1) * (n + 1) + countMax`. If there are so many distinct tasks that no idling is needed, the answer is simply `tasks.length`; take the max of the two.",
+        "time": "O(n)",
+        "space": "O(1)",
+        "code": "public int leastInterval(char[] tasks, int n) {\n    int[] freq = new int[26];\n    for (char t : tasks) freq[t - 'A']++;\n    int maxFreq = 0;\n    for (int f : freq) maxFreq = Math.max(maxFreq, f);\n    int countMax = 0;\n    for (int f : freq) if (f == maxFreq) countMax++;\n    int frames = (maxFreq - 1) * (n + 1) + countMax;\n    return Math.max(frames, tasks.length);\n}"
+      },
+      {
+        "name": "Max-heap simulation",
+        "idea": "Alternatively simulate: each cooldown cycle pop up to `n + 1` most frequent tasks from a max-heap, decrement and re-queue any still remaining. This is more intuitive but runs in O(total log 26); the formula is the optimal closed form.",
+        "time": "O(total)",
+        "space": "O(1)",
+        "code": "public int leastInterval(char[] tasks, int n) {\n    int[] freq = new int[26];\n    for (char t : tasks) freq[t - 'A']++;\n    PriorityQueue<Integer> pq = new PriorityQueue<>(Collections.reverseOrder());\n    for (int f : freq) if (f > 0) pq.offer(f);\n    int time = 0;\n    while (!pq.isEmpty()) {\n        int cycle = n + 1;\n        List<Integer> temp = new ArrayList<>();\n        int done = 0;\n        while (cycle > 0 && !pq.isEmpty()) {\n            int f = pq.poll();\n            if (f > 1) temp.add(f - 1);\n            done++;\n            cycle--;\n        }\n        for (int f : temp) pq.offer(f);\n        time += pq.isEmpty() ? done : n + 1; // no idle needed on the last block\n    }\n    return time;\n}"
+      }
+    ],
+    "insight": "The busiest task fixes the schedule length: (maxFreq-1) gaps of size n+1 plus one slot per maximal task, never below the raw task count."
+  },
+  "heaps__reorganize-string-rearrange-so-no-two-adjacent": {
+    "title": "Reorganize String / Rearrange so no two adjacent",
+    "topic": "Heaps",
+    "subtopic": "Heaps",
+    "difficulty": "Medium",
+    "pattern": "Greedy most-frequent-first with a one-step delay",
+    "notes": "",
+    "statement": "Given a string `s`, rearrange its characters so that no two adjacent characters are the same. Return any valid rearrangement, or the empty string `\"\"` if it is impossible.",
+    "examples": [
+      { "input": "s = \"aab\"", "output": "\"aba\"", "explanation": "" },
+      { "input": "s = \"aaab\"", "output": "\"\"", "explanation": "'a' occurs more than ceil(4/2)=2 times, so no arrangement works." }
+    ],
+    "constraints": [
+      "1 <= s.length <= 500",
+      "s consists of lowercase English letters"
+    ],
+    "approaches": [
+      {
+        "name": "Max-heap with previous-char hold",
+        "idea": "If any character occurs more than `ceil(len/2)` times it is impossible. Otherwise repeatedly take the most frequent remaining character from a max-heap, append it, and hold it aside for exactly one step so it cannot be reused immediately; re-insert the previously held character once it is again eligible. Greedily placing the most frequent available character always yields a valid layout when the feasibility bound holds.",
+        "time": "O(n log 26)",
+        "space": "O(1)",
+        "code": "public String reorganizeString(String s) {\n    int[] freq = new int[26];\n    for (char c : s.toCharArray()) freq[c - 'a']++;\n    PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> b[1] - a[1]); // [charIdx, count]\n    for (int i = 0; i < 26; i++) {\n        if (freq[i] == 0) continue;\n        if (freq[i] > (s.length() + 1) / 2) return \"\";\n        pq.offer(new int[]{i, freq[i]});\n    }\n    StringBuilder sb = new StringBuilder();\n    int[] prev = null;\n    while (!pq.isEmpty()) {\n        int[] cur = pq.poll();\n        sb.append((char) ('a' + cur[0]));\n        cur[1]--;\n        if (prev != null && prev[1] > 0) pq.offer(prev); // re-enable the char held last step\n        prev = cur;\n    }\n    return sb.toString();\n}"
+      }
+    ],
+    "insight": "Always emit the most frequent still-available character but hold the just-used one back one turn; feasible iff no char exceeds ceil(n/2)."
+  },
+  "heaps__ipo": {
+    "title": "IPO",
+    "topic": "Heaps",
+    "subtopic": "Heaps",
+    "difficulty": "Hard",
+    "pattern": "Sort by capital + max-heap of affordable profits",
+    "notes": "",
+    "statement": "You can complete at most `k` projects starting with capital `w`. Project `i` needs `capital[i]` to start and yields `profits[i]`, added to your capital on completion. Choose up to `k` projects to maximize final capital and return it.",
+    "examples": [
+      { "input": "k = 2, w = 0, profits = [1,2,3], capital = [0,1,1]", "output": "4", "explanation": "Do project 0 (w=1), then project 2 (w=4)." }
+    ],
+    "constraints": [
+      "1 <= k <= 10^5",
+      "0 <= w <= 10^9",
+      "1 <= profits.length == capital.length <= 10^5",
+      "0 <= profits[i], capital[i] <= 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Sort by capital, greedily pick max profit",
+        "idea": "Sort projects by required capital. `k` times: unlock every project whose capital requirement is within current `w` by pushing its profit into a max-heap, then take the single most profitable unlocked project. Each pick maximizes immediate capital gain, which is optimal since profits are non-negative and unlocking is monotone in `w`. Stop early if no project is affordable.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public int findMaximizedCapital(int k, int w, int[] profits, int[] capital) {\n    int n = profits.length;\n    int[][] projects = new int[n][2];\n    for (int i = 0; i < n; i++) {\n        projects[i][0] = capital[i];\n        projects[i][1] = profits[i];\n    }\n    Arrays.sort(projects, (a, b) -> a[0] - b[0]);\n    PriorityQueue<Integer> maxProfit = new PriorityQueue<>(Collections.reverseOrder());\n    int i = 0;\n    for (int c = 0; c < k; c++) {\n        while (i < n && projects[i][0] <= w) maxProfit.offer(projects[i++][1]);\n        if (maxProfit.isEmpty()) break;\n        w += maxProfit.poll();\n    }\n    return w;\n}"
+      }
+    ],
+    "insight": "Unlocking is monotone in capital, so at each step just grab the most profitable currently-affordable project from a max-heap."
+  },
+  "heaps__find-k-pairs-with-smallest-sums": {
+    "title": "Find K Pairs with Smallest Sums",
+    "topic": "Heaps",
+    "subtopic": "Heaps",
+    "difficulty": "Hard",
+    "pattern": "Min-heap over a sorted-matrix frontier",
+    "notes": "",
+    "statement": "Given two sorted ascending arrays `nums1`, `nums2` and an integer `k`, return the `k` pairs `(u, v)` with `u` from `nums1` and `v` from `nums2` that have the smallest sums.",
+    "examples": [
+      { "input": "nums1 = [1,7,11], nums2 = [2,4,6], k = 3", "output": "[[1,2],[1,4],[1,6]]", "explanation": "The three smallest sums are 3, 5, 7." }
+    ],
+    "constraints": [
+      "1 <= nums1.length, nums2.length <= 10^5",
+      "-10^9 <= nums1[i], nums2[i] <= 10^9",
+      "nums1 and nums2 are sorted ascending",
+      "1 <= k <= 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Heap of frontier pairs",
+        "idea": "Think of sums as a matrix `nums1[i] + nums2[j]` sorted along both axes. Seed the min-heap with pairs `(i, 0)` for the first `min(k, n1)` rows. Pop the smallest pair `(i, j)`, record it, and push its right neighbor `(i, j+1)`; this always keeps the next-smallest reachable sum on the heap. Compare sums as `long` to avoid overflow.",
+        "time": "O(k log k)",
+        "space": "O(k)",
+        "code": "public List<List<Integer>> kSmallestPairs(int[] nums1, int[] nums2, int k) {\n    List<List<Integer>> res = new ArrayList<>();\n    if (nums1.length == 0 || nums2.length == 0 || k == 0) return res;\n    PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) ->\n        Long.compare((long) nums1[a[0]] + nums2[a[1]], (long) nums1[b[0]] + nums2[b[1]]));\n    for (int i = 0; i < nums1.length && i < k; i++) pq.offer(new int[]{i, 0});\n    while (k-- > 0 && !pq.isEmpty()) {\n        int[] cur = pq.poll();\n        int i = cur[0], j = cur[1];\n        res.add(Arrays.asList(nums1[i], nums2[j]));\n        if (j + 1 < nums2.length) pq.offer(new int[]{i, j + 1});\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "It is a k-way merge over the sorted sum matrix: seed one entry per row and expand each popped pair rightward."
+  },
+  "heaps__smallest-range-covering-elements-from-k-lists": {
+    "title": "Smallest Range Covering Elements from K Lists",
+    "topic": "Heaps",
+    "subtopic": "Heaps",
+    "difficulty": "Hard",
+    "pattern": "Min-heap k-way merge tracking current max",
+    "notes": "",
+    "statement": "Given `k` sorted lists of integers, find the smallest range `[a, b]` that includes at least one number from each of the `k` lists. A range is smaller if `b - a` is smaller, or if `b - a` ties and `a` is smaller.",
+    "examples": [
+      { "input": "nums = [[4,10,15,24,26],[0,9,12,20],[5,18,22,30]]", "output": "[20,24]", "explanation": "24 from list1, 20 from list2, 22 from list3 lie in [20,24]." }
+    ],
+    "constraints": [
+      "nums.length == k, 1 <= k <= 3500",
+      "1 <= nums[i].length <= 50",
+      "-10^5 <= nums[i][j] <= 10^5",
+      "nums[i] is sorted ascending"
+    ],
+    "approaches": [
+      {
+        "name": "Min-heap of one pointer per list",
+        "idea": "Keep one candidate from each list in a min-heap while tracking `curMax`, the maximum among current candidates. The window `[heap.min, curMax]` always covers every list. Repeatedly pop the minimum, update the best range, and advance that list's pointer, refreshing `curMax`. Stop when any list is exhausted, since it can no longer contribute.",
+        "time": "O(N log k), N total elements",
+        "space": "O(k)",
+        "code": "public int[] smallestRange(List<List<Integer>> nums) {\n    PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[0] - b[0]); // [value, listIdx, elemIdx]\n    int curMax = Integer.MIN_VALUE;\n    for (int i = 0; i < nums.size(); i++) {\n        int v = nums.get(i).get(0);\n        pq.offer(new int[]{v, i, 0});\n        curMax = Math.max(curMax, v);\n    }\n    int[] best = new int[]{-100000, 100000}; // widest possible range\n    while (true) {\n        int[] cur = pq.poll();\n        int v = cur[0], li = cur[1], ei = cur[2];\n        if (curMax - v < best[1] - best[0]) {\n            best[0] = v;\n            best[1] = curMax;\n        }\n        if (ei + 1 == nums.get(li).size()) break; // this list is done; cannot improve\n        int next = nums.get(li).get(ei + 1);\n        curMax = Math.max(curMax, next);\n        pq.offer(new int[]{next, li, ei + 1});\n    }\n    return best;\n}"
+      }
+    ],
+    "insight": "The covering window is always [smallest candidate, current max]; shrink it by advancing only the list holding the minimum."
+  },
+  "heaps__maximum-performance-of-a-team": {
+    "title": "Maximum Performance of a Team",
+    "topic": "Heaps",
+    "subtopic": "Heaps",
+    "difficulty": "Hard",
+    "pattern": "Sort by efficiency desc + min-heap of speeds",
+    "notes": "",
+    "statement": "Given `n` engineers with `speed[i]` and `efficiency[i]`, pick at most `k` of them. A team's performance is the sum of chosen speeds multiplied by the minimum efficiency among the chosen. Return the maximum performance modulo `10^9 + 7`.",
+    "examples": [
+      { "input": "n = 6, speed = [2,10,3,1,5,8], efficiency = [5,4,3,9,7,2], k = 2", "output": "60", "explanation": "Pick engineers with speed 5 and 10 (efficiencies 7 and 4): (5+10)*4 = 60." }
+    ],
+    "constraints": [
+      "1 <= k <= n <= 10^5",
+      "1 <= speed[i] <= 10^5",
+      "1 <= efficiency[i] <= 10^8",
+      "Return the answer modulo 10^9 + 7"
+    ],
+    "approaches": [
+      {
+        "name": "Fix min efficiency, keep k largest speeds",
+        "idea": "Sort engineers by efficiency descending. Iterate: when engineer `e` is processed, its efficiency is the minimum of every engineer seen so far, so any team drawn from them uses `e.efficiency` as the multiplier. Maintain a min-heap of the chosen speeds capped at size `k`, evicting the smallest speed, and track the running speed sum. At each step the candidate performance is `speedSum * e.efficiency`; keep the maximum. Compute in `long` and reduce mod at the end.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public int maxPerformance(int n, int[] speed, int[] efficiency, int k) {\n    int[][] eng = new int[n][2];\n    for (int i = 0; i < n; i++) {\n        eng[i][0] = efficiency[i];\n        eng[i][1] = speed[i];\n    }\n    Arrays.sort(eng, (a, b) -> b[0] - a[0]); // efficiency descending\n    PriorityQueue<Integer> minSpeed = new PriorityQueue<>();\n    long speedSum = 0, best = 0;\n    for (int[] e : eng) {\n        minSpeed.offer(e[1]);\n        speedSum += e[1];\n        if (minSpeed.size() > k) speedSum -= minSpeed.poll(); // drop smallest speed\n        best = Math.max(best, speedSum * (long) e[0]);\n    }\n    return (int) (best % 1000000007L);\n}"
+      }
+    ],
+    "insight": "Sort by efficiency descending so the current engineer's efficiency is the team minimum; then a size-k min-heap keeps the best speeds."
+  },
+  "heaps__single-threaded-cpu": {
+    "title": "Single-Threaded CPU",
+    "topic": "Heaps",
+    "subtopic": "Heaps",
+    "difficulty": "Hard",
+    "pattern": "Sort by enqueue time + min-heap by (processing, index)",
+    "notes": "",
+    "statement": "Tasks are given as `tasks[i] = [enqueueTime, processingTime]`. A single-threaded CPU that is idle picks, among tasks already enqueued, the one with the shortest processing time (ties broken by smallest index) and runs it to completion without preemption. If none is available it stays idle until one arrives. Return the order in which tasks are processed.",
+    "examples": [
+      { "input": "tasks = [[1,2],[2,4],[3,2],[4,1]]", "output": "[0,2,3,1]", "explanation": "Run 0 (1->3), then among available pick 2 (shortest), then 3, then 1." }
+    ],
+    "constraints": [
+      "1 <= tasks.length <= 10^5",
+      "1 <= enqueueTime[i], processingTime[i] <= 10^9"
+    ],
+    "approaches": [
+      {
+        "name": "Time-sorted scan with a ready min-heap",
+        "idea": "Attach the original index to each task and sort by enqueue time. Advance a clock: push every task whose enqueue time is `<= time` into a min-heap ordered by `(processingTime, index)`. If the heap is empty, jump the clock forward to the next task's enqueue time. Otherwise pop the heap (the CPU's greedy choice), advance the clock by its processing time, and record its index. Use `long` for the clock since times reach 10^9.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public int[] getOrder(int[][] tasks) {\n    int n = tasks.length;\n    int[][] t = new int[n][3];\n    for (int i = 0; i < n; i++) {\n        t[i][0] = tasks[i][0];\n        t[i][1] = tasks[i][1];\n        t[i][2] = i;\n    }\n    Arrays.sort(t, (a, b) -> a[0] - b[0]); // by enqueue time\n    PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) ->\n        a[1] != b[1] ? a[1] - b[1] : a[2] - b[2]); // shortest processing, then smallest index\n    int[] res = new int[n];\n    long time = 0;\n    int i = 0, idx = 0;\n    while (idx < n) {\n        while (i < n && t[i][0] <= time) pq.offer(t[i++]);\n        if (pq.isEmpty()) {\n            time = t[i][0]; // jump to next arrival\n            continue;\n        }\n        int[] cur = pq.poll();\n        time += cur[1];\n        res[idx++] = cur[2];\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "Feed a ready min-heap keyed by (processingTime, index) as the clock advances, and fast-forward the clock over idle gaps."
+  }
+}

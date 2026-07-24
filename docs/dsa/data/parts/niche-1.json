@@ -1,0 +1,445 @@
+{
+  "niche-advanced__partition-array-into-two-arrays-to-minimize-sum-difference": {
+    "title": "Partition Array Into Two Arrays to Minimize Sum Difference",
+    "topic": "Niche / Advanced",
+    "subtopic": "Meet in the Middle",
+    "difficulty": "Hard",
+    "pattern": "Meet in the middle: subset sums by count + binary search",
+    "notes": "",
+    "statement": "You are given an array `nums` of `2n` integers. Partition it into two arrays of length `n` each to minimize the absolute difference of their sums. Return that minimum possible absolute difference.",
+    "examples": [
+      {
+        "input": "nums = [3,9,7,3]",
+        "output": "2",
+        "explanation": "One optimal partition is [3,9] and [7,3] with sums 12 and 10; difference 2."
+      },
+      {
+        "input": "nums = [-36,36]",
+        "output": "72",
+        "explanation": "The only partition is [-36] and [36]; difference 72."
+      }
+    ],
+    "constraints": [
+      "1 <= n <= 15",
+      "nums.length == 2 * n",
+      "-10^7 <= nums[i] <= 10^7"
+    ],
+    "approaches": [
+      {
+        "name": "Meet in the middle by subset size",
+        "idea": "Split the `2n` elements into two halves of `n`. If one part of the final partition takes `k` elements from the left half, it must take `n-k` from the right. Enumerate all subset sums of each half grouped by how many elements they use (`2^n` each). For every left subset of size `k` with sum `ls`, the total sum of that part is `ls + rs` where `rs` comes from a right subset of size `n-k`; we want `ls + rs` as close to `total/2` as possible, i.e. minimize `|total - 2*(ls+rs)|`. Sort each right bucket and binary-search the best `rs`.",
+        "time": "O(2^n * n)",
+        "space": "O(2^n)",
+        "code": "public int minimumDifference(int[] nums) {\n    int n = nums.length / 2;\n    int[] left = Arrays.copyOfRange(nums, 0, n);\n    int[] right = Arrays.copyOfRange(nums, n, 2 * n);\n    long total = 0;\n    for (int x : nums) total += x;\n\n    List<List<Integer>> leftSums = subsetSumsByCount(left);\n    List<List<Integer>> rightSums = subsetSumsByCount(right);\n    for (List<Integer> bucket : rightSums) Collections.sort(bucket);\n\n    long best = Long.MAX_VALUE;\n    for (int k = 0; k <= n; k++) {\n        List<Integer> rs = rightSums.get(n - k);\n        for (int ls : leftSums.get(k)) {\n            long t = total - 2L * ls;   // want rs closest to t/2 -> minimize |t - 2*rs|\n            best = Math.min(best, minAbs(rs, t));\n        }\n    }\n    return (int) best;\n}\n\nprivate long minAbs(List<Integer> sorted, long t) {\n    int lo = 0, hi = sorted.size();\n    while (lo < hi) {                    // first index with 2*val >= t\n        int mid = (lo + hi) >>> 1;\n        if (2L * sorted.get(mid) >= t) hi = mid; else lo = mid + 1;\n    }\n    long best = Long.MAX_VALUE;\n    if (lo < sorted.size()) best = Math.min(best, Math.abs(t - 2L * sorted.get(lo)));\n    if (lo > 0)             best = Math.min(best, Math.abs(t - 2L * sorted.get(lo - 1)));\n    return best;\n}\n\nprivate List<List<Integer>> subsetSumsByCount(int[] a) {\n    int n = a.length;\n    List<List<Integer>> res = new ArrayList<>();\n    for (int i = 0; i <= n; i++) res.add(new ArrayList<>());\n    for (int mask = 0; mask < (1 << n); mask++) {\n        int cnt = Integer.bitCount(mask), sum = 0;\n        for (int i = 0; i < n; i++) if ((mask & (1 << i)) != 0) sum += a[i];\n        res.get(cnt).add(sum);\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "Fix how many elements come from each half (`k` and `n-k`); then it is a classic two-sided subset-sum where you binary-search one half for the value that lands the running total nearest `total/2`."
+  },
+  "niche-advanced__closest-subsequence-sum": {
+    "title": "Closest Subsequence Sum",
+    "topic": "Niche / Advanced",
+    "subtopic": "Meet in the Middle",
+    "difficulty": "Hard",
+    "pattern": "Meet in the middle: enumerate half subset sums + binary search",
+    "notes": "",
+    "statement": "Given an array `nums` and an integer `goal`, choose any subsequence (possibly empty) and let `sum` be its sum. Return the minimum possible value of `|sum - goal|`.",
+    "examples": [
+      {
+        "input": "nums = [5,-7,3,5], goal = 6",
+        "output": "0",
+        "explanation": "The whole array sums to 6, which equals the goal."
+      },
+      {
+        "input": "nums = [7,-9,15,-2], goal = -5",
+        "output": "1",
+        "explanation": "Subsequence [-9,-2] sums to -11 ... choose [-9,15,-2] = 4? Closest achievable is -4 (from [-9,15,-2] variations); |-4-(-5)|=1."
+      }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 40",
+      "-10^7 <= nums[i] <= 10^7",
+      "-10^9 <= goal <= 10^9"
+    ],
+    "approaches": [
+      {
+        "name": "Meet in the middle",
+        "idea": "`n` up to 40 is too large for `2^n` but fine for `2^(n/2)`. Split into two halves and enumerate every subset sum of each half (built incrementally from the lowest set bit). Sort the second half's sums. For each sum `x` from the first half, the best complement is the value in the second half nearest `goal - x`; binary-search it (check the candidate at the boundary and the one just below).",
+        "time": "O(2^(n/2) * n/2)",
+        "space": "O(2^(n/2))",
+        "code": "public int minAbsDifference(int[] nums, int goal) {\n    int n = nums.length;\n    int[] sa = allSubsetSums(Arrays.copyOfRange(nums, 0, n / 2));\n    int[] sb = allSubsetSums(Arrays.copyOfRange(nums, n / 2, n));\n    Arrays.sort(sb);\n\n    int best = Integer.MAX_VALUE;\n    for (int x : sa) {\n        int t = goal - x;                         // want sb closest to t\n        int lo = 0, hi = sb.length;\n        while (lo < hi) { int mid = (lo + hi) >>> 1; if (sb[mid] >= t) hi = mid; else lo = mid + 1; }\n        if (lo < sb.length) best = Math.min(best, Math.abs(x + sb[lo] - goal));\n        if (lo > 0)         best = Math.min(best, Math.abs(x + sb[lo - 1] - goal));\n    }\n    return best;\n}\n\nprivate int[] allSubsetSums(int[] a) {\n    int n = a.length;\n    int[] res = new int[1 << n];\n    for (int mask = 1; mask < (1 << n); mask++) {\n        int lsb = Integer.numberOfTrailingZeros(mask);\n        res[mask] = res[mask & (mask - 1)] + a[lsb];   // reuse subset without lowest bit\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "40 elements => split in half, precompute all 2^20 subset sums of each side, sort one, and binary-search the complement nearest `goal - x`."
+  },
+  "niche-advanced__subset-sum": {
+    "title": "Subset Sum",
+    "topic": "Niche / Advanced",
+    "subtopic": "Meet in the Middle",
+    "difficulty": "Very Hard",
+    "pattern": "Meet in the middle: half subset sums + hashed/binary-search lookup",
+    "notes": "",
+    "statement": "Given an array `nums` and a `target`, decide whether some subset of `nums` sums exactly to `target`. When `n` is large (up to ~40) but values may be huge, a value-based DP is infeasible, so use meet in the middle.",
+    "examples": [
+      {
+        "input": "nums = [3,34,4,12,5,2], target = 9",
+        "output": "true",
+        "explanation": "Subset [4,5] (or [3,4,2]) sums to 9."
+      },
+      {
+        "input": "nums = [3,34,4,12,5,2], target = 30",
+        "output": "false",
+        "explanation": "No subset sums to 30."
+      }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 40",
+      "values and target may exceed the range that makes O(n*target) DP practical"
+    ],
+    "approaches": [
+      {
+        "name": "Meet in the middle",
+        "idea": "Split into two halves and enumerate all `2^(n/2)` subset sums of each. Sort the right half's sums. For every left sum `x`, we need a right sum equal to `target - x`; binary-search for it. This is `O(2^(n/2) * (n/2 + log))` instead of the intractable `2^n`. If values fit in a small range, a Fenwick/DP over sums is the alternative, but MITM handles large values.",
+        "time": "O(2^(n/2) * (n/2 + log))",
+        "space": "O(2^(n/2))",
+        "code": "public boolean subsetSum(int[] nums, long target) {\n    int n = nums.length;\n    long[] left = allSubsetSums(Arrays.copyOfRange(nums, 0, n / 2));\n    long[] right = allSubsetSums(Arrays.copyOfRange(nums, n / 2, n));\n    Arrays.sort(right);\n    for (long x : left) {\n        long need = target - x;\n        int lo = 0, hi = right.length - 1;\n        while (lo <= hi) {\n            int mid = (lo + hi) >>> 1;\n            if (right[mid] == need) return true;\n            else if (right[mid] < need) lo = mid + 1;\n            else hi = mid - 1;\n        }\n    }\n    return false;\n}\n\nprivate long[] allSubsetSums(int[] a) {\n    int n = a.length;\n    long[] res = new long[1 << n];\n    for (int mask = 1; mask < (1 << n); mask++) {\n        int lsb = Integer.numberOfTrailingZeros(mask);\n        res[mask] = res[mask & (mask - 1)] + a[lsb];\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "When `2^n` is too big but values are unbounded, split in half: any target sum is (left subset sum) + (right subset sum), so enumerate one side and binary-search the complement in the other."
+  },
+  "niche-advanced__split-array-with-same-average": {
+    "title": "Split Array With Same Average",
+    "topic": "Niche / Advanced",
+    "subtopic": "Meet in the Middle",
+    "difficulty": "Very Hard",
+    "pattern": "Meet in the middle on transformed values (subset summing to 0)",
+    "notes": "",
+    "statement": "Given integer array `nums`, decide whether it can be split into two non-empty disjoint parts `A` and `B` (covering all elements) such that `average(A) == average(B)`.",
+    "examples": [
+      {
+        "input": "nums = [1,2,3,4,5,6,7,8]",
+        "output": "true",
+        "explanation": "[1,4,5,8] and [2,3,6,7] both average 4.5."
+      },
+      {
+        "input": "nums = [3,1]",
+        "output": "false",
+        "explanation": "The only split has averages 3 and 1."
+      }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 30",
+      "0 <= nums[i] <= 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Meet in the middle (subset of size k summing to 0)",
+        "idea": "If subset `A` of size `k` shares the array's average, then `sum(A) = total*k/n`. Transform each value to `b[i] = nums[i]*n - total`; now we need a subset of size `k` with `sum(b)=0`. Since the whole array's `b` sums to 0, a valid proper subset always has a version of size `1..n/2` (it or its complement), so search only those sizes. Split `b` into two halves, hash every left subset by `(sum, size)`, then for each right subset look for a matching left subset whose combined size lands in `[1, n/2]` and whose sums cancel.",
+        "time": "O(2^(n/2) * n)",
+        "space": "O(2^(n/2))",
+        "code": "public boolean splitArraySameAverage(int[] nums) {\n    int n = nums.length;\n    if (n == 1) return false;\n    int total = 0;\n    for (int x : nums) total += x;\n\n    int[] b = new int[n];\n    for (int i = 0; i < n; i++) b[i] = nums[i] * n - total;   // need proper subset with sum(b)=0\n\n    int half = n / 2, limit = n / 2;   // restrict subset size to [1, n/2]\n    Set<Long> left = new HashSet<>();\n    for (int mask = 0; mask < (1 << half); mask++) {\n        int s = 0, cnt = 0;\n        for (int i = 0; i < half; i++) if ((mask & (1 << i)) != 0) { s += b[i]; cnt++; }\n        left.add(encode(s, cnt));\n    }\n\n    int rn = n - half;\n    for (int mask = 0; mask < (1 << rn); mask++) {\n        int s = 0, cnt = 0;\n        for (int i = 0; i < rn; i++) if ((mask & (1 << i)) != 0) { s += b[half + i]; cnt++; }\n        for (int k = 1; k <= limit; k++) {          // total subset size\n            int need = k - cnt;\n            if (need < 0) break;\n            if (need > half) continue;\n            if (left.contains(encode(-s, need))) return true;\n        }\n    }\n    return false;\n}\n\nprivate long encode(int sum, int size) { return ((long) sum) * 64 + size; }"
+      }
+    ],
+    "insight": "`average(A)=average(whole)` becomes 'subset with sum 0' after `b[i]=nums[i]*n-total`; restricting the searched subset size to `1..n/2` guarantees the split is non-empty and proper, and meet-in-the-middle keeps it under `2^(n/2)`."
+  },
+  "niche-advanced__count-of-smaller-numbers-after-self": {
+    "title": "Count of Smaller Numbers After Self",
+    "topic": "Niche / Advanced",
+    "subtopic": "Segment Tree / BIT",
+    "difficulty": "Hard",
+    "pattern": "Fenwick (BIT) over compressed ranks, scan right to left",
+    "notes": "",
+    "statement": "Given an integer array `nums`, return an array `counts` where `counts[i]` is the number of elements to the right of `nums[i]` that are strictly smaller than `nums[i]`.",
+    "examples": [
+      {
+        "input": "nums = [5,2,6,1]",
+        "output": "[2,1,1,0]",
+        "explanation": "Right of 5: {2,1}; right of 2: {1}; right of 6: {1}; right of 1: {}."
+      }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 10^5",
+      "-10^4 <= nums[i] <= 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Fenwick tree over value ranks",
+        "idea": "Coordinate-compress the values to ranks `1..m`. Scan from right to left; before inserting `nums[i]`, query the Fenwick prefix sum over ranks strictly below `nums[i]` -- that counts already-seen (i.e. to the right) elements that are smaller. Then insert `nums[i]`.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public List<Integer> countSmaller(int[] nums) {\n    int n = nums.length;\n    int[] sorted = nums.clone();\n    Arrays.sort(sorted);\n    int m = 0;\n    int[] uniq = new int[n];\n    for (int i = 0; i < n; i++) if (i == 0 || sorted[i] != sorted[i - 1]) uniq[m++] = sorted[i];\n\n    BIT bit = new BIT(m);\n    Integer[] res = new Integer[n];\n    for (int i = n - 1; i >= 0; i--) {\n        int rank = lowerBound(uniq, m, nums[i]) + 1;   // 1-based rank\n        res[i] = bit.query(rank - 1);                  // ranks strictly below -> smaller values\n        bit.update(rank, 1);\n    }\n    return Arrays.asList(res);\n}\n\nstatic int lowerBound(int[] a, int len, int key) {\n    int lo = 0, hi = len;\n    while (lo < hi) { int mid = (lo + hi) >>> 1; if (a[mid] < key) lo = mid + 1; else hi = mid; }\n    return lo;\n}\n\n    static class BIT {\n        int[] tree; int n;\n        BIT(int n) { this.n = n; tree = new int[n + 1]; }\n        void update(int i, int delta) { for (; i <= n; i += i & (-i)) tree[i] += delta; }\n        int query(int i) { int s = 0; for (; i > 0; i -= i & (-i)) s += tree[i]; return s; }\n    }"
+      }
+    ],
+    "insight": "Sweep right-to-left inserting into a Fenwick tree keyed by value rank; the prefix sum below the current rank is exactly 'smaller elements already to the right'."
+  },
+  "niche-advanced__range-sum-query-mutable": {
+    "title": "Range Sum Query - Mutable",
+    "topic": "Niche / Advanced",
+    "subtopic": "Segment Tree / BIT",
+    "difficulty": "Medium",
+    "pattern": "Fenwick (BIT) for point update + prefix-sum range query",
+    "notes": "",
+    "statement": "Design a data structure `NumArray` over an integer array supporting `update(index, val)` (set `nums[index] = val`) and `sumRange(left, right)` (sum of `nums[left..right]` inclusive), both efficient under many interleaved calls.",
+    "examples": [
+      {
+        "input": "NumArray([1,3,5]); sumRange(0,2); update(1,2); sumRange(0,2)",
+        "output": "9, then 8",
+        "explanation": "Initial sum 1+3+5=9; after nums[1]=2, sum 1+2+5=8."
+      }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 3 * 10^4",
+      "-100 <= nums[i], val <= 100",
+      "0 <= index < nums.length, 0 <= left <= right < nums.length",
+      "up to 3 * 10^4 calls to update and sumRange"
+    ],
+    "approaches": [
+      {
+        "name": "Fenwick tree (Binary Indexed Tree)",
+        "idea": "A Fenwick tree gives `O(log n)` point updates and prefix sums. `update` applies the delta `val - nums[index]`; `sumRange(l, r)` is `prefix(r+1) - prefix(l)`.",
+        "time": "O(log n) per update and query",
+        "space": "O(n)",
+        "code": "class NumArray {\n    private final int[] tree;\n    private final int[] nums;\n    private final int n;\n\n    public NumArray(int[] nums) {\n        this.n = nums.length;\n        this.nums = new int[n];\n        this.tree = new int[n + 1];\n        for (int i = 0; i < n; i++) update(i, nums[i]);\n    }\n\n    public void update(int index, int val) {\n        int delta = val - nums[index];\n        nums[index] = val;\n        for (int i = index + 1; i <= n; i += i & (-i)) tree[i] += delta;\n    }\n\n    public int sumRange(int left, int right) {\n        return prefix(right + 1) - prefix(left);\n    }\n\n    private int prefix(int i) {\n        int s = 0;\n        for (; i > 0; i -= i & (-i)) s += tree[i];\n        return s;\n    }\n}"
+      }
+    ],
+    "insight": "Point-update + prefix-sum is the textbook Fenwick tree; range sum = difference of two prefix sums, and update pushes only the delta up the `i += i & -i` chain."
+  },
+  "niche-advanced__reverse-pairs": {
+    "title": "Reverse Pairs",
+    "topic": "Niche / Advanced",
+    "subtopic": "Segment Tree / BIT",
+    "difficulty": "Hard",
+    "pattern": "Fenwick over compressed values, count suffix greater",
+    "notes": "",
+    "statement": "Given an integer array `nums`, return the number of *reverse pairs*: pairs `(i, j)` with `i < j` and `nums[i] > 2 * nums[j]`.",
+    "examples": [
+      {
+        "input": "nums = [1,3,2,3,1]",
+        "output": "2",
+        "explanation": "Pairs (1,4): 3>2*1 and (3,4): 3>2*1."
+      },
+      {
+        "input": "nums = [2,4,3,5,1]",
+        "output": "3",
+        "explanation": "(1,4):4>2*1, (2,4):3>2*1, (3,4):5>2*1."
+      }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 5 * 10^4",
+      "-2^31 <= nums[i] <= 2^31 - 1"
+    ],
+    "approaches": [
+      {
+        "name": "Fenwick tree over compressed values",
+        "idea": "Compress the distinct values to ranks. Scan left to right; before inserting `nums[j]`, count how many already-inserted values (these are the `i < j`) are strictly greater than `2*nums[j]`. That equals `inserted - (# inserted <= 2*nums[j])`, where the second term is a Fenwick prefix sum up to the rank boundary of `2*nums[j]`. Use `long` for `2*nums[j]` to avoid overflow.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public int reversePairs(int[] nums) {\n    int n = nums.length;\n    long[] vals = new long[n];\n    for (int i = 0; i < n; i++) vals[i] = nums[i];\n    long[] sorted = Arrays.stream(vals).distinct().sorted().toArray();\n    int m = sorted.length;\n\n    BIT bit = new BIT(m);\n    int count = 0, inserted = 0;\n    for (int j = 0; j < n; j++) {\n        long target = 2L * nums[j];\n        int le = upperBound(sorted, target);      // # values <= target => ranks 1..le\n        count += inserted - bit.query(le);        // inserted values strictly greater\n        int rank = lowerBound(sorted, nums[j]) + 1;\n        bit.update(rank, 1);\n        inserted++;\n    }\n    return count;\n}\n\n    static int lowerBound(long[] a, long key) {\n        int lo = 0, hi = a.length;\n        while (lo < hi) { int m = (lo + hi) >>> 1; if (a[m] < key) lo = m + 1; else hi = m; }\n        return lo;\n    }\n\n    static int upperBound(long[] a, long key) {\n        int lo = 0, hi = a.length;\n        while (lo < hi) { int m = (lo + hi) >>> 1; if (a[m] <= key) lo = m + 1; else hi = m; }\n        return lo;\n    }\n\n    static class BIT {\n        int[] tree; int n;\n        BIT(int n) { this.n = n; tree = new int[n + 1]; }\n        void update(int i, int delta) { for (; i <= n; i += i & (-i)) tree[i] += delta; }\n        int query(int i) { int s = 0; for (; i > 0; i -= i & (-i)) s += tree[i]; return s; }\n    }"
+      }
+    ],
+    "insight": "Insert values into a Fenwick tree left-to-right; for each new `nums[j]` the reverse pairs it closes = (# already inserted) minus (# inserted <= 2*nums[j]). Merge sort is the classic alternative."
+  },
+  "niche-advanced__count-of-range-sum": {
+    "title": "Count of Range Sum",
+    "topic": "Niche / Advanced",
+    "subtopic": "Segment Tree / BIT",
+    "difficulty": "Hard",
+    "pattern": "Prefix sums + Fenwick over compressed values",
+    "notes": "",
+    "statement": "Given an integer array `nums` and integers `lower` and `upper`, return the number of range sums that lie in `[lower, upper]` inclusive. A range sum `S(i, j)` is the sum of `nums[i..j]` for `i <= j`.",
+    "examples": [
+      {
+        "input": "nums = [-2,5,-1], lower = -2, upper = 2",
+        "output": "3",
+        "explanation": "The qualifying ranges are [0,0]=-2, [2,2]=-1, [0,2]=2."
+      },
+      {
+        "input": "nums = [0], lower = 0, upper = 0",
+        "output": "1",
+        "explanation": "Only range [0,0]=0."
+      }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 10^5",
+      "-2^31 <= nums[i] <= 2^31 - 1",
+      "-10^5 <= lower <= upper <= 10^5"
+    ],
+    "approaches": [
+      {
+        "name": "Prefix sums + Fenwick tree",
+        "idea": "Let `P[0..n]` be prefix sums. A range sum equals `P[j] - P[i]` with `i < j`, and it lies in `[lower, upper]` iff `P[i]` lies in `[P[j]-upper, P[j]-lower]`. Compress all prefix sums; insert them into a Fenwick tree as `i` grows, and for each `j` count previously inserted `P[i]` inside the window via two binary-searched rank bounds.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public int countRangeSum(int[] nums, int lower, int upper) {\n    int n = nums.length;\n    long[] pre = new long[n + 1];\n    for (int i = 0; i < n; i++) pre[i + 1] = pre[i] + nums[i];\n\n    long[] sorted = Arrays.stream(pre).distinct().sorted().toArray();\n    int m = sorted.length;\n    BIT bit = new BIT(m);\n\n    int count = 0;\n    bit.update(lowerBound(sorted, pre[0]) + 1, 1);   // insert P[0]\n    for (int j = 1; j <= n; j++) {\n        long lo = pre[j] - upper, hi = pre[j] - lower;\n        int l = lowerBound(sorted, lo);              // first index with value >= lo\n        int r = upperBound(sorted, hi);              // first index with value > hi\n        count += bit.query(r) - bit.query(l);        // ranks (l+1..r) => values in [lo,hi]\n        bit.update(lowerBound(sorted, pre[j]) + 1, 1);\n    }\n    return count;\n}\n\n    static int lowerBound(long[] a, long key) {\n        int lo = 0, hi = a.length;\n        while (lo < hi) { int m = (lo + hi) >>> 1; if (a[m] < key) lo = m + 1; else hi = m; }\n        return lo;\n    }\n\n    static int upperBound(long[] a, long key) {\n        int lo = 0, hi = a.length;\n        while (lo < hi) { int m = (lo + hi) >>> 1; if (a[m] <= key) lo = m + 1; else hi = m; }\n        return lo;\n    }\n\n    static class BIT {\n        int[] tree; int n;\n        BIT(int n) { this.n = n; tree = new int[n + 1]; }\n        void update(int i, int delta) { for (; i <= n; i += i & (-i)) tree[i] += delta; }\n        int query(int i) { int s = 0; for (; i > 0; i -= i & (-i)) s += tree[i]; return s; }\n    }"
+      }
+    ],
+    "insight": "Turn 'range sum in [lower,upper]' into 'earlier prefix sum in [P[j]-upper, P[j]-lower]', then count with a Fenwick tree over compressed prefix sums as you sweep."
+  },
+  "niche-advanced__the-skyline-problem": {
+    "title": "The Skyline Problem",
+    "topic": "Niche / Advanced",
+    "subtopic": "Segment Tree / BIT",
+    "difficulty": "Hard",
+    "pattern": "Sweep line + max-structure (TreeMap multiset of active heights)",
+    "notes": "",
+    "statement": "Buildings are given as `[left, right, height]`. Return the skyline as a list of key points `[x, height]` -- the left endpoint of each horizontal segment -- sorted by `x`. The last point has height `0`, and no two consecutive segments have equal height.",
+    "examples": [
+      {
+        "input": "buildings = [[2,9,10],[3,7,15],[5,12,12],[15,20,10],[19,24,8]]",
+        "output": "[[2,10],[3,15],[7,12],[12,0],[15,10],[20,8],[24,0]]",
+        "explanation": "Key points where the tallest active building height changes."
+      }
+    ],
+    "constraints": [
+      "1 <= buildings.length <= 10^4",
+      "0 <= left < right <= 2^31 - 1",
+      "1 <= height <= 2^31 - 1"
+    ],
+    "approaches": [
+      {
+        "name": "Sweep line with a max-heap / TreeMap multiset of active heights",
+        "idea": "Create events at each building's left (enter, encoded as negative height) and right (leave, positive height). Sort by `x`; on ties process starts before ends and taller starts first (the negative encoding handles both). Maintain a multiset of currently-active heights (TreeMap `height -> count`, seeded with ground `0`). After each event the current max active height is the skyline height there; emit a key point whenever that max changes.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public List<List<Integer>> getSkyline(int[][] buildings) {\n    List<int[]> events = new ArrayList<>();\n    for (int[] b : buildings) {\n        events.add(new int[]{b[0], -b[2]});   // start: negative height\n        events.add(new int[]{b[1],  b[2]});   // end:   positive height\n    }\n    // sort by x; ties: start (neg) before end (pos); among starts, higher first (more negative first)\n    events.sort((a, c) -> a[0] != c[0] ? Integer.compare(a[0], c[0]) : Integer.compare(a[1], c[1]));\n\n    List<List<Integer>> res = new ArrayList<>();\n    TreeMap<Integer, Integer> active = new TreeMap<>();   // height -> count\n    active.put(0, 1);                                     // ground\n    int prevMax = 0;\n    for (int[] e : events) {\n        int h = e[1];\n        if (h < 0) active.merge(-h, 1, Integer::sum);     // start\n        else {                                            // end\n            int c = active.get(h);\n            if (c == 1) active.remove(h); else active.put(h, c - 1);\n        }\n        int curMax = active.lastKey();\n        if (curMax != prevMax) {\n            res.add(Arrays.asList(e[0], curMax));\n            prevMax = curMax;\n        }\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "Turn buildings into start/end events, sweep left to right, and let a max-structure (TreeMap as a multiset) give the tallest active building; emit a point only when that max changes. The negative-height encoding of starts is the whole tie-break trick."
+  },
+  "niche-advanced__falling-squares": {
+    "title": "Falling Squares",
+    "topic": "Niche / Advanced",
+    "subtopic": "Segment Tree / BIT",
+    "difficulty": "Hard",
+    "pattern": "Coordinate compression + segment tree with range-assign lazy + range-max",
+    "notes": "",
+    "statement": "Squares drop one at a time onto a number line. `positions[i] = [left, sideLength]` describes a square occupying `[left, left+sideLength)`. A square rests on the tallest surface currently under any part of its base. After each drop, record the height of the tallest stack so far; return the list of these heights.",
+    "examples": [
+      {
+        "input": "positions = [[1,2],[2,3],[6,1]]",
+        "output": "[2,5,5]",
+        "explanation": "First square height 2; second lands on the first (overlap) reaching 2+3=5; third is isolated, height 1, running max stays 5."
+      },
+      {
+        "input": "positions = [[100,100],[200,100]]",
+        "output": "[100,100]",
+        "explanation": "The two squares do not overlap; each has height 100."
+      }
+    ],
+    "constraints": [
+      "1 <= positions.length <= 1000",
+      "1 <= left, sideLength <= 10^8"
+    ],
+    "approaches": [
+      {
+        "name": "Segment tree with lazy range assignment",
+        "idea": "Coordinate-compress the interval endpoints (`left` and `left+side`), letting segment-tree leaves represent the gaps between consecutive coordinates so touching squares don't wrongly overlap. For each square, query the max height over its compressed range, set the new height to `max + side`, then range-assign that height over the range. Track the running global maximum.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public List<Integer> fallingSquares(int[][] positions) {\n    TreeSet<Integer> set = new TreeSet<>();\n    for (int[] p : positions) { set.add(p[0]); set.add(p[0] + p[1]); }\n    Map<Integer, Integer> idx = new HashMap<>();\n    int c = 0;\n    for (int x : set) idx.put(x, c++);\n    int leaves = Math.max(1, c - 1);           // gaps between coordinates\n    SegTree seg = new SegTree(leaves);\n\n    List<Integer> res = new ArrayList<>();\n    int best = 0;\n    for (int[] p : positions) {\n        int l = idx.get(p[0]);\n        int r = idx.get(p[0] + p[1]) - 1;      // inclusive gap range\n        int cur = seg.queryMax(l, r);\n        int h = cur + p[1];\n        seg.assign(l, r, h);\n        best = Math.max(best, h);\n        res.add(best);\n    }\n    return res;\n}\n\nstatic class SegTree {\n    int n;\n    int[] max, lazy;                            // lazy==0 means 'no pending assign' (heights are >0)\n    SegTree(int n) { this.n = n; max = new int[4 * n]; lazy = new int[4 * n]; }\n\n    void assign(int l, int r, int val) { assign(1, 0, n - 1, l, r, val); }\n    void assign(int node, int lo, int hi, int l, int r, int val) {\n        if (r < lo || hi < l) return;\n        if (l <= lo && hi <= r) { max[node] = val; lazy[node] = val; return; }\n        push(node);\n        int mid = (lo + hi) >>> 1;\n        assign(2 * node, lo, mid, l, r, val);\n        assign(2 * node + 1, mid + 1, hi, l, r, val);\n        max[node] = Math.max(max[2 * node], max[2 * node + 1]);\n    }\n\n    int queryMax(int l, int r) { return queryMax(1, 0, n - 1, l, r); }\n    int queryMax(int node, int lo, int hi, int l, int r) {\n        if (r < lo || hi < l) return 0;\n        if (l <= lo && hi <= r) return max[node];\n        push(node);\n        int mid = (lo + hi) >>> 1;\n        return Math.max(queryMax(2 * node, lo, mid, l, r), queryMax(2 * node + 1, mid + 1, hi, l, r));\n    }\n\n    private void push(int node) {\n        if (lazy[node] != 0) {\n            int v = lazy[node];\n            max[2 * node] = v;     lazy[2 * node] = v;\n            max[2 * node + 1] = v; lazy[2 * node + 1] = v;\n            lazy[node] = 0;\n        }\n    }\n}"
+      }
+    ],
+    "insight": "Compress endpoints to gap-leaves (so adjacency isn't overlap), then it's a range-assign + range-max segment tree: query the base under the square, stack `+side`, and paint that height back over the range."
+  },
+  "niche-advanced__range-module": {
+    "title": "Range Module",
+    "topic": "Niche / Advanced",
+    "subtopic": "Segment Tree / BIT",
+    "difficulty": "Hard",
+    "pattern": "TreeMap of disjoint merged intervals (start -> end)",
+    "notes": "Redo",
+    "statement": "Design a data structure over ranges of integers supporting `addRange(left, right)` (track every real number in `[left, right)`), `queryRange(left, right)` (is every number in `[left, right)` currently tracked?), and `removeRange(left, right)` (stop tracking every number in `[left, right)`).",
+    "examples": [
+      {
+        "input": "addRange(10,20); removeRange(14,16); queryRange(10,14); queryRange(13,15); queryRange(16,17)",
+        "output": "true, false, true",
+        "explanation": "[10,14) fully tracked; [13,15) not (14..16 removed); [16,17) tracked."
+      }
+    ],
+    "constraints": [
+      "1 <= left < right <= 10^9",
+      "at most 10^4 calls to addRange, queryRange, and removeRange"
+    ],
+    "approaches": [
+      {
+        "name": "TreeMap of disjoint intervals keyed by start",
+        "idea": "Store non-overlapping intervals as `start -> end` in a TreeMap. On `add`, absorb any interval touching or overlapping `[left,right)` by extending the bounds via `floorKey`/`floorEntry`, clear the covered keys, and insert the merged interval. On `remove`, rebuild the left and right boundary fragments then clear the covered middle. On `query`, the interval at `floorKey(left)` must cover `right`.",
+        "time": "O(log n) amortized per operation",
+        "space": "O(n)",
+        "code": "class RangeModule {\n    private final TreeMap<Integer, Integer> map = new TreeMap<>();   // start -> end\n\n    public void addRange(int left, int right) {\n        Integer s = map.floorKey(left);\n        if (s != null && map.get(s) >= left) left = s;                 // merge left neighbor\n        Map.Entry<Integer, Integer> e = map.floorEntry(right);\n        if (e != null && e.getValue() > right) right = e.getValue();   // merge right neighbor\n        map.subMap(left, true, right, true).clear();                   // absorb covered intervals\n        map.put(left, right);\n    }\n\n    public boolean queryRange(int left, int right) {\n        Integer s = map.floorKey(left);\n        return s != null && map.get(s) >= right;\n    }\n\n    public void removeRange(int left, int right) {\n        Map.Entry<Integer, Integer> hi = map.lowerEntry(right);\n        Map.Entry<Integer, Integer> lo = map.lowerEntry(left);\n        if (hi != null && hi.getValue() > right) map.put(right, hi.getValue());   // right tail\n        if (lo != null && lo.getValue() > left)  map.put(lo.getKey(), left);      // left head\n        map.subMap(left, true, right, false).clear();\n    }\n}"
+      }
+    ],
+    "insight": "Keep disjoint merged intervals in a TreeMap keyed by start; `floorKey`/`floorEntry` find the interval covering a point. Add merges neighbors, remove splits the two boundary intervals and clears the middle -- the split/merge edge cases are the tricky part (redo)."
+  },
+  "niche-advanced__my-calendar-iii": {
+    "title": "My Calendar III",
+    "topic": "Niche / Advanced",
+    "subtopic": "Segment Tree / BIT",
+    "difficulty": "Hard",
+    "pattern": "Sweep-line difference map (or dynamic segment tree with lazy range-add) -- max overlap",
+    "notes": "Most efficient way is segment tree",
+    "statement": "Implement `MyCalendarThree` supporting `book(start, end)` for a half-open event `[start, end)`. After each booking return `k`, the maximum number of events that overlap at any single point in time (the largest `k`-booking so far).",
+    "examples": [
+      {
+        "input": "book(10,20); book(50,60); book(10,40); book(5,15); book(5,10); book(25,55)",
+        "output": "1, 1, 2, 3, 3, 3",
+        "explanation": "Running maximum overlap after each booking."
+      }
+    ],
+    "constraints": [
+      "0 <= start < end <= 10^9",
+      "at most 400 calls to book"
+    ],
+    "approaches": [
+      {
+        "name": "TreeMap difference array",
+        "idea": "Keep a sorted map of boundary deltas: `+1` at each `start`, `-1` at each `end`. After each booking, sweep the map accumulating a running sum and track the running maximum -- that maximum is the largest overlap. Simple `O(n)` per booking, which passes for 400 calls.",
+        "time": "O(n) per book (n = distinct endpoints)",
+        "space": "O(n)",
+        "code": "class MyCalendarThree {\n    private final TreeMap<Integer, Integer> delta = new TreeMap<>();\n\n    public int book(int start, int end) {\n        delta.merge(start, 1, Integer::sum);\n        delta.merge(end, -1, Integer::sum);\n        int running = 0, max = 0;\n        for (int d : delta.values()) {\n            running += d;\n            max = Math.max(max, running);\n        }\n        return max;\n    }\n}"
+      },
+      {
+        "name": "Dynamic segment tree with lazy range-add",
+        "idea": "The efficient version (per the tracker note): build a dynamic segment tree over `[0, 10^9]` creating nodes lazily. Each `book(start, end)` is a range `+1` on `[start, end-1]` with lazy propagation, and the answer is the global maximum stored at the root -- `O(log range)` per booking.",
+        "time": "O(log range) per book",
+        "space": "O(n log range)",
+        "code": "class MyCalendarThree {\n    private static final int MAX = 1_000_000_000;\n    private final Node root = new Node();\n\n    public int book(int start, int end) {\n        update(root, 0, MAX, start, end - 1, 1);\n        return root.max;\n    }\n\n    private void update(Node node, int lo, int hi, int l, int r, int val) {\n        if (r < lo || hi < l) return;\n        if (l <= lo && hi <= r) { node.max += val; node.lazy += val; return; }\n        pushDown(node);\n        int mid = lo + (hi - lo) / 2;\n        update(node.left, lo, mid, l, r, val);\n        update(node.right, mid + 1, hi, l, r, val);\n        node.max = Math.max(node.left.max, node.right.max);\n    }\n\n    private void pushDown(Node node) {\n        if (node.left == null) node.left = new Node();\n        if (node.right == null) node.right = new Node();\n        if (node.lazy != 0) {\n            node.left.max += node.lazy;  node.left.lazy += node.lazy;\n            node.right.max += node.lazy; node.right.lazy += node.lazy;\n            node.lazy = 0;\n        }\n    }\n\n    private static class Node {\n        Node left, right;\n        int max, lazy;\n    }\n}"
+      }
+    ],
+    "insight": "Max concurrent intervals = max prefix sum of `+1`/`-1` boundary deltas. TreeMap sweep is O(n) per query and passes; the dynamic segment tree with lazy range-add is the O(log n) 'most efficient' version the note refers to."
+  },
+  "niche-advanced__longest-increasing-subsequence-ii": {
+    "title": "Longest Increasing Subsequence II",
+    "topic": "Niche / Advanced",
+    "subtopic": "Segment Tree / BIT",
+    "difficulty": "Very Hard",
+    "pattern": "DP over values with segment tree range-max query + point update",
+    "notes": "",
+    "statement": "Given an integer array `nums` and an integer `k`, find the length of the longest strictly increasing subsequence such that the difference between adjacent chosen elements is at most `k` (i.e. consecutive elements differ by at most `k`).",
+    "examples": [
+      {
+        "input": "nums = [4,2,1,4,3,4,5,8,15], k = 3",
+        "output": "5",
+        "explanation": "One longest such subsequence is [1,3,4,5,8]."
+      },
+      {
+        "input": "nums = [7,4,5,1,8,12,4,7], k = 5",
+        "output": "4",
+        "explanation": "One longest such subsequence is [4,5,8,12]."
+      }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 10^5",
+      "1 <= nums[i], k <= 10^5"
+    ],
+    "approaches": [
+      {
+        "name": "Segment tree over values (range-max DP)",
+        "idea": "Let `dp[v]` be the length of the best qualifying subsequence ending with value `v`. Processing `nums` left to right, `dp[x] = 1 + max(dp[v])` over `v` in `[x-k, x-1]`. A segment tree indexed by value supports that range-max query and the point update `dp[x] = max(dp[x], value)` in `O(log V)`.",
+        "time": "O(n log V), V = max value",
+        "space": "O(V)",
+        "code": "public int lengthOfLIS(int[] nums, int k) {\n    int max = 0;\n    for (int x : nums) max = Math.max(max, x);\n    SegTree seg = new SegTree(max);      // values 1..max\n    int ans = 0;\n    for (int x : nums) {\n        int lo = Math.max(1, x - k);\n        int best = seg.query(lo, x - 1); // best dp for values in [x-k, x-1]\n        int cur = best + 1;\n        ans = Math.max(ans, cur);\n        seg.update(x, cur);\n    }\n    return ans;\n}\n\nstatic class SegTree {\n    int n;\n    int[] tree;\n    SegTree(int size) { n = size; tree = new int[4 * n]; }\n\n    void update(int pos, int val) { update(1, 1, n, pos, val); }\n    void update(int node, int lo, int hi, int pos, int val) {\n        if (lo == hi) { tree[node] = Math.max(tree[node], val); return; }\n        int mid = (lo + hi) >>> 1;\n        if (pos <= mid) update(2 * node, lo, mid, pos, val);\n        else            update(2 * node + 1, mid + 1, hi, pos, val);\n        tree[node] = Math.max(tree[2 * node], tree[2 * node + 1]);\n    }\n\n    int query(int l, int r) { if (l > r) return 0; return query(1, 1, n, l, r); }\n    int query(int node, int lo, int hi, int l, int r) {\n        if (r < lo || hi < l) return 0;\n        if (l <= lo && hi <= r) return tree[node];\n        int mid = (lo + hi) >>> 1;\n        return Math.max(query(2 * node, lo, mid, l, r), query(2 * node + 1, mid + 1, hi, l, r));\n    }\n}"
+      }
+    ],
+    "insight": "Index the DP by value, not position: `dp[x] = 1 + max(dp[x-k .. x-1])`, and a range-max segment tree over the value axis turns each transition into an O(log V) query + point update."
+  }
+}

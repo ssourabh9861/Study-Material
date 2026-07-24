@@ -1,0 +1,382 @@
+{
+  "dynamic-programming__house-robber-i-ii": {
+    "title": "House Robber I/II",
+    "topic": "Dynamic Programming",
+    "subtopic": "1-D / Sequence",
+    "difficulty": "Medium",
+    "pattern": "Linear DP; II = run linear twice for the circular constraint",
+    "notes": "",
+    "statement": "Given non-negative house values, you cannot rob two **adjacent** houses. Maximize the loot. **II:** houses are arranged in a **circle**, so the first and last houses are adjacent.",
+    "examples": [
+      { "input": "I: nums = [2,7,9,3,1]", "output": "12", "explanation": "Rob 2 + 9 + 1." },
+      { "input": "II: nums = [2,3,2]", "output": "3", "explanation": "Cannot take both ends of the circle." }
+    ],
+    "constraints": [
+      "1 <= n <= 100",
+      "0 <= nums[i] <= 400"
+    ],
+    "approaches": [
+      {
+        "name": "Take/skip recurrence, two rolling variables",
+        "idea": "`rob(i) = max(rob(i-1), rob(i-2) + nums[i])` collapses to two rolling scalars. For the circle, the answer is `max(linear(0..n-2), linear(1..n-1))` — you cannot include both ends, so drop one.",
+        "time": "O(n)",
+        "space": "O(1)",
+        "code": "public int rob(int[] nums) {              // House Robber I\n    int prev = 0, cur = 0;                 // prev = best up to i-2, cur = up to i-1\n    for (int x : nums) {\n        int t = Math.max(cur, prev + x);\n        prev = cur; cur = t;\n    }\n    return cur;\n}\npublic int robII(int[] nums) {\n    if (nums.length == 1) return nums[0];\n    return Math.max(robRange(nums, 0, nums.length - 2),\n                    robRange(nums, 1, nums.length - 1));\n}\nprivate int robRange(int[] nums, int lo, int hi) {\n    int prev = 0, cur = 0;\n    for (int i = lo; i <= hi; i++) {\n        int t = Math.max(cur, prev + nums[i]);\n        prev = cur; cur = t;\n    }\n    return cur;\n}"
+      }
+    ],
+    "insight": "Adjacent-forbidden = classic take/skip. Circular = either the first house is out or the last house is out, so run two linear passes."
+  },
+  "dynamic-programming__decode-ways": {
+    "title": "Decode Ways",
+    "topic": "Dynamic Programming",
+    "subtopic": "1-D / Sequence",
+    "difficulty": "Medium",
+    "pattern": "1-D DP with 1-digit / 2-digit transitions",
+    "notes": "",
+    "statement": "`'A'..'Z'` map to `\"1\"..\"26\"`. Count the number of ways to decode a digit string `s`.",
+    "examples": [
+      { "input": "s = \"226\"", "output": "3", "explanation": "\"BZ\", \"VF\", \"BBF\"." }
+    ],
+    "constraints": [
+      "1 <= s.length <= 100",
+      "s contains digits only and may contain '0'"
+    ],
+    "approaches": [
+      {
+        "name": "dp[i] = ways to decode prefix of length i",
+        "idea": "`dp[i] += dp[i-1]` if `s[i-1] != '0'` (single digit); `dp[i] += dp[i-2]` if `s[i-2..i-1]` is in `10..26` (two digits). Rolled to two scalars.",
+        "time": "O(n)",
+        "space": "O(1)",
+        "code": "public int numDecodings(String s) {\n    int n = s.length();\n    int prev2 = 1;                        // dp[0]\n    int prev1 = s.charAt(0) == '0' ? 0 : 1; // dp[1]\n    for (int i = 2; i <= n; i++) {\n        int cur = 0;\n        if (s.charAt(i - 1) != '0') cur += prev1;\n        int two = (s.charAt(i - 2) - '0') * 10 + (s.charAt(i - 1) - '0');\n        if (two >= 10 && two <= 26) cur += prev2;\n        prev2 = prev1; prev1 = cur;\n    }\n    return prev1;\n}"
+      }
+    ],
+    "insight": "Two transitions: single digit (valid unless '0') and two digits (valid only in 10..26). '0' is the whole difficulty — it must pair with a leading 1 or 2."
+  },
+  "dynamic-programming__word-break": {
+    "title": "Word Break",
+    "topic": "Dynamic Programming",
+    "subtopic": "1-D / Sequence",
+    "difficulty": "Medium",
+    "pattern": "1-D DP over prefixes + dictionary set",
+    "notes": "",
+    "statement": "Given `s` and dictionary `wordDict`, decide whether `s` can be segmented into a space-separated sequence of dictionary words (words may be reused).",
+    "examples": [
+      { "input": "s = \"leetcode\", wordDict = [\"leet\",\"code\"]", "output": "true", "explanation": "\"leet code\"." }
+    ],
+    "constraints": [
+      "1 <= s.length <= 300",
+      "1 <= wordDict.length <= 1000",
+      "1 <= wordDict[i].length <= 20"
+    ],
+    "approaches": [
+      {
+        "name": "dp[i] = prefix of length i is segmentable",
+        "idea": "`dp[i]` is true if some `j < i` has `dp[j]` true and `s[j..i)` is in the dictionary. Bounding `j` by the longest word length avoids scanning the whole prefix.",
+        "time": "O(n * maxLen) substring checks",
+        "space": "O(n)",
+        "code": "public boolean wordBreak(String s, java.util.List<String> wordDict) {\n    java.util.Set<String> dict = new java.util.HashSet<>(wordDict);\n    int n = s.length(), maxLen = 0;\n    for (String w : dict) maxLen = Math.max(maxLen, w.length());\n    boolean[] dp = new boolean[n + 1];\n    dp[0] = true;\n    for (int i = 1; i <= n; i++)\n        for (int j = Math.max(0, i - maxLen); j < i; j++)\n            if (dp[j] && dict.contains(s.substring(j, i))) { dp[i] = true; break; }\n    return dp[n];\n}"
+      }
+    ],
+    "insight": "dp[i] depends on a split point j where the prefix is breakable and the suffix s[j..i) is a word; bound j by the max word length."
+  },
+  "dynamic-programming__jump-game-ii": {
+    "title": "Jump Game II",
+    "topic": "Dynamic Programming",
+    "subtopic": "1-D / Sequence",
+    "difficulty": "Medium",
+    "pattern": "Greedy BFS by \"layers\" (range expansion)",
+    "notes": "",
+    "statement": "`nums[i]` is the maximum jump length from index `i`. Return the minimum number of jumps to reach the last index (reaching it is guaranteed).",
+    "examples": [
+      { "input": "nums = [2,3,1,1,4]", "output": "2", "explanation": "0 -> 1 -> 4." }
+    ],
+    "constraints": [
+      "1 <= n <= 10^4",
+      "0 <= nums[i] <= 1000",
+      "the last index is always reachable"
+    ],
+    "approaches": [
+      {
+        "name": "Track current jump's reachable end (greedy)",
+        "idea": "Walk the array; `curEnd` is the farthest index reachable with the current number of jumps, `farthest` is the farthest reachable overall. When `i` reaches `curEnd`, you must jump: increment the count and set `curEnd = farthest`. Loop to `n-2` so you do not over-count a jump at the last index.",
+        "time": "O(n)",
+        "space": "O(1)",
+        "code": "public int jump(int[] nums) {\n    int jumps = 0, curEnd = 0, farthest = 0;\n    for (int i = 0; i < nums.length - 1; i++) {\n        farthest = Math.max(farthest, i + nums[i]);\n        if (i == curEnd) { jumps++; curEnd = farthest; }\n    }\n    return jumps;\n}"
+      }
+    ],
+    "insight": "It is BFS in disguise: each layer is the set of indices reachable with j jumps; curEnd marks the layer boundary and crossing it costs one jump."
+  },
+  "dynamic-programming__maximum-product-subarray": {
+    "title": "Maximum Product Subarray",
+    "topic": "Dynamic Programming",
+    "subtopic": "1-D / Sequence",
+    "difficulty": "Medium",
+    "pattern": "Track running max AND min (signs flip)",
+    "notes": "",
+    "statement": "Return the largest product of a contiguous subarray of `nums`.",
+    "examples": [
+      { "input": "nums = [2,3,-2,4]", "output": "6", "explanation": "Subarray [2,3]." }
+    ],
+    "constraints": [
+      "1 <= n <= 2*10^4",
+      "-10 <= nums[i] <= 10",
+      "the answer fits in a 32-bit integer"
+    ],
+    "approaches": [
+      {
+        "name": "Carry both max and min ending here",
+        "idea": "A negative number swaps the roles of max and min, so track both. `maxEnd = max(x, x*maxEnd)`, `minEnd = min(x, x*minEnd)`, swapping them first when `x < 0`.",
+        "time": "O(n)",
+        "space": "O(1)",
+        "code": "public int maxProduct(int[] nums) {\n    int maxEnd = nums[0], minEnd = nums[0], best = nums[0];\n    for (int i = 1; i < nums.length; i++) {\n        int x = nums[i];\n        if (x < 0) { int t = maxEnd; maxEnd = minEnd; minEnd = t; }\n        maxEnd = Math.max(x, x * maxEnd);\n        minEnd = Math.min(x, x * minEnd);\n        best = Math.max(best, maxEnd);\n    }\n    return best;\n}"
+      }
+    ],
+    "insight": "Unlike max-sum (Kadane), products need the running min too because a negative times a min-negative can become the new max; swap max/min on negative elements."
+  },
+  "dynamic-programming__longest-increasing-subsequence": {
+    "title": "Longest Increasing Subsequence",
+    "topic": "Dynamic Programming",
+    "subtopic": "1-D / Sequence",
+    "difficulty": "Medium",
+    "pattern": "Patience sorting / binary search (O(n log n))",
+    "notes": "",
+    "statement": "Return the length of the longest strictly increasing subsequence of `nums`.",
+    "examples": [
+      { "input": "nums = [10,9,2,5,3,7,101,18]", "output": "4", "explanation": "[2,3,7,101]." }
+    ],
+    "constraints": [
+      "1 <= n <= 2500",
+      "-10^4 <= nums[i] <= 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "O(n^2) DP",
+        "idea": "`dp[i] = 1 + max(dp[j])` over `j < i` with `nums[j] < nums[i]`. The answer is the maximum entry. Simple baseline before the patience optimization.",
+        "time": "O(n^2)",
+        "space": "O(n)",
+        "code": "public int lengthOfLIS_dp(int[] nums) {\n    int n = nums.length, best = 0;\n    int[] dp = new int[n];\n    for (int i = 0; i < n; i++) {\n        dp[i] = 1;\n        for (int j = 0; j < i; j++)\n            if (nums[j] < nums[i]) dp[i] = Math.max(dp[i], dp[j] + 1);\n        best = Math.max(best, dp[i]);\n    }\n    return best;\n}"
+      },
+      {
+        "name": "Patience / tails array (preferred)",
+        "idea": "Maintain `tails`, where `tails[k]` is the smallest possible tail of an increasing subsequence of length `k+1`. For each `x`, binary-search the first tail `>= x` and replace it (or append). The length of `tails` is the answer.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public int lengthOfLIS(int[] nums) {\n    int[] tails = new int[nums.length];\n    int size = 0;\n    for (int x : nums) {\n        int lo = 0, hi = size;\n        while (lo < hi) {              // first index with tails[idx] >= x\n            int mid = (lo + hi) >>> 1;\n            if (tails[mid] < x) lo = mid + 1; else hi = mid;\n        }\n        tails[lo] = x;\n        if (lo == size) size++;\n    }\n    return size;\n}"
+      }
+    ],
+    "insight": "tails is not an actual subsequence — it is the smallest tail for each length; replace-lower-bound keeps tails minimal so future elements have the best chance to extend. Basis for Russian Doll Envelopes, Number of LIS, Make Array Strictly Increasing."
+  },
+  "dynamic-programming__partition-equal-subset-sum": {
+    "title": "Partition Equal Subset Sum",
+    "topic": "Dynamic Programming",
+    "subtopic": "Knapsack",
+    "difficulty": "Medium",
+    "pattern": "0/1 subset-sum knapsack (boolean)",
+    "notes": "",
+    "statement": "Decide whether `nums` can be split into two subsets with equal sum.",
+    "examples": [
+      { "input": "nums = [1,5,11,5]", "output": "true", "explanation": "[1,5,5] and [11]." }
+    ],
+    "constraints": [
+      "1 <= n <= 200",
+      "1 <= nums[i] <= 100"
+    ],
+    "approaches": [
+      {
+        "name": "Reachable-sum DP",
+        "idea": "If the total is odd, return false. Else `target = total/2` and `dp[s]` means sum `s` is achievable. Iterate items and update `s` **downward** (0/1 knapsack — each item used once).",
+        "time": "O(n * target)",
+        "space": "O(target)",
+        "code": "public boolean canPartition(int[] nums) {\n    int total = 0;\n    for (int x : nums) total += x;\n    if ((total & 1) == 1) return false;\n    int target = total / 2;\n    boolean[] dp = new boolean[target + 1];\n    dp[0] = true;\n    for (int x : nums)\n        for (int s = target; s >= x; s--)\n            dp[s] |= dp[s - x];\n    return dp[target];\n}"
+      }
+    ],
+    "insight": "Reduce to \"is sum/2 reachable?\"; the downward inner loop is what makes it 0/1 (each item used once) rather than unbounded."
+  },
+  "dynamic-programming__target-sum": {
+    "title": "Target Sum",
+    "topic": "Dynamic Programming",
+    "subtopic": "Knapsack",
+    "difficulty": "Medium",
+    "pattern": "Reduce +/- assignment to subset-sum counting",
+    "notes": "",
+    "statement": "Assign `+` or `-` to each element of `nums` so the expression equals `target`. Count the number of such assignments.",
+    "examples": [
+      { "input": "nums = [1,1,1,1,1], target = 3", "output": "5", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= n <= 20",
+      "0 <= nums[i] <= 1000",
+      "-1000 <= target <= 1000"
+    ],
+    "approaches": [
+      {
+        "name": "Algebra to count subsets summing to P",
+        "idea": "Let `P` be the sum of the `+` group. `P - (total-P) = target` gives `P = (total+target)/2`. If `total+target` is odd or `|target| > total`, the answer is 0. Otherwise count subsets summing to `P` with a downward 0/1 loop.",
+        "time": "O(n * P)",
+        "space": "O(P)",
+        "code": "public int findTargetSumWays(int[] nums, int target) {\n    int total = 0;\n    for (int x : nums) total += x;\n    if (Math.abs(target) > total || ((total + target) & 1) == 1) return 0;\n    int P = (total + target) / 2;\n    int[] dp = new int[P + 1];\n    dp[0] = 1;\n    for (int x : nums)\n        for (int s = P; s >= x; s--)\n            dp[s] += dp[s - x];\n    return dp[P];\n}"
+      }
+    ],
+    "insight": "+/- assignment reduces to picking a positive subset P = (total+target)/2, then it is count subsets with sum P; do the parity/range check first."
+  },
+  "dynamic-programming__coin-change-i-ii": {
+    "title": "Coin Change I/II",
+    "topic": "Dynamic Programming",
+    "subtopic": "Knapsack",
+    "difficulty": "Medium",
+    "pattern": "Unbounded knapsack (min count / count ways)",
+    "notes": "",
+    "statement": "**I:** return the fewest coins needed to make `amount` (or `-1` if impossible). **II:** return the number of combinations that make `amount`. Coins are reusable.",
+    "examples": [
+      { "input": "I: coins = [1,2,5], amount = 11", "output": "3", "explanation": "5 + 5 + 1." },
+      { "input": "II: coins = [1,2,5], amount = 5", "output": "4", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= coins.length <= 300",
+      "1 <= coins[i] <= 5000",
+      "0 <= amount <= 5000"
+    ],
+    "approaches": [
+      {
+        "name": "Unbounded knapsack (inner loop upward)",
+        "idea": "Coins are reusable, so iterate `amount` **upward**. I minimizes coin count; II counts combinations with the coin loop on the outside to prevent counting different orderings as distinct.",
+        "time": "O(coins * amount)",
+        "space": "O(amount)",
+        "code": "public int coinChange(int[] coins, int amount) {      // I: min coins\n    int[] dp = new int[amount + 1];\n    java.util.Arrays.fill(dp, amount + 1);\n    dp[0] = 0;\n    for (int c : coins)\n        for (int a = c; a <= amount; a++)\n            dp[a] = Math.min(dp[a], dp[a - c] + 1);\n    return dp[amount] > amount ? -1 : dp[amount];\n}\npublic int change(int amount, int[] coins) {          // II: count ways\n    int[] dp = new int[amount + 1];\n    dp[0] = 1;\n    for (int c : coins)                                // coins outside => combinations\n        for (int a = c; a <= amount; a++)\n            dp[a] += dp[a - c];\n    return dp[amount];\n}"
+      }
+    ],
+    "insight": "Reusable coins mean an upward inner loop. For counting combinations (II) the coins must be the outer loop; swapping the loops would count permutations."
+  },
+  "dynamic-programming__last-stone-weight-ii": {
+    "title": "Last Stone Weight II",
+    "topic": "Dynamic Programming",
+    "subtopic": "Knapsack",
+    "difficulty": "Hard",
+    "pattern": "Partition into two closest sums (subset-sum)",
+    "notes": "",
+    "statement": "Smashing two stones of weights `a` and `b` leaves a stone of `|a-b|` (or none if equal). Return the smallest possible weight of the remaining stone.",
+    "examples": [
+      { "input": "stones = [2,7,4,1,8,1]", "output": "1", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= n <= 30",
+      "1 <= stones[i] <= 100"
+    ],
+    "approaches": [
+      {
+        "name": "Minimize total - 2*subsetSum",
+        "idea": "Every +/- assignment reduces to splitting stones into two groups; the answer is `total - 2 * (largest subset sum <= total/2)`. Use the same reachable-sum DP as Partition Equal Subset Sum.",
+        "time": "O(n * total)",
+        "space": "O(total)",
+        "code": "public int lastStoneWeightII(int[] stones) {\n    int total = 0;\n    for (int s : stones) total += s;\n    int half = total / 2;\n    boolean[] dp = new boolean[half + 1];\n    dp[0] = true;\n    int best = 0;\n    for (int s : stones)\n        for (int w = half; w >= s; w--)\n            if (dp[w - s]) { dp[w] = true; best = Math.max(best, w); }\n    return total - 2 * best;\n}"
+      }
+    ],
+    "insight": "The pile splits into two groups; the leftover is |sumA - sumB| = total - 2*sumA, minimized by making sumA as close to total/2 as possible (subset-sum)."
+  },
+  "dynamic-programming__ones-and-zeroes": {
+    "title": "Ones and Zeroes",
+    "topic": "Dynamic Programming",
+    "subtopic": "Knapsack",
+    "difficulty": "Hard",
+    "pattern": "2-dimensional 0/1 knapsack (two capacities)",
+    "notes": "",
+    "statement": "Given binary strings `strs` and budgets of `m` zeros and `n` ones, find the size of the largest subset whose total zeros `<= m` and total ones `<= n`.",
+    "examples": [
+      { "input": "strs = [\"10\",\"0001\",\"111001\",\"1\",\"0\"], m = 5, n = 3", "output": "4", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= strs.length <= 600",
+      "1 <= strs[i].length <= 100",
+      "1 <= m, n <= 100"
+    ],
+    "approaches": [
+      {
+        "name": "Knapsack with two capacity axes",
+        "idea": "`dp[i][j]` is the max number of items using `<= i` zeros and `<= j` ones. For each string with `(z, o)` counts, update `dp[i][j] = max(dp[i][j], dp[i-z][j-o] + 1)` iterating both axes **downward** (0/1).",
+        "time": "O(strs * m * n)",
+        "space": "O(m*n)",
+        "code": "public int findMaxForm(String[] strs, int m, int n) {\n    int[][] dp = new int[m + 1][n + 1];\n    for (String s : strs) {\n        int z = 0, o = 0;\n        for (char c : s.toCharArray()) { if (c == '0') z++; else o++; }\n        for (int i = m; i >= z; i--)\n            for (int j = n; j >= o; j--)\n                dp[i][j] = Math.max(dp[i][j], dp[i - z][j - o] + 1);\n    }\n    return dp[m][n];\n}"
+      }
+    ],
+    "insight": "It is just 0/1 knapsack with two weight dimensions (zeros and ones); both capacity loops go downward."
+  },
+  "dynamic-programming__profitable-schemes": {
+    "title": "Profitable Schemes",
+    "topic": "Dynamic Programming",
+    "subtopic": "Knapsack",
+    "difficulty": "Hard",
+    "pattern": "Counting knapsack with an \"at least\" threshold",
+    "notes": "",
+    "statement": "There are `n` members and a list of crimes; crime `i` needs `group[i]` members and yields `profit[i]`. Count the schemes (subsets of crimes) that use `<= n` total members and achieve total profit `>= minProfit`. Return the count modulo 1e9+7.",
+    "examples": [
+      { "input": "n = 5, minProfit = 3, group = [2,2], profit = [2,3]", "output": "2", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= n <= 100",
+      "0 <= minProfit <= 100",
+      "1 <= group.length <= 100"
+    ],
+    "approaches": [
+      {
+        "name": "dp[members][profit] with clamped profit",
+        "idea": "`dp[g][p]` = number of schemes using `g` members with profit clamped to `p` (cap at `minProfit`, since anything above is already satisfied). 0/1 over crimes with both loops downward.",
+        "time": "O(crimes * n * minProfit)",
+        "space": "O(n * minProfit)",
+        "code": "public int profitableSchemes(int n, int minProfit, int[] group, int[] profit) {\n    int MOD = 1_000_000_007;\n    long[][] dp = new long[n + 1][minProfit + 1];\n    for (int g = 0; g <= n; g++) dp[g][0] = 1;      // 0 required profit: empty scheme counts\n    for (int k = 0; k < group.length; k++) {\n        int g = group[k], p = profit[k];\n        for (int i = n; i >= g; i--)\n            for (int j = minProfit; j >= 0; j--) {\n                int pp = Math.min(minProfit, j + p);\n                dp[i][pp] = (dp[i][pp] + dp[i - g][j]) % MOD;\n            }\n    }\n    return (int) dp[n][minProfit];\n}"
+      }
+    ],
+    "insight": "\"Profit at least minProfit\" means clamp the profit dimension at minProfit so all higher profits collapse into one state; members is the capacity, profit is the counting axis."
+  },
+  "dynamic-programming__number-of-dice-rolls-with-target-sum": {
+    "title": "Number of Dice Rolls With Target Sum",
+    "topic": "Dynamic Programming",
+    "subtopic": "Knapsack",
+    "difficulty": "Medium",
+    "pattern": "Bounded knapsack (count compositions)",
+    "notes": "",
+    "statement": "You roll `n` dice, each with `k` faces numbered `1..k`. Count the number of ways to roll a total of `target`. Return the count modulo 1e9+7.",
+    "examples": [
+      { "input": "n = 2, k = 6, target = 7", "output": "6", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= n, k <= 30",
+      "1 <= target <= 1000"
+    ],
+    "approaches": [
+      {
+        "name": "dp[d][t] over dice and running sum",
+        "idea": "`dp[d][t]` = sum over face `f` in `1..k` of `dp[d-1][t-f]`. Each die is a layer processed as an outer loop so it is used exactly once.",
+        "time": "O(n * target * k)",
+        "space": "O(target)",
+        "code": "public int numRollsToTarget(int n, int k, int target) {\n    int MOD = 1_000_000_007;\n    int[] dp = new int[target + 1];\n    dp[0] = 1;\n    for (int d = 1; d <= n; d++) {\n        int[] next = new int[target + 1];\n        for (int t = 1; t <= target; t++)\n            for (int f = 1; f <= k && f <= t; f++)\n                next[t] = (next[t] + dp[t - f]) % MOD;\n        dp = next;\n    }\n    return dp[target];\n}"
+      }
+    ],
+    "insight": "Each die is a layer; sum over its k faces. It is a bounded-count knapsack, so the die dimension must be an outer layer so each die is used exactly once."
+  },
+  "dynamic-programming__form-largest-integer-with-digits-that-add-up-to-target": {
+    "title": "Form Largest Integer With Digits That Add up to Target",
+    "topic": "Dynamic Programming",
+    "subtopic": "Knapsack",
+    "difficulty": "Hard",
+    "pattern": "Unbounded knapsack (max cost) + greedy string reconstruction",
+    "notes": "",
+    "statement": "`cost[d-1]` is the cost to paint digit `d` (`1..9`). Using total cost exactly `target`, form the **largest integer** as a string, or return `\"0\"` if impossible.",
+    "examples": [
+      { "input": "cost = [4,3,2,5,6,7,2,5,5], target = 9", "output": "\"7772\"", "explanation": "" }
+    ],
+    "constraints": [
+      "cost.length == 9",
+      "1 <= cost[i], target <= 5000"
+    ],
+    "approaches": [
+      {
+        "name": "Maximize digit count, then pick largest digits greedily",
+        "idea": "`dp[t]` = max number of digits achievable with cost `t` (unbounded; `-inf` if unreachable). Then reconstruct greedily: at each remaining cost, pick the **largest digit** `d` such that `dp[t] == dp[t - cost[d-1]] + 1`.",
+        "time": "O(target * 9)",
+        "space": "O(target)",
+        "code": "public String largestNumber(int[] cost, int target) {\n    int[] dp = new int[target + 1];\n    java.util.Arrays.fill(dp, Integer.MIN_VALUE);\n    dp[0] = 0;\n    for (int t = 1; t <= target; t++)\n        for (int d = 0; d < 9; d++)\n            if (t >= cost[d] && dp[t - cost[d]] != Integer.MIN_VALUE)\n                dp[t] = Math.max(dp[t], dp[t - cost[d]] + 1);\n    if (dp[target] < 0) return \"0\";\n\n    StringBuilder sb = new StringBuilder();\n    int t = target;\n    for (int d = 8; d >= 0; d--)                 // try larger digits first\n        while (t >= cost[d] && dp[t] == dp[t - cost[d]] + 1) {\n            sb.append((char) ('1' + d));\n            t -= cost[d];\n        }\n    return sb.toString();\n}"
+      }
+    ],
+    "insight": "More digits means a larger number (digits are 1-9, no leading-zero issue), so maximize count first, then reconstruct greedily choosing the biggest digit that stays on an optimal path."
+  }
+}

@@ -1,0 +1,333 @@
+{
+  "dynamic-programming__count-numbers-with-unique-digits": {
+    "title": "Count Numbers with Unique Digits",
+    "topic": "Dynamic Programming",
+    "subtopic": "Digit",
+    "difficulty": "Medium",
+    "pattern": "Combinatorial digit counting (distinct-digit numbers below 10^n)",
+    "notes": "",
+    "statement": "Given an integer `n`, count all numbers `x` with `0 <= x < 10^n` that have no repeated digit.",
+    "examples": [
+      { "input": "n = 2", "output": "91", "explanation": "All numbers 0..99 except the 9 with repeated digits (11,22,...,99)." },
+      { "input": "n = 0", "output": "1", "explanation": "Only 0." }
+    ],
+    "constraints": [
+      "0 <= n <= 8"
+    ],
+    "approaches": [
+      {
+        "name": "Counting by length",
+        "idea": "For length-1 numbers there are 10 choices (0-9). For a number of exactly `k >= 2` digits, the leading digit has 9 choices (1-9) and each following position has one fewer choice than the last: `9 * 9 * 8 * ...`. Sum these counts for lengths 1..n. Because the bound is exactly `10^n`, no tight comparison is needed and closed-form counting is optimal.",
+        "time": "O(n)",
+        "space": "O(1)",
+        "code": "public int countNumbersWithUniqueDigits(int n) {\n    if (n == 0) return 1;\n    int count = 10;          // all single digits 0-9\n    int unique = 9;          // running product for current length\n    int available = 9;       // digits still free for next position\n    for (int i = 2; i <= n; i++) {\n        unique *= available; // extend from length i-1 to i\n        count += unique;\n        available--;\n    }\n    return count;\n}"
+      }
+    ],
+    "insight": "Numbers with distinct digits below a power of ten are pure permutation counting: 9 leading choices, then 9,8,7,... for the rest."
+  },
+  "dynamic-programming__numbers-at-most-n-given-digit-set": {
+    "title": "Numbers At Most N Given Digit Set",
+    "topic": "Dynamic Programming",
+    "subtopic": "Digit",
+    "difficulty": "Hard",
+    "pattern": "Digit DP by counting: shorter lengths free + equal length tight scan",
+    "notes": "",
+    "statement": "Given a sorted array `digits` of distinct decimal digit characters (from `'1'` to `'9'`) and an integer `n`, count how many positive integers `<= n` can be written using only those digits, with repetition allowed.",
+    "examples": [
+      { "input": "digits = [\"1\",\"3\",\"5\",\"7\"], n = 100", "output": "20", "explanation": "4 one-digit and 16 two-digit numbers." },
+      { "input": "digits = [\"7\"], n = 8", "output": "1", "explanation": "Only 7." }
+    ],
+    "constraints": [
+      "1 <= digits.length <= 9",
+      "digits[i].length == 1",
+      "digits[i] is a digit from '1' to '9'",
+      "digits are sorted, all distinct",
+      "1 <= n <= 10^9"
+    ],
+    "approaches": [
+      {
+        "name": "Length split + tight positional count",
+        "idea": "Let `K` be the number of digits of `n` and `D = digits.length`. Every number with strictly fewer than `K` digits is automatically smaller, contributing `D^1 + D^2 + ... + D^(K-1)`. For exactly `K` digits, scan `n` left to right keeping a tight prefix: at position `i`, any available digit strictly less than `n[i]` frees the remaining `K-i-1` positions (each `D` choices). If `n[i]` itself is unavailable, no equal-prefix continuation exists, so stop. If we scan all positions with an exact match, `n` itself is formable, so add 1.",
+        "time": "O(K * D)",
+        "space": "O(K)",
+        "code": "public int atMostNGivenDigitSet(String[] digits, int n) {\n    String s = String.valueOf(n);\n    int K = s.length();\n    int D = digits.length;\n    int[] pow = new int[K + 1];\n    pow[0] = 1;\n    for (int i = 1; i <= K; i++) pow[i] = pow[i - 1] * D;\n    int ans = 0;\n    // numbers with fewer digits than n\n    for (int i = 1; i < K; i++) ans += pow[i];\n    // numbers with exactly K digits, staying <= n\n    for (int i = 0; i < K; i++) {\n        char c = s.charAt(i);\n        boolean matched = false;\n        for (String d : digits) {\n            char dc = d.charAt(0);\n            if (dc < c) {\n                ans += pow[K - i - 1];   // this position smaller -> rest free\n            } else if (dc == c) {\n                matched = true;          // can keep tight prefix\n            }\n        }\n        if (!matched) return ans;        // cannot match n[i], no more equal prefixes\n    }\n    return ans + 1;                      // n itself is formable\n}"
+      }
+    ],
+    "insight": "Split by length: shorter numbers are free (D^len each), same-length ones need a left-to-right tight scan where a smaller digit unlocks D^(remaining) completions."
+  },
+  "dynamic-programming__count-of-integers": {
+    "title": "Count of Integers",
+    "topic": "Dynamic Programming",
+    "subtopic": "Digit",
+    "difficulty": "Very Hard",
+    "pattern": "Digit DP with tight flag and running digit-sum state",
+    "notes": "",
+    "statement": "Given numeric strings `num1`, `num2` and integers `min_sum`, `max_sum`, count integers `x` with `num1 <= x <= num2` whose decimal digit sum lies in `[min_sum, max_sum]`. Return the count modulo `10^9 + 7`.",
+    "examples": [
+      { "input": "num1 = \"1\", num2 = \"12\", min_sum = 1, max_sum = 8", "output": "11", "explanation": "1..8 and 10,11,12 have digit sum in [1,8]; 9 is excluded." },
+      { "input": "num1 = \"1\", num2 = \"5\", min_sum = 1, max_sum = 5", "output": "5", "explanation": "1,2,3,4,5." }
+    ],
+    "constraints": [
+      "1 <= num1 <= num2 <= 10^22",
+      "1 <= min_sum <= max_sum <= 400"
+    ],
+    "approaches": [
+      {
+        "name": "Bounded prefix count via digit DP",
+        "idea": "Define `f(num)` = count of `x` in `[0, num]` with digit sum in `[min_sum, max_sum]`, computed by a memoized DFS over positions carrying the running `sum` and a `tight` flag (whether the prefix equals `num`'s prefix). Leading zeros are harmless here because they add 0 to the sum. The answer for the range is `f(num2) - f(num1)`, which covers `(num1, num2]`; add 1 back if `num1` itself qualifies. Take the result modulo `10^9 + 7`.",
+        "time": "O(L * maxSum * 10)",
+        "space": "O(L * maxSum)",
+        "code": "class Solution {\n    int MOD = 1_000_000_007;\n    int minS, maxS;\n    Integer[][] dp;\n\n    public int count(String num1, String num2, int min_sum, int max_sum) {\n        this.minS = min_sum;\n        this.maxS = max_sum;\n        int a = solve(num2);        // count in [0, num2]\n        int b = solve(num1);        // count in [0, num1]\n        int res = ((a - b) % MOD + MOD) % MOD;   // (num1, num2]\n        int s = 0;\n        for (int i = 0; i < num1.length(); i++) s += num1.charAt(i) - '0';\n        if (s >= minS && s <= maxS) res = (res + 1) % MOD;   // add back num1\n        return res;\n    }\n\n    int solve(String num) {\n        dp = new Integer[num.length()][maxS + 1];\n        return dfs(num, 0, 0, true);\n    }\n\n    int dfs(String num, int idx, int sum, boolean tight) {\n        if (sum > maxS) return 0;\n        if (idx == num.length()) return sum >= minS ? 1 : 0;\n        if (!tight && dp[idx][sum] != null) return dp[idx][sum];\n        int limit = tight ? num.charAt(idx) - '0' : 9;\n        long res = 0;\n        for (int d = 0; d <= limit; d++) {\n            res += dfs(num, idx + 1, sum + d, tight && d == limit);\n        }\n        res %= MOD;\n        if (!tight) dp[idx][sum] = (int) res;\n        return (int) res;\n    }\n}"
+      }
+    ],
+    "insight": "Reduce a range query to prefix counts f(num2)-f(num1)+valid(num1); the DFS state is just (position, digit-sum, tight), and leading zeros don't disturb the sum."
+  },
+  "dynamic-programming__numbers-with-repeated-digits": {
+    "title": "Numbers With Repeated Digits",
+    "topic": "Dynamic Programming",
+    "subtopic": "Digit",
+    "difficulty": "Very Hard",
+    "pattern": "Complement digit DP: total minus all-distinct-digit count",
+    "notes": "",
+    "statement": "Given a positive integer `n`, return the count of integers in `[1, n]` that have at least one repeated digit.",
+    "examples": [
+      { "input": "n = 20", "output": "1", "explanation": "Only 11 has a repeated digit." },
+      { "input": "n = 100", "output": "10", "explanation": "11,22,...,99,100 have repeats." },
+      { "input": "n = 1000", "output": "262", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= n <= 10^9"
+    ],
+    "approaches": [
+      {
+        "name": "Complement: count all-distinct then subtract",
+        "idea": "Counting numbers with a repeat directly is awkward, so count the complement: integers in `[1, n]` with all distinct digits, then return `n - distinct`. Numbers shorter than `n` contribute `9 * P(9, len-1)` per length (9 leading choices, permute the rest). For equal length, scan `n` left to right tracking used digits with a boolean array: at position `i` each smaller unused digit frees the remaining positions via `P(9-i, K-i-1)` permutations; if `n`'s own digit repeats, stop; if the whole scan matches, `n` itself is distinct so add 1.",
+        "time": "O(K * 10)",
+        "space": "O(1)",
+        "code": "public int numDupDigitsAtMostN(int n) {\n    return n - countUnique(n);\n}\n\nprivate int countUnique(int n) {\n    String s = String.valueOf(n);\n    int K = s.length();\n    int res = 0;\n    // numbers with fewer digits than n\n    for (int i = 1; i < K; i++) res += 9 * perm(9, i - 1);\n    // equal length, distinct, tight scan\n    boolean[] used = new boolean[10];\n    for (int i = 0; i < K; i++) {\n        int cur = s.charAt(i) - '0';\n        for (int d = (i == 0 ? 1 : 0); d < cur; d++) {\n            if (!used[d]) res += perm(9 - i, K - i - 1);\n        }\n        if (used[cur]) return res;   // n has a repeat in its prefix, stop\n        used[cur] = true;\n        if (i == K - 1) res += 1;    // n itself is all-distinct\n    }\n    return res;\n}\n\n// permutations: m * (m-1) * ... * (m-k+1)\nprivate int perm(int m, int k) {\n    int r = 1;\n    for (int i = 0; i < k; i++) r *= (m - i);\n    return r;\n}"
+      }
+    ],
+    "insight": "At-least-one-repeat is the complement of all-distinct; count distinct-digit numbers by length plus a tight scan, then subtract from n."
+  },
+  "dynamic-programming__count-special-integers": {
+    "title": "Count Special Integers",
+    "topic": "Dynamic Programming",
+    "subtopic": "Digit",
+    "difficulty": "Hard",
+    "pattern": "Digit DP for all-distinct-digit count with tight scan",
+    "notes": "",
+    "statement": "An integer is special if all of its decimal digits are distinct. Given a positive integer `n`, count the special integers in `[1, n]`.",
+    "examples": [
+      { "input": "n = 20", "output": "19", "explanation": "All of 1..20 are special except 11." },
+      { "input": "n = 5", "output": "5", "explanation": "1..5 are all special." },
+      { "input": "n = 135", "output": "110", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= n <= 2 * 10^9"
+    ],
+    "approaches": [
+      {
+        "name": "Distinct-digit counting by length + tight scan",
+        "idea": "Special integers are exactly the all-distinct-digit numbers. For lengths shorter than `n`'s, count `9 * P(9, len-1)` (9 leading choices, permute the rest from the remaining pool). For the same length, scan `n` left to right with a used-digit set: each smaller unused digit at position `i` frees `P(9-i, K-i-1)` completions; stop when `n` repeats a digit; add 1 at the end if `n` itself is all-distinct. Use `long` since `n` can exceed the int range.",
+        "time": "O(K * 10)",
+        "space": "O(1)",
+        "code": "public int countSpecialNumbers(int n) {\n    String s = String.valueOf(n);\n    int K = s.length();\n    long res = 0;\n    // fewer digits than n\n    for (int i = 1; i < K; i++) res += 9L * perm(9, i - 1);\n    // same length, tight\n    boolean[] used = new boolean[10];\n    for (int i = 0; i < K; i++) {\n        int cur = s.charAt(i) - '0';\n        for (int d = (i == 0 ? 1 : 0); d < cur; d++) {\n            if (!used[d]) res += perm(9 - i, K - i - 1);\n        }\n        if (used[cur]) return (int) res;   // repeat in n's prefix\n        used[cur] = true;\n        if (i == K - 1) res += 1;          // n itself is special\n    }\n    return (int) res;\n}\n\n// m * (m-1) * ... * (m-k+1)\nprivate long perm(int m, int k) {\n    long r = 1;\n    for (int i = 0; i < k; i++) r *= (m - i);\n    return r;\n}"
+      }
+    ],
+    "insight": "Special = all digits distinct; the same length-split plus tight positional permutation count that solves distinct-digit problems applies directly."
+  },
+  "dynamic-programming__non-negative-integers-without-consecutive-ones": {
+    "title": "Non-negative Integers without Consecutive Ones",
+    "topic": "Dynamic Programming",
+    "subtopic": "Digit",
+    "difficulty": "Hard",
+    "pattern": "Binary digit DP with Fibonacci completion counts",
+    "notes": "",
+    "statement": "Given a positive integer `n`, count the integers in `[0, n]` whose binary representation contains no two adjacent `1` bits.",
+    "examples": [
+      { "input": "n = 5", "output": "5", "explanation": "0,1,2,4,5 are valid; 3 (11) and its extensions with adjacent ones are excluded." },
+      { "input": "n = 1", "output": "2", "explanation": "0 and 1." },
+      { "input": "n = 2", "output": "3", "explanation": "0,1,2." }
+    ],
+    "constraints": [
+      "1 <= n <= 10^9"
+    ],
+    "approaches": [
+      {
+        "name": "Bit scan with Fibonacci counts",
+        "idea": "Let `f[i]` be the number of `i`-bit binary strings with no consecutive ones; this satisfies `f[i] = f[i-1] + f[i-2]` (Fibonacci) with `f[0]=1, f[1]=2`. Scan `n` from the most significant bit down. Whenever a bit of `n` is 1, fixing that position to 0 lets the remaining `i` lower bits be any valid string, adding `f[i]`; then we keep the bit as 1 to continue the tight prefix. If we ever see two consecutive set bits in `n`'s prefix, `n` and every larger tight extension is invalid, so return immediately. Otherwise add 1 at the end to include `n` itself.",
+        "time": "O(log n)",
+        "space": "O(log n)",
+        "code": "public int findIntegers(int n) {\n    int[] f = new int[32];\n    f[0] = 1;\n    f[1] = 2;\n    for (int i = 2; i < 32; i++) f[i] = f[i - 1] + f[i - 2];\n    int prevBit = 0, res = 0;\n    for (int i = 30; i >= 0; i--) {\n        if ((n & (1 << i)) != 0) {\n            res += f[i];                 // put 0 here, rest of bits free & valid\n            if (prevBit == 1) return res; // n has adjacent ones -> stop, n invalid\n            prevBit = 1;\n        } else {\n            prevBit = 0;\n        }\n    }\n    return res + 1;                       // include n itself\n}"
+      }
+    ],
+    "insight": "Valid bit strings of length i are Fibonacci-counted; each set bit of n contributes f[i] by fixing it to 0, and two adjacent set bits in n end the scan."
+  },
+  "dynamic-programming__house-robber-iii": {
+    "title": "House Robber III",
+    "topic": "Dynamic Programming",
+    "subtopic": "Tree DP",
+    "difficulty": "Medium",
+    "pattern": "Post-order tree DP returning rob/skip pair",
+    "notes": "",
+    "statement": "Houses form a binary tree with `root` as the entry. A thief cannot rob two directly-connected houses (parent and child) on the same night. Return the maximum amount that can be robbed without alerting the police.",
+    "examples": [
+      { "input": "root = [3,2,3,null,3,null,1]", "output": "7", "explanation": "Rob 3 (root) + 3 + 1 = 7." },
+      { "input": "root = [3,4,5,1,3,null,1]", "output": "9", "explanation": "Rob 4 + 5 = 9." }
+    ],
+    "constraints": [
+      "The number of nodes is in [1, 10^4]",
+      "0 <= Node.val <= 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Post-order DFS with two states",
+        "idea": "For each node compute two values via post-order DFS: the best total if this node is not robbed, and the best if it is robbed. If robbed, both children must be skipped, so `rob = node.val + left.skip + right.skip`. If skipped, each child independently takes its own best, so `skip = max(left) + max(right)`. Combining children before the parent avoids the exponential recomputation of a naive recursion.",
+        "time": "O(n)",
+        "space": "O(h)",
+        "code": "class Solution {\n    public int rob(TreeNode root) {\n        int[] r = dfs(root);\n        return Math.max(r[0], r[1]);\n    }\n\n    // r[0] = best if this node NOT robbed, r[1] = best if robbed\n    private int[] dfs(TreeNode node) {\n        if (node == null) return new int[]{0, 0};\n        int[] l = dfs(node.left);\n        int[] r = dfs(node.right);\n        int skip = Math.max(l[0], l[1]) + Math.max(r[0], r[1]);\n        int rob = node.val + l[0] + r[0];\n        return new int[]{skip, rob};\n    }\n}\n\nclass TreeNode {\n    int val;\n    TreeNode left, right;\n    TreeNode() {}\n    TreeNode(int val) { this.val = val; }\n    TreeNode(int val, TreeNode left, TreeNode right) {\n        this.val = val; this.left = left; this.right = right;\n    }\n}"
+      }
+    ],
+    "insight": "Return a (rob, skip) pair per node so the parent decides in O(1); robbing forces children's skip value, skipping takes each child's max."
+  },
+  "dynamic-programming__binary-tree-cameras": {
+    "title": "Binary Tree Cameras",
+    "topic": "Dynamic Programming",
+    "subtopic": "Tree DP",
+    "difficulty": "Hard",
+    "pattern": "Greedy post-order tree DP with 3 coverage states",
+    "notes": "",
+    "statement": "A camera placed on a node monitors its parent, itself, and its immediate children. Given the `root` of a binary tree, return the minimum number of cameras needed to monitor every node.",
+    "examples": [
+      { "input": "root = [0,0,null,0,0]", "output": "1", "explanation": "One camera on the middle node covers all." },
+      { "input": "root = [0,0,null,0,null,0,null,null,0]", "output": "2", "explanation": "" }
+    ],
+    "constraints": [
+      "The number of nodes is in [1, 1000]",
+      "Node.val == 0"
+    ],
+    "approaches": [
+      {
+        "name": "Greedy bottom-up with states",
+        "idea": "Each node reports one of three states to its parent: 0 = uncovered (needs a camera above), 1 = covered but has no camera, 2 = has a camera. Process children first. If any child is uncovered, this node must hold a camera (state 2, increment count). Otherwise if any child has a camera, this node is covered without one (state 1). Otherwise all children are merely covered, so this node stays uncovered (state 0) and defers to its parent. Treat `null` as covered (1). Placing cameras as high as possible (only when a child forces it) is optimal. If the root ends up uncovered, add one final camera.",
+        "time": "O(n)",
+        "space": "O(h)",
+        "code": "class Solution {\n    private int cameras = 0;\n\n    public int minCameraCover(TreeNode root) {\n        if (dfs(root) == 0) cameras++;   // root uncovered -> cover it\n        return cameras;\n    }\n\n    // 0 = uncovered, 1 = covered (no camera), 2 = has camera\n    private int dfs(TreeNode node) {\n        if (node == null) return 1;      // null counts as covered\n        int l = dfs(node.left);\n        int r = dfs(node.right);\n        if (l == 0 || r == 0) { cameras++; return 2; } // must cover a child\n        if (l == 2 || r == 2) return 1;                // covered by a child's camera\n        return 0;                                      // covered nowhere -> ask parent\n    }\n}\n\nclass TreeNode {\n    int val;\n    TreeNode left, right;\n    TreeNode() {}\n    TreeNode(int val) { this.val = val; }\n    TreeNode(int val, TreeNode left, TreeNode right) {\n        this.val = val; this.left = left; this.right = right;\n    }\n}"
+      }
+    ],
+    "insight": "Push cameras up from the leaves: only place one when a child would otherwise be left uncovered, and fix the root last if needed."
+  },
+  "dynamic-programming__sum-of-distances-in-tree": {
+    "title": "Sum of Distances in Tree",
+    "topic": "Dynamic Programming",
+    "subtopic": "Tree DP",
+    "difficulty": "Hard",
+    "pattern": "Rerooting tree DP (two DFS passes)",
+    "notes": "",
+    "statement": "An undirected connected tree has `n` nodes labeled `0..n-1` and `n-1` `edges`. For every node `i`, compute `ans[i]`, the sum of the distances from `i` to all other nodes. Return the array `ans`.",
+    "examples": [
+      { "input": "n = 6, edges = [[0,1],[0,2],[2,3],[2,4],[2,5]]", "output": "[8,12,6,10,10,10]", "explanation": "" },
+      { "input": "n = 1, edges = []", "output": "[0]", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= n <= 3 * 10^4",
+      "edges.length == n - 1",
+      "The input forms a valid tree"
+    ],
+    "approaches": [
+      {
+        "name": "Rerooting with subtree sizes",
+        "idea": "Root the tree at 0. In a first post-order DFS compute `count[node]` (subtree size) and `ans[0]` (sum of distances from the root) via `ans[node] += ans[child] + count[child]`. In a second pre-order DFS reroot: moving the root from a parent to a child, the `count[child]` nodes in the child's subtree each get one step closer and the other `n - count[child]` nodes get one step farther, so `ans[child] = ans[parent] - count[child] + (n - count[child])`. This gives all answers in O(n) instead of O(n^2).",
+        "time": "O(n)",
+        "space": "O(n)",
+        "code": "class Solution {\n    private List<Integer>[] graph;\n    private int[] count;\n    private int[] ans;\n    private int n;\n\n    @SuppressWarnings(\"unchecked\")\n    public int[] sumOfDistancesInTree(int n, int[][] edges) {\n        this.n = n;\n        graph = new List[n];\n        for (int i = 0; i < n; i++) graph[i] = new ArrayList<>();\n        for (int[] e : edges) {\n            graph[e[0]].add(e[1]);\n            graph[e[1]].add(e[0]);\n        }\n        count = new int[n];\n        ans = new int[n];\n        dfs1(0, -1);\n        dfs2(0, -1);\n        return ans;\n    }\n\n    private void dfs1(int node, int parent) {\n        count[node] = 1;\n        for (int child : graph[node]) {\n            if (child == parent) continue;\n            dfs1(child, node);\n            count[node] += count[child];\n            ans[node] += ans[child] + count[child];\n        }\n    }\n\n    private void dfs2(int node, int parent) {\n        for (int child : graph[node]) {\n            if (child == parent) continue;\n            ans[child] = ans[node] - count[child] + (n - count[child]);\n            dfs2(child, node);\n        }\n    }\n}"
+      }
+    ],
+    "insight": "Compute the root's answer with subtree sizes, then reroot: each edge shift brings count[child] nodes closer and (n-count[child]) nodes farther."
+  },
+  "dynamic-programming__tree-diameter": {
+    "title": "Tree Diameter",
+    "topic": "Dynamic Programming",
+    "subtopic": "Tree DP",
+    "difficulty": "Hard",
+    "pattern": "Post-order tree DP combining top-two child depths",
+    "notes": "",
+    "statement": "Given `edges` of an undirected tree with `n` nodes labeled `0..n-1` (so `n = edges.length + 1`), return the diameter: the number of edges on the longest path between any two nodes.",
+    "examples": [
+      { "input": "edges = [[0,1],[1,2],[2,3],[1,4],[4,5]]", "output": "4", "explanation": "Longest path 3-2-1-4-5 has 4 edges." },
+      { "input": "edges = [[0,1],[0,2]]", "output": "2", "explanation": "Path 1-0-2." }
+    ],
+    "constraints": [
+      "0 <= edges.length < 10^4",
+      "edges[i].length == 2",
+      "0 <= edges[i][j] < n",
+      "The given edges form an undirected tree"
+    ],
+    "approaches": [
+      {
+        "name": "DFS with best two downward chains",
+        "idea": "Root the tree anywhere and DFS. Each call returns the longest downward chain length (in edges) from that node. The longest path through a node combines its two deepest child chains, so at each node track the top two child depths `max1, max2` and update a global diameter with `max1 + max2`. Return `max1` upward. Every path has a unique highest node, so this single post-order pass finds the true maximum.",
+        "time": "O(n)",
+        "space": "O(n)",
+        "code": "class Solution {\n    private List<Integer>[] graph;\n    private int diameter = 0;\n\n    @SuppressWarnings(\"unchecked\")\n    public int treeDiameter(int[][] edges) {\n        int n = edges.length + 1;\n        graph = new List[n];\n        for (int i = 0; i < n; i++) graph[i] = new ArrayList<>();\n        for (int[] e : edges) {\n            graph[e[0]].add(e[1]);\n            graph[e[1]].add(e[0]);\n        }\n        dfs(0, -1);\n        return diameter;\n    }\n\n    // returns longest downward chain (edge count) from node\n    private int dfs(int node, int parent) {\n        int max1 = 0, max2 = 0;\n        for (int nei : graph[node]) {\n            if (nei == parent) continue;\n            int d = dfs(nei, node) + 1;\n            if (d > max1) { max2 = max1; max1 = d; }\n            else if (d > max2) { max2 = d; }\n        }\n        diameter = Math.max(diameter, max1 + max2);\n        return max1;\n    }\n}"
+      }
+    ],
+    "insight": "The diameter passes through some node as the sum of its two deepest child chains; one post-order DFS tracking the top two depths suffices."
+  },
+  "dynamic-programming__maximum-sum-bst": {
+    "title": "Maximum Sum BST",
+    "topic": "Dynamic Programming",
+    "subtopic": "Tree DP",
+    "difficulty": "Hard",
+    "pattern": "Post-order tree DP returning (isBST, min, max, sum)",
+    "notes": "",
+    "statement": "Given the `root` of a binary tree, return the maximum sum of all keys of any subtree that is itself a valid Binary Search Tree. An empty subtree has sum 0, so the answer is at least 0.",
+    "examples": [
+      { "input": "root = [1,4,3,2,4,2,5,null,null,null,null,null,null,4,6]", "output": "20", "explanation": "The BST subtree rooted at 3 (with children 2 and 5, and 4,6 under 5) sums to 20." },
+      { "input": "root = [4,3,null,1,2]", "output": "2", "explanation": "The single node 2 is the best BST." },
+      { "input": "root = [-4,-2,-5]", "output": "0", "explanation": "All keys negative, so the empty subtree wins." }
+    ],
+    "constraints": [
+      "The number of nodes is in [1, 4 * 10^4]",
+      "-4 * 10^4 <= Node.val <= 4 * 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Post-order validity + range + sum",
+        "idea": "Each DFS call returns four values: whether the subtree is a BST, its minimum key, its maximum key, and its key sum. A node forms a BST only if both children are BSTs and `left.max < node.val < right.min`. When valid, compute the subtree sum, update the global maximum, and propagate the new (min, max, sum). For `null` return a neutral BST with `min = +INF`, `max = -INF`, `sum = 0` so leaf comparisons pass. Initializing the answer to 0 covers the all-negative case.",
+        "time": "O(n)",
+        "space": "O(h)",
+        "code": "class Solution {\n    private int maxSum = 0;\n\n    public int maxSumBST(TreeNode root) {\n        dfs(root);\n        return maxSum;\n    }\n\n    // returns {isBST(1/0), min, max, sum}\n    private int[] dfs(TreeNode node) {\n        if (node == null) return new int[]{1, Integer.MAX_VALUE, Integer.MIN_VALUE, 0};\n        int[] l = dfs(node.left);\n        int[] r = dfs(node.right);\n        if (l[0] == 1 && r[0] == 1 && node.val > l[2] && node.val < r[1]) {\n            int sum = l[3] + r[3] + node.val;\n            maxSum = Math.max(maxSum, sum);\n            return new int[]{1, Math.min(l[1], node.val), Math.max(r[2], node.val), sum};\n        }\n        return new int[]{0, 0, 0, 0};   // not a BST\n    }\n}\n\nclass TreeNode {\n    int val;\n    TreeNode left, right;\n    TreeNode() {}\n    TreeNode(int val) { this.val = val; }\n    TreeNode(int val, TreeNode left, TreeNode right) {\n        this.val = val; this.left = left; this.right = right;\n    }\n}"
+      }
+    ],
+    "insight": "Bubble up (isBST, min, max, sum) so each node checks left.max < val < right.min in O(1); track the best sum, defaulting to 0 for all-negative trees."
+  },
+  "dynamic-programming__minimum-height-trees": {
+    "title": "Minimum Height Trees",
+    "topic": "Dynamic Programming",
+    "subtopic": "Tree DP",
+    "difficulty": "Medium",
+    "pattern": "Iterative leaf-trimming to find tree centroid(s)",
+    "notes": "",
+    "statement": "A tree of `n` nodes labeled `0..n-1` is given as `n-1` `edges`. Choosing any node as root yields a rooted tree of some height. Return the list of all root labels that minimize the tree height (the minimum height trees).",
+    "examples": [
+      { "input": "n = 4, edges = [[1,0],[1,2],[1,3]]", "output": "[1]", "explanation": "Rooting at 1 gives height 1." },
+      { "input": "n = 6, edges = [[3,0],[3,1],[3,2],[3,4],[5,4]]", "output": "[3,4]", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= n <= 2 * 10^4",
+      "edges.length == n - 1",
+      "The input forms a valid tree"
+    ],
+    "approaches": [
+      {
+        "name": "Topological leaf peeling",
+        "idea": "The optimal roots are the tree's centroids, which are found by repeatedly removing all current leaves (degree-1 nodes) layer by layer, like a topological trim from the outside in. When 2 or fewer nodes remain, those are the centroids and thus the minimum-height-tree roots (a tree has at most two). Maintain adjacency as sets so a leaf can update its single neighbor's degree in O(1). Handle `n == 1` (and the implicit `n == 2`) directly.",
+        "time": "O(n)",
+        "space": "O(n)",
+        "code": "public List<Integer> findMinHeightTrees(int n, int[][] edges) {\n    if (n == 1) return Collections.singletonList(0);\n    List<Set<Integer>> adj = new ArrayList<>();\n    for (int i = 0; i < n; i++) adj.add(new HashSet<>());\n    for (int[] e : edges) {\n        adj.get(e[0]).add(e[1]);\n        adj.get(e[1]).add(e[0]);\n    }\n    List<Integer> leaves = new ArrayList<>();\n    for (int i = 0; i < n; i++) if (adj.get(i).size() == 1) leaves.add(i);\n    int remaining = n;\n    while (remaining > 2) {\n        remaining -= leaves.size();\n        List<Integer> next = new ArrayList<>();\n        for (int leaf : leaves) {\n            int nei = adj.get(leaf).iterator().next();\n            adj.get(nei).remove(leaf);\n            if (adj.get(nei).size() == 1) next.add(nei);\n        }\n        leaves = next;\n    }\n    return leaves;\n}"
+      }
+    ],
+    "insight": "Minimum-height roots are the tree's 1 or 2 centroids; peel leaves layer by layer until at most two nodes remain."
+  }
+}

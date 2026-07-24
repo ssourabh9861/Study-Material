@@ -1,0 +1,289 @@
+{
+  "binary-search__median-of-two-sorted-arrays": {
+    "title": "Median of Two Sorted Arrays",
+    "topic": "Binary Search",
+    "subtopic": "Binary Search",
+    "difficulty": "Hard",
+    "pattern": "Binary search on partition",
+    "notes": "",
+    "statement": "Given two sorted arrays `nums1`, `nums2`, return the median of the combined array in **O(log(m+n))**.",
+    "examples": [
+      { "input": "nums1 = [1,3], nums2 = [2]", "output": "2.0", "explanation": "" }
+    ],
+    "constraints": [
+      "0 <= m, n <= 1000",
+      "1 <= m+n",
+      "-10^6 <= nums1[i], nums2[i] <= 10^6"
+    ],
+    "approaches": [
+      {
+        "name": "Partition the smaller array",
+        "idea": "Binary-search a cut `i` in the smaller array; the cut `j` in the other is fixed by `j = half - i`. A valid partition satisfies `left1 <= right2 && left2 <= right1`. Use `+/-inf` sentinels for out-of-range edges. `half = (m+n+1)/2` makes the odd case just `max(left1,left2)`.",
+        "time": "O(log(min(m,n)))",
+        "space": "O(1)",
+        "code": "public double findMedianSortedArrays(int[] a, int[] b) {\n    if (a.length > b.length) return findMedianSortedArrays(b, a);\n    int m = a.length, n = b.length, half = (m + n + 1) / 2;\n    int lo = 0, hi = m;\n    while (lo <= hi) {\n        int i = lo + (hi - lo) / 2;   // cut in a\n        int j = half - i;             // cut in b\n        int l1 = (i == 0) ? Integer.MIN_VALUE : a[i - 1];\n        int r1 = (i == m) ? Integer.MAX_VALUE : a[i];\n        int l2 = (j == 0) ? Integer.MIN_VALUE : b[j - 1];\n        int r2 = (j == n) ? Integer.MAX_VALUE : b[j];\n        if (l1 <= r2 && l2 <= r1) {\n            if (((m + n) & 1) == 1) return Math.max(l1, l2);\n            return (Math.max(l1, l2) + Math.min(r1, r2)) / 2.0;\n        } else if (l1 > r2) hi = i - 1;   // too many from a\n        else lo = i + 1;                  // too few from a\n    }\n    return 0.0;   // unreachable for valid input\n}"
+      }
+    ],
+    "insight": "Search the partition point of the shorter array; the other partition is derived. Valid cut iff `max(lefts) <= min(rights)` across the two arrays."
+  },
+  "binary-search__koko-eating-bananas": {
+    "title": "Koko Eating Bananas",
+    "topic": "Binary Search",
+    "subtopic": "Binary Search",
+    "difficulty": "Medium",
+    "pattern": "Binary search on the answer (min feasible speed)",
+    "notes": "",
+    "statement": "Koko eats bananas from `piles`. Each hour she picks one pile and eats up to `k` bananas from it (if the pile has fewer, she finishes it and stops for that hour). Given `h` hours, return the **minimum** integer eating speed `k` such that she finishes all piles within `h` hours.",
+    "examples": [
+      { "input": "piles = [3,6,7,11], h = 8", "output": "4", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= piles.length <= 10^4",
+      "piles.length <= h <= 10^9",
+      "1 <= piles[i] <= 10^9"
+    ],
+    "approaches": [
+      {
+        "name": "Binary search on speed",
+        "idea": "`hoursNeeded(k)` is monotonically non-increasing in `k`. Search `k` in `[1, max(piles)]` for the smallest `k` with `hoursNeeded(k) <= h`. Hours for a pile at speed `k` is `ceil(pile/k)`.",
+        "time": "O(n log maxPile)",
+        "space": "O(1)",
+        "code": "public int minEatingSpeed(int[] piles, int h) {\n    int lo = 1, hi = 0;\n    for (int p : piles) hi = Math.max(hi, p);\n    while (lo < hi) {\n        int k = lo + (hi - lo) / 2;\n        if (hours(piles, k) <= h) hi = k;   // feasible -> try slower\n        else lo = k + 1;\n    }\n    return lo;\n}\nprivate long hours(int[] piles, int k) {\n    long h = 0;\n    for (int p : piles) h += (p + k - 1) / k;   // ceil(p/k)\n    return h;\n}"
+      }
+    ],
+    "insight": "Feasibility is monotonic in the guessed speed, so binary-search the smallest feasible speed. Use `ceil` via `(p + k - 1)/k`."
+  },
+  "binary-search__capacity-to-ship-packages-within-d-days": {
+    "title": "Capacity to Ship Packages Within D Days",
+    "topic": "Binary Search",
+    "subtopic": "Binary Search",
+    "difficulty": "Medium",
+    "pattern": "Binary search on the answer (min capacity)",
+    "notes": "",
+    "statement": "Packages on a conveyor must ship in `days` days, in order. Each day the ship carries a contiguous prefix of remaining packages without exceeding its capacity. Return the least ship capacity to finish within `days`.",
+    "examples": [
+      { "input": "weights = [1,2,3,4,5,6,7,8,9,10], days = 5", "output": "15", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= days <= weights.length <= 5*10^4",
+      "1 <= weights[i] <= 500"
+    ],
+    "approaches": [
+      {
+        "name": "Binary search on capacity",
+        "idea": "Lower bound = `max(weights)` (a package must fit); upper bound = `sum(weights)` (ship it all in one day). `daysNeeded(cap)` is non-increasing in `cap`. Find the smallest `cap` needing `<= days`.",
+        "time": "O(n log(sum))",
+        "space": "O(1)",
+        "code": "public int shipWithinDays(int[] w, int days) {\n    int lo = 0, hi = 0;\n    for (int x : w) { lo = Math.max(lo, x); hi += x; }\n    while (lo < hi) {\n        int cap = lo + (hi - lo) / 2;\n        if (needed(w, cap) <= days) hi = cap;\n        else lo = cap + 1;\n    }\n    return lo;\n}\nprivate int needed(int[] w, int cap) {\n    int d = 1, cur = 0;\n    for (int x : w) {\n        if (cur + x > cap) { d++; cur = 0; }\n        cur += x;\n    }\n    return d;\n}"
+      }
+    ],
+    "insight": "Same skeleton as Koko. The only judgement is the search bounds: `[max element, total sum]`. Identical in structure to Split Array Largest Sum."
+  },
+  "binary-search__split-array-largest-sum": {
+    "title": "Split Array Largest Sum",
+    "topic": "Binary Search",
+    "subtopic": "Binary Search",
+    "difficulty": "Hard",
+    "pattern": "Binary search on the answer (minimize max subarray sum)",
+    "notes": "",
+    "statement": "Split `nums` into `k` non-empty contiguous subarrays to **minimize the largest** subarray sum. Return that minimized largest sum.",
+    "examples": [
+      { "input": "nums = [7,2,5,10,8], k = 2", "output": "18", "explanation": "[7,2,5] and [10,8]" }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 1000",
+      "0 <= nums[i] <= 10^6",
+      "1 <= k <= nums.length"
+    ],
+    "approaches": [
+      {
+        "name": "Binary search on the answer",
+        "idea": "This is exactly Capacity to Ship Packages with `days = k`: find the smallest cap so the array can be cut into `<= k` pieces each with sum `<= cap`. Bounds `[max, sum]`.",
+        "time": "O(n log(sum))",
+        "space": "O(1)",
+        "code": "public int splitArray(int[] nums, int k) {\n    int lo = 0, hi = 0;\n    for (int x : nums) { lo = Math.max(lo, x); hi += x; }\n    while (lo < hi) {\n        int cap = lo + (hi - lo) / 2;\n        if (pieces(nums, cap) <= k) hi = cap;\n        else lo = cap + 1;\n    }\n    return lo;\n}\nprivate int pieces(int[] nums, int cap) {\n    int p = 1, cur = 0;\n    for (int x : nums) {\n        if (cur + x > cap) { p++; cur = 0; }\n        cur += x;\n    }\n    return p;\n}"
+      },
+      {
+        "name": "DP over cuts",
+        "idea": "`dp[i][j]` = min possible largest sum splitting the first `i` elements into `j` parts; transition over the last cut using prefix sums. `O(n^2 k)` time, strictly worse; use only when the answer is not monotonic-checkable.",
+        "time": "O(n^2 k)",
+        "space": "O(n k)",
+        "code": "public int splitArrayDP(int[] nums, int k) {\n    int n = nums.length;\n    long[] pre = new long[n + 1];\n    for (int i = 0; i < n; i++) pre[i + 1] = pre[i] + nums[i];\n    long[][] dp = new long[n + 1][k + 1];\n    for (long[] row : dp) Arrays.fill(row, Long.MAX_VALUE);\n    dp[0][0] = 0;\n    for (int i = 1; i <= n; i++)\n        for (int j = 1; j <= k; j++)\n            for (int p = j - 1; p < i; p++) {\n                if (dp[p][j - 1] == Long.MAX_VALUE) continue;\n                long largest = Math.max(dp[p][j - 1], pre[i] - pre[p]);\n                dp[i][j] = Math.min(dp[i][j], largest);\n            }\n    return (int) dp[n][k];\n}"
+      }
+    ],
+    "insight": "\"Minimize the maximum\" over contiguous splits => binary search the answer; feasibility check = greedy count of pieces. Ship-packages / split-array / painter's partition are the same problem."
+  },
+  "binary-search__find-minimum-in-rotated-sorted-array-ii": {
+    "title": "Find Minimum in Rotated Sorted Array II",
+    "topic": "Binary Search",
+    "subtopic": "Binary Search",
+    "difficulty": "Hard",
+    "pattern": "Binary search with duplicates",
+    "notes": "",
+    "statement": "A sorted array (may contain **duplicates**) was rotated. Return the minimum element.",
+    "examples": [
+      { "input": "nums = [2,2,2,0,1]", "output": "0", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 5000",
+      "-5000 <= nums[i] <= 5000",
+      "the array may contain duplicates"
+    ],
+    "approaches": [
+      {
+        "name": "Compare mid with hi",
+        "idea": "Compare `nums[mid]` to `nums[hi]`: if `> nums[hi]` the min is strictly right (`lo = mid+1`); if `< nums[hi]` the min is at mid or left (`hi = mid`); if `== nums[hi]` we cannot tell, so shrink safely with `hi--` (the element at `hi` is duplicated by `mid`, so dropping it is safe).",
+        "time": "O(log n) average, O(n) worst (all equal)",
+        "space": "O(1)",
+        "code": "public int findMin(int[] nums) {\n    int lo = 0, hi = nums.length - 1;\n    while (lo < hi) {\n        int mid = lo + (hi - lo) / 2;\n        if (nums[mid] > nums[hi]) lo = mid + 1;\n        else if (nums[mid] < nums[hi]) hi = mid;\n        else hi--;                 // duplicate: shrink\n    }\n    return nums[lo];\n}"
+      }
+    ],
+    "insight": "Compare to `hi`, not `lo` (comparing to `lo` breaks on non-rotated arrays). Duplicates force the `hi--` fallback, which pushes worst case to O(n)."
+  },
+  "binary-search__find-k-th-smallest-pair-distance": {
+    "title": "Find K-th Smallest Pair Distance",
+    "topic": "Binary Search",
+    "subtopic": "Binary Search",
+    "difficulty": "Hard",
+    "pattern": "Binary search on the answer + two-pointer counting",
+    "notes": "",
+    "statement": "Given `nums`, the distance of a pair `(i,j)` is `|nums[i]-nums[j]|`. Return the **k-th smallest** distance among all pairs.",
+    "examples": [
+      { "input": "nums = [1,3,1], k = 1", "output": "0", "explanation": "pairs: (1,1)->0, (1,3)->2, (1,3)->2; 1st smallest = 0" }
+    ],
+    "constraints": [
+      "2 <= nums.length <= 10^4",
+      "0 <= nums[i] <= 10^6",
+      "1 <= k <= n*(n-1)/2"
+    ],
+    "approaches": [
+      {
+        "name": "Binary search on distance, count pairs <= mid",
+        "idea": "Sort. `countLE(d)` = number of pairs with distance `<= d`, computed with a sliding window in O(n) (for each right, advance left while `nums[right]-nums[left] > d`, add `right-left`). The count is non-decreasing in `d`; find the smallest `d` with `count(d) >= k`.",
+        "time": "O(n log n + n log(maxDist))",
+        "space": "O(1)",
+        "code": "public int smallestDistancePair(int[] nums, int k) {\n    Arrays.sort(nums);\n    int n = nums.length;\n    int lo = 0, hi = nums[n - 1] - nums[0];\n    while (lo < hi) {\n        int mid = lo + (hi - lo) / 2;\n        if (countLE(nums, mid) >= k) hi = mid;\n        else lo = mid + 1;\n    }\n    return lo;\n}\nprivate int countLE(int[] nums, int d) {\n    int cnt = 0, left = 0;\n    for (int right = 0; right < nums.length; right++) {\n        while (nums[right] - nums[left] > d) left++;\n        cnt += right - left;\n    }\n    return cnt;\n}"
+      }
+    ],
+    "insight": "Search over the distance value, not indices. The feasibility check (\"how many pairs <= d\") is itself a two-pointer O(n) count: pairs-with-distance => sort + sliding window."
+  },
+  "binary-search__kth-smallest-element-in-a-sorted-matrix": {
+    "title": "Kth Smallest Element in a Sorted Matrix",
+    "topic": "Binary Search",
+    "subtopic": "Binary Search",
+    "difficulty": "Hard",
+    "pattern": "Binary search on value in a row/col-sorted matrix",
+    "notes": "",
+    "statement": "`n x n` matrix with rows and columns sorted ascending. Return the k-th smallest element (in sorted order, counting duplicates).",
+    "examples": [
+      { "input": "matrix = [[1,5,9],[10,11,13],[12,13,15]], k = 8", "output": "13", "explanation": "" }
+    ],
+    "constraints": [
+      "n == matrix.length == matrix[i].length",
+      "1 <= n <= 300",
+      "1 <= k <= n*n"
+    ],
+    "approaches": [
+      {
+        "name": "Binary search on value",
+        "idea": "Search value in `[matrix[0][0], matrix[n-1][n-1]]`. `countLE(x)` walks from bottom-left: move right when `<= x` (add whole column above+self), else move up. The smallest `x` with `countLE(x) >= k` is an actual matrix value.",
+        "time": "O(n log(maxVal-minVal))",
+        "space": "O(1)",
+        "code": "public int kthSmallest(int[][] matrix, int k) {\n    int n = matrix.length;\n    int lo = matrix[0][0], hi = matrix[n - 1][n - 1];\n    while (lo < hi) {\n        int mid = lo + (hi - lo) / 2;\n        if (countLE(matrix, mid) >= k) hi = mid;\n        else lo = mid + 1;\n    }\n    return lo;\n}\nprivate int countLE(int[][] m, int x) {\n    int n = m.length, cnt = 0, row = n - 1, col = 0;\n    while (row >= 0 && col < n) {\n        if (m[row][col] <= x) { cnt += row + 1; col++; }\n        else row--;\n    }\n    return cnt;\n}"
+      },
+      {
+        "name": "Min-heap of size n",
+        "idea": "Push the first element of each row; pop `k` times, pushing the next element in the popped element's row. `O(k log n)`. Simpler to reason about but slower for large k.",
+        "time": "O(k log n)",
+        "space": "O(n)",
+        "code": "public int kthSmallestHeap(int[][] matrix, int k) {\n    int n = matrix.length;\n    // entries: {value, row, col}\n    PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[0] - b[0]);\n    for (int r = 0; r < n; r++) pq.offer(new int[]{matrix[r][0], r, 0});\n    int val = 0;\n    for (int i = 0; i < k; i++) {\n        int[] cur = pq.poll();\n        val = cur[0];\n        int r = cur[1], c = cur[2];\n        if (c + 1 < n) pq.offer(new int[]{matrix[r][c + 1], r, c + 1});\n    }\n    return val;\n}"
+      }
+    ],
+    "insight": "Do not heap-merge unless k is small. The staircase `countLE` (start bottom-left) turns \"sorted matrix\" into a 1-D binary-search-on-value."
+  },
+  "binary-search__minimize-max-distance-to-gas-station": {
+    "title": "Minimize Max Distance to Gas Station",
+    "topic": "Binary Search",
+    "subtopic": "Binary Search",
+    "difficulty": "Hard",
+    "pattern": "Binary search on a real-valued answer",
+    "notes": "",
+    "statement": "Given sorted positions `stations` of existing gas stations on a horizontal line and an integer `k`, add `k` new stations (anywhere, integer not required) to minimize the maximum distance between adjacent stations. Return that minimized maximum distance; answers within `1e-6` of the true value are accepted.",
+    "examples": [
+      { "input": "stations = [1,2,3,4,5,6,7,8,9,10], k = 9", "output": "0.50000", "explanation": "Add one station in the middle of each unit gap." }
+    ],
+    "constraints": [
+      "10 <= stations.length <= 2000",
+      "0 <= stations[i] <= 10^8",
+      "stations is sorted in strictly increasing order",
+      "1 <= k <= 10^6"
+    ],
+    "approaches": [
+      {
+        "name": "Binary search on the max distance",
+        "idea": "Guess a candidate max distance `d` (a real number). For each existing gap `g = stations[i]-stations[i-1]`, the minimum new stations needed to keep every sub-gap `<= d` is `floor(g/d)`; sum these. The requirement is monotonic: larger `d` needs fewer stations, so it is feasible iff `total <= k`. Binary-search `d` in `[0, maxGap]` until the window is below `1e-6`.",
+        "time": "O(n log(maxGap / eps))",
+        "space": "O(1)",
+        "code": "public double minmaxGasDist(int[] stations, int k) {\n    double lo = 0, hi = 0;\n    for (int i = 1; i < stations.length; i++)\n        hi = Math.max(hi, stations[i] - stations[i - 1]);\n    while (hi - lo > 1e-6) {\n        double mid = lo + (hi - lo) / 2;\n        if (needed(stations, mid) <= k) hi = mid;   // feasible -> try smaller\n        else lo = mid;\n    }\n    return lo;\n}\nprivate long needed(int[] stations, double d) {\n    long cnt = 0;\n    for (int i = 1; i < stations.length; i++)\n        cnt += (long) ((stations[i] - stations[i - 1]) / d);\n    return cnt;\n}"
+      }
+    ],
+    "insight": "\"Minimize the maximum\" with a continuous answer => binary-search on a real value with an epsilon stop; feasibility of gap `d` is `sum(floor(gap/d)) <= k`."
+  },
+  "binary-search__aggressive-cows-magnetic-force-between-balls": {
+    "title": "Aggressive Cows / Magnetic Force Between Balls",
+    "topic": "Binary Search",
+    "subtopic": "Binary Search",
+    "difficulty": "Hard",
+    "pattern": "Binary search on the answer (maximize the minimum gap)",
+    "notes": "",
+    "statement": "Given distinct integer positions `position` of `n` baskets and `m` balls, place all `m` balls into baskets so that the **minimum** distance between any two balls is as large as possible. Return that maximized minimum distance. (Equivalent to Aggressive Cows: place `m` cows in stalls maximizing the closest pair.)",
+    "examples": [
+      { "input": "position = [1,2,3,4,7], m = 3", "output": "3", "explanation": "Place balls at 1, 4, 7; the minimum pairwise distance is 3." }
+    ],
+    "constraints": [
+      "n == position.length",
+      "2 <= n <= 10^5",
+      "1 <= position[i] <= 10^9",
+      "all positions are distinct",
+      "2 <= m <= position.length"
+    ],
+    "approaches": [
+      {
+        "name": "Binary search on the minimum gap + greedy check",
+        "idea": "Sort positions. Guess a minimum gap `d`; greedily place a ball at the leftmost basket, then at each next basket at least `d` away from the last placed ball. Feasibility is monotonic: a larger `d` fits fewer balls, so it is feasible iff we can place `>= m` balls. Binary-search the largest feasible `d` in `[1, maxPos-minPos]`.",
+        "time": "O(n log n + n log(maxPos-minPos))",
+        "space": "O(1) beyond the sort",
+        "code": "public int maxDistance(int[] position, int m) {\n    Arrays.sort(position);\n    int lo = 1, hi = position[position.length - 1] - position[0];\n    int ans = 0;\n    while (lo <= hi) {\n        int mid = lo + (hi - lo) / 2;\n        if (canPlace(position, m, mid)) { ans = mid; lo = mid + 1; }\n        else hi = mid - 1;\n    }\n    return ans;\n}\nprivate boolean canPlace(int[] pos, int m, int minDist) {\n    int count = 1, last = pos[0];\n    for (int i = 1; i < pos.length; i++) {\n        if (pos[i] - last >= minDist) {\n            count++;\n            last = pos[i];\n            if (count == m) return true;\n        }\n    }\n    return count >= m;\n}"
+      }
+    ],
+    "insight": "\"Maximize the minimum\" => binary-search the gap; the check is a greedy left-to-right placement counting how many balls fit with spacing `>= d`."
+  },
+  "binary-search__median-of-a-row-wise-sorted-matrix": {
+    "title": "Median of a Row-Wise Sorted Matrix",
+    "topic": "Binary Search",
+    "subtopic": "Binary Search",
+    "difficulty": "Hard",
+    "pattern": "Binary search on value + per-row upper bound counting",
+    "notes": "Premium",
+    "statement": "Given an `r x c` matrix where **each row is sorted** in ascending order and `r*c` is odd, return the median of all `r*c` elements. Rows are independent (columns are NOT necessarily sorted), and the goal is better than the `O(r*c)` full-materialization approach.",
+    "examples": [
+      { "input": "matrix = [[1,3,5],[2,6,9],[3,6,9]], r = 3, c = 3", "output": "5", "explanation": "Sorted elements: 1,2,3,3,5,6,6,9,9; the middle (5th) element is 5." }
+    ],
+    "constraints": [
+      "1 <= r, c <= 500",
+      "r*c is odd",
+      "1 <= matrix[i][j] <= 10^9",
+      "each row of matrix is sorted ascending"
+    ],
+    "approaches": [
+      {
+        "name": "Binary search on value with row upper-bounds",
+        "idea": "The median is the smallest value `v` such that the count of elements `<= v` exceeds `(r*c)/2`. Binary-search `v` in `[min of first column, max of last column]`; for each candidate, count elements `<= v` by summing an upper-bound binary search over every sorted row. Move `hi = mid` when the count exceeds `need`, else `lo = mid+1`. The final `lo` is a real matrix element (the median).",
+        "time": "O(r log c * log(maxVal-minVal))",
+        "space": "O(1)",
+        "code": "public int matrixMedian(int[][] matrix) {\n    int r = matrix.length, c = matrix[0].length;\n    int lo = Integer.MAX_VALUE, hi = Integer.MIN_VALUE;\n    for (int i = 0; i < r; i++) {\n        lo = Math.min(lo, matrix[i][0]);\n        hi = Math.max(hi, matrix[i][c - 1]);\n    }\n    int need = (r * c) / 2;   // want smallest value with countLE > need\n    while (lo < hi) {\n        int mid = lo + (hi - lo) / 2;\n        if (countLE(matrix, mid) > need) hi = mid;\n        else lo = mid + 1;\n    }\n    return lo;\n}\nprivate int countLE(int[][] matrix, int x) {\n    int cnt = 0;\n    for (int[] row : matrix) cnt += upperBound(row, x);\n    return cnt;\n}\nprivate int upperBound(int[] row, int x) {\n    int lo = 0, hi = row.length;   // count of elements <= x\n    while (lo < hi) {\n        int mid = lo + (hi - lo) / 2;\n        if (row[mid] <= x) lo = mid + 1;\n        else hi = mid;\n    }\n    return lo;\n}"
+      }
+    ],
+    "insight": "Median = smallest value whose \"count of elements <= it\" exceeds half; binary-search the value and count per row with an upper bound instead of merging all rows."
+  }
+}

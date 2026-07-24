@@ -1,0 +1,346 @@
+{
+  "graphs__course-schedule-i-ii": {
+    "title": "Course Schedule I/II",
+    "topic": "Graphs",
+    "subtopic": "Topological Sort",
+    "difficulty": "Medium",
+    "pattern": "Kahn's BFS topological sort / cycle detection",
+    "notes": "",
+    "statement": "`numCourses` courses with prerequisites `[a, b]` meaning `b` must be taken before `a`. **I:** can all courses be finished (no cycle)? **II:** return a valid order (or `[]` if impossible).",
+    "examples": [
+      { "input": "numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]", "output": "[0,1,2,3]", "explanation": "0 first, then 1 and 2, then 3; [0,2,1,3] is also valid." }
+    ],
+    "constraints": [
+      "1 <= numCourses <= 2000",
+      "0 <= prerequisites.length <= 5000",
+      "prerequisites[i].length == 2",
+      "no duplicate prerequisites"
+    ],
+    "approaches": [
+      {
+        "name": "Kahn's algorithm (BFS on indegrees)",
+        "idea": "Build adjacency `b -> a` and an indegree array. Seed a queue with all indegree-0 nodes. Pop a node, append it to the order, decrement its neighbors' indegrees, and enqueue any that reach 0. If the produced order contains all `numCourses` nodes it is valid; otherwise the leftover nodes form a cycle and no order exists.",
+        "time": "O(V + E)",
+        "space": "O(V + E)",
+        "code": "public int[] findOrder(int numCourses, int[][] prerequisites) {\n    List<List<Integer>> adj = new ArrayList<>();\n    for (int i = 0; i < numCourses; i++) adj.add(new ArrayList<>());\n    int[] indeg = new int[numCourses];\n    for (int[] p : prerequisites) { adj.get(p[1]).add(p[0]); indeg[p[0]]++; }\n\n    Deque<Integer> q = new ArrayDeque<>();\n    for (int i = 0; i < numCourses; i++) if (indeg[i] == 0) q.offer(i);\n\n    int[] order = new int[numCourses];\n    int idx = 0;\n    while (!q.isEmpty()) {\n        int u = q.poll();\n        order[idx++] = u;\n        for (int v : adj.get(u)) if (--indeg[v] == 0) q.offer(v);\n    }\n    return idx == numCourses ? order : new int[0];\n}\n\n// Course Schedule I: just return idx == numCourses\npublic boolean canFinish(int numCourses, int[][] prerequisites) {\n    return findOrder(numCourses, prerequisites).length == numCourses || prerequisites.length == 0 && numCourses > 0;\n}"
+      }
+    ],
+    "insight": "Kahn's: repeatedly remove indegree-0 nodes. If you can't remove all of them, the leftover forms a cycle -> impossible. For Course Schedule I, just check `idx == numCourses`."
+  },
+  "graphs__alien-dictionary": {
+    "title": "Alien Dictionary",
+    "topic": "Graphs",
+    "subtopic": "Topological Sort",
+    "difficulty": "Hard",
+    "pattern": "Build precedence graph from adjacent words, then Kahn's topological sort",
+    "notes": "",
+    "statement": "Given a list of `words` sorted lexicographically by the rules of an unknown alien language, derive a possible order of its letters as a string. Return `\"\"` if no valid order exists (e.g. a longer word appears before its own prefix).",
+    "examples": [
+      { "input": "words = [\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]", "output": "\"wertf\"", "explanation": "Comparing adjacent words yields t<f, w<e, r<t, e<r -> wertf." },
+      { "input": "words = [\"abc\",\"ab\"]", "output": "\"\"", "explanation": "A longer word precedes its prefix, which is invalid." }
+    ],
+    "constraints": [
+      "1 <= words.length <= 100",
+      "1 <= words[i].length <= 100",
+      "words[i] consists of only lowercase English letters"
+    ],
+    "approaches": [
+      {
+        "name": "Precedence graph + Kahn's topological sort",
+        "idea": "Only the first differing character between two adjacent words gives an ordering edge x -> y. Add every distinct letter as a node, derive edges from each adjacent pair (returning `\"\"` if a word is a prefix of the previous longer word), then topologically sort. If the sort consumes every letter the string is a valid order; otherwise a cycle exists and the language is inconsistent.",
+        "time": "O(C) where C is total characters",
+        "space": "O(1) (at most 26 nodes)",
+        "code": "public String alienOrder(String[] words) {\n    Map<Character, Set<Character>> adj = new HashMap<>();\n    Map<Character, Integer> indeg = new HashMap<>();\n    for (String w : words)\n        for (char c : w.toCharArray()) {\n            adj.putIfAbsent(c, new HashSet<>());\n            indeg.putIfAbsent(c, 0);\n        }\n    for (int i = 0; i + 1 < words.length; i++) {\n        String a = words[i], b = words[i + 1];\n        int len = Math.min(a.length(), b.length());\n        int j = 0;\n        for (; j < len; j++) {\n            char x = a.charAt(j), y = b.charAt(j);\n            if (x != y) {\n                if (adj.get(x).add(y)) indeg.merge(y, 1, Integer::sum);\n                break;\n            }\n        }\n        if (j == len && a.length() > b.length()) return \"\"; // invalid prefix\n    }\n    Deque<Character> q = new ArrayDeque<>();\n    for (Map.Entry<Character, Integer> e : indeg.entrySet())\n        if (e.getValue() == 0) q.offer(e.getKey());\n    StringBuilder sb = new StringBuilder();\n    while (!q.isEmpty()) {\n        char u = q.poll();\n        sb.append(u);\n        for (char v : adj.get(u))\n            if (indeg.merge(v, -1, Integer::sum) == 0) q.offer(v);\n    }\n    return sb.length() == indeg.size() ? sb.toString() : \"\";\n}"
+      }
+    ],
+    "insight": "Ordering info comes ONLY from the first differing char of adjacent words; guard the prefix case (`abc` before `ab` is invalid), then Kahn's over <=26 letters."
+  },
+  "graphs__parallel-courses-ii": {
+    "title": "Parallel Courses II",
+    "topic": "Graphs",
+    "subtopic": "Topological Sort",
+    "difficulty": "Hard",
+    "pattern": "Bitmask DP over course sets (topo + at-most-k-per-semester constraint)",
+    "notes": "",
+    "statement": "`n` courses, prerequisite edges `[a, b]` (a before b), and you may take up to `k` courses per semester (a course is available only once all its prereqs are done). Return the minimum number of semesters to finish all courses.",
+    "examples": [
+      { "input": "n = 4, relations = [[2,1],[3,1],[1,4]], k = 2", "output": "3", "explanation": "Sem1: {2,3}; Sem2: {1}; Sem3: {4}." }
+    ],
+    "constraints": [
+      "1 <= n <= 15",
+      "1 <= k <= n",
+      "relations form a DAG",
+      "no duplicate relations"
+    ],
+    "approaches": [
+      {
+        "name": "Subset DP over completed-course bitmasks",
+        "idea": "`n <= 15` means state = bitmask of completed courses. For a state, `avail` is the set of not-yet-taken courses whose prereq mask is fully contained in the state. If at most `k` are available take all in one semester; otherwise enumerate every non-empty subset of `avail` of size <= k and transition, taking a min number of semesters. Greedily taking the k most-unlocking courses is a classic wrong answer, so all size-<=k subsets must be tried.",
+        "time": "O(3^n) subset enumeration",
+        "space": "O(2^n)",
+        "code": "public int minNumberOfSemesters(int n, int[][] relations, int k) {\n    int[] pre = new int[n];                       // prereq mask per course\n    for (int[] r : relations) pre[r[1] - 1] |= (1 << (r[0] - 1));\n\n    int full = (1 << n) - 1;\n    int[] dp = new int[1 << n];\n    Arrays.fill(dp, Integer.MAX_VALUE);\n    dp[0] = 0;\n    for (int mask = 0; mask <= full; mask++) {\n        if (dp[mask] == Integer.MAX_VALUE) continue;\n        int avail = 0;\n        for (int c = 0; c < n; c++)\n            if ((mask & (1 << c)) == 0 && (mask & pre[c]) == pre[c]) avail |= (1 << c);\n\n        // enumerate all non-empty subsets of avail\n        for (int sub = avail; sub > 0; sub = (sub - 1) & avail) {\n            if (Integer.bitCount(sub) > k) continue;\n            int next = mask | sub;\n            dp[next] = Math.min(dp[next], dp[mask] + 1);\n        }\n    }\n    return dp[full];\n}"
+      }
+    ],
+    "insight": "`n <= 15` screams bitmask; you must try all size-<=k subsets of the currently-available set. `for (sub = mask; sub>0; sub=(sub-1)&mask)` enumerates subsets."
+  },
+  "graphs__sort-items-by-groups-respecting-dependencies": {
+    "title": "Sort Items by Groups Respecting Dependencies",
+    "topic": "Graphs",
+    "subtopic": "Topological Sort",
+    "difficulty": "Hard",
+    "pattern": "Two-level topological sort (groups, then items within groups)",
+    "notes": "2 topo sort",
+    "statement": "`n` items, each in a group (`-1` means its own singleton group). Given item dependencies `beforeItems`, return an ordering of items so that (a) items in the same group are contiguous and (b) all dependencies are respected. Return `[]` if impossible.",
+    "examples": [
+      { "input": "n=8, m=2, group=[-1,-1,1,0,0,1,0,-1], beforeItems=[[],[6],[5],[6],[3,6],[],[],[]]", "output": "[6,3,4,1,5,2,0,7]", "explanation": "One valid ordering: groups contiguous and every dependency satisfied." }
+    ],
+    "constraints": [
+      "1 <= n <= 3*10^4",
+      "0 <= m <= n",
+      "group.length == beforeItems.length == n",
+      "-1 <= group[i] <= m - 1"
+    ],
+    "approaches": [
+      {
+        "name": "Topo sort at two levels (groups and items)",
+        "idea": "Give each `-1` item a fresh unique group id so every item has a real group. Build an item graph (item->item deps) and a group graph (a cross-group dependency `b -> a` adds group edge `groupOf(b) -> groupOf(a)`). Topo-sort items and topo-sort groups independently; if either can't consume all nodes there is a cycle so return `[]`. Otherwise bucket the item order by group and emit buckets in group-topo order.",
+        "time": "O(V + E)",
+        "space": "O(V + E)",
+        "code": "public int[] sortItems(int n, int m, int[] group, List<List<Integer>> beforeItems) {\n    // assign unique groups to -1 items\n    for (int i = 0; i < n; i++) if (group[i] == -1) group[i] = m++;\n\n    List<List<Integer>> itemAdj = new ArrayList<>(), grpAdj = new ArrayList<>();\n    int[] itemIn = new int[n], grpIn = new int[m];\n    for (int i = 0; i < n; i++) itemAdj.add(new ArrayList<>());\n    for (int i = 0; i < m; i++) grpAdj.add(new ArrayList<>());\n\n    for (int i = 0; i < n; i++)\n        for (int b : beforeItems.get(i)) {\n            itemAdj.get(b).add(i); itemIn[i]++;\n            if (group[b] != group[i]) { grpAdj.get(group[b]).add(group[i]); grpIn[group[i]]++; }\n        }\n\n    List<Integer> itemOrder = topo(itemAdj, itemIn, n);\n    List<Integer> grpOrder  = topo(grpAdj, grpIn, m);\n    if (itemOrder.isEmpty() || grpOrder.isEmpty()) return new int[0];\n\n    // bucket items by group, preserving item topo order\n    Map<Integer, List<Integer>> byGroup = new HashMap<>();\n    for (int it : itemOrder) byGroup.computeIfAbsent(group[it], z -> new ArrayList<>()).add(it);\n\n    int[] res = new int[n]; int idx = 0;\n    for (int g : grpOrder)\n        for (int it : byGroup.getOrDefault(g, new ArrayList<>())) res[idx++] = it;\n    return res;\n}\n\nprivate List<Integer> topo(List<List<Integer>> adj, int[] indeg, int cnt) {\n    Deque<Integer> q = new ArrayDeque<>();\n    for (int i = 0; i < cnt; i++) if (indeg[i] == 0) q.offer(i);\n    List<Integer> order = new ArrayList<>();\n    while (!q.isEmpty()) {\n        int u = q.poll(); order.add(u);\n        for (int v : adj.get(u)) if (--indeg[v] == 0) q.offer(v);\n    }\n    return order.size() == cnt ? order : new ArrayList<>();   // empty = cycle\n}"
+      }
+    ],
+    "insight": "Same-group-contiguous + cross deps = topo-sort the GROUPS and topo-sort the ITEMS independently, then lay items down grouped in group-topo order. Convert `-1` groups to unique ids first."
+  },
+  "graphs__sequence-reconstruction": {
+    "title": "Sequence Reconstruction",
+    "topic": "Graphs",
+    "subtopic": "Topological Sort",
+    "difficulty": "Hard",
+    "pattern": "Unique topological order check via Kahn's (queue size must stay 1)",
+    "notes": "",
+    "statement": "Given a permutation `org` of `1..n` and a list of subsequences `seqs`, decide whether `org` is the one and only shortest supersequence of all sequences in `seqs`. Equivalently, whether the precedence graph built from `seqs` has a unique topological order and that order is exactly `org`.",
+    "examples": [
+      { "input": "org = [1,2,3], seqs = [[1,2],[1,3]]", "output": "false", "explanation": "Both [1,2,3] and [1,3,2] are valid supersequences, so reconstruction is not unique." },
+      { "input": "org = [1,2,3], seqs = [[1,2],[1,3],[2,3]]", "output": "true", "explanation": "The order is forced to be exactly 1,2,3." }
+    ],
+    "constraints": [
+      "1 <= n <= 10^4",
+      "org is a permutation of 1..n",
+      "1 <= seqs.length <= 10^4",
+      "seqs[i] contains values in 1..n"
+    ],
+    "approaches": [
+      {
+        "name": "Kahn's with uniqueness enforcement",
+        "idea": "Build a graph from consecutive elements of each subsequence and track distinct numbers. The reconstruction is unique iff at every step of Kahn's BFS the queue holds exactly one node, and that node matches `org` position by position. If the queue ever has more than one indegree-0 node the order is ambiguous; if the popped node diverges from `org`, or not all `n` numbers are covered, it fails.",
+        "time": "O(V + E)",
+        "space": "O(V + E)",
+        "code": "public boolean sequenceReconstruction(int[] org, List<List<Integer>> seqs) {\n    int n = org.length;\n    Map<Integer, List<Integer>> adj = new HashMap<>();\n    Map<Integer, Integer> indeg = new HashMap<>();\n    for (List<Integer> seq : seqs)\n        for (int x : seq) {\n            adj.putIfAbsent(x, new ArrayList<>());\n            indeg.putIfAbsent(x, 0);\n        }\n    for (List<Integer> seq : seqs)\n        for (int i = 0; i + 1 < seq.size(); i++) {\n            int u = seq.get(i), v = seq.get(i + 1);\n            adj.get(u).add(v);\n            indeg.merge(v, 1, Integer::sum);\n        }\n    if (indeg.size() != n) return false;              // must cover exactly 1..n\n    Deque<Integer> q = new ArrayDeque<>();\n    for (Map.Entry<Integer, Integer> e : indeg.entrySet())\n        if (e.getValue() == 0) q.offer(e.getKey());\n    int idx = 0;\n    while (!q.isEmpty()) {\n        if (q.size() > 1) return false;               // not unique\n        int u = q.poll();\n        if (idx >= n || u != org[idx++]) return false; // diverges from org\n        for (int v : adj.get(u))\n            if (indeg.merge(v, -1, Integer::sum) == 0) q.offer(v);\n    }\n    return idx == n;\n}"
+      }
+    ],
+    "insight": "Unique topo order == the Kahn's queue never holds more than one node; also verify the distinct-number count equals n and each pop matches `org`."
+  },
+  "graphs__redundant-connection-i-ii": {
+    "title": "Redundant Connection I/II",
+    "topic": "Graphs",
+    "subtopic": "Union-Find",
+    "difficulty": "Medium",
+    "pattern": "Union-Find to detect the cycle-closing edge (directed variant handles two-parent + cycle)",
+    "notes": "",
+    "statement": "A tree of `n` nodes had exactly one extra edge added. **I (undirected):** return the edge that can be removed so the result is a tree; if several, return the one appearing last. **II (directed):** the graph was a rooted tree plus one extra directed edge; return the edge to remove to restore a rooted tree (the last such edge in input).",
+    "examples": [
+      { "input": "I: edges = [[1,2],[1,3],[2,3]]", "output": "[2,3]", "explanation": "Edge [2,3] closes the cycle 1-2-3." },
+      { "input": "II: edges = [[1,2],[1,3],[2,3]]", "output": "[2,3]", "explanation": "Node 3 gets two parents; removing [2,3] leaves a valid rooted tree." }
+    ],
+    "constraints": [
+      "n == edges.length",
+      "3 <= n <= 1000",
+      "edges[i].length == 2",
+      "1 <= ai, bi <= n"
+    ],
+    "approaches": [
+      {
+        "name": "I - Union-Find, first edge that fails to union",
+        "idea": "Process edges in order and union their endpoints. The first edge whose two endpoints are already connected is the one that closes a cycle; since we scan in order this is automatically the last redundant edge for a single-extra-edge tree.",
+        "time": "O(n alpha(n))",
+        "space": "O(n)",
+        "code": "public int[] findRedundantConnection(int[][] edges) {\n    int n = edges.length;\n    DSU dsu = new DSU(n + 1);\n    for (int[] e : edges)\n        if (!dsu.union(e[0], e[1])) return e;\n    return new int[0];\n}\n\nclass DSU {\n    int[] p;\n    DSU(int n) { p = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    boolean union(int a, int b) {\n        int ra = find(a), rb = find(b);\n        if (ra == rb) return false;\n        p[ra] = rb; return true;\n    }\n}"
+      },
+      {
+        "name": "II - two-parent candidate + Union-Find cycle test",
+        "idea": "The extra directed edge causes either a node with two parents, a cycle, or both. First detect a node with two incoming edges and record the two candidate edges (cand1 earlier, cand2 later). Then run Union-Find skipping cand2 if it exists: if a cycle appears with no two-parent case, that edge is the answer; if a cycle appears with a two-parent case, cand1 is the answer; if no cycle appears, cand2 is the answer.",
+        "time": "O(n alpha(n))",
+        "space": "O(n)",
+        "code": "public int[] findRedundantDirectedConnection(int[][] edges) {\n    int n = edges.length;\n    int[] parent = new int[n + 1];\n    int[] cand1 = null, cand2 = null;\n    for (int[] e : edges) {\n        int u = e[0], v = e[1];\n        if (parent[v] != 0) {              // v already has a parent -> two parents\n            cand1 = new int[]{parent[v], v};\n            cand2 = new int[]{u, v};\n        } else {\n            parent[v] = u;\n        }\n    }\n    DSU dsu = new DSU(n + 1);\n    for (int[] e : edges) {\n        if (cand2 != null && e[0] == cand2[0] && e[1] == cand2[1]) continue; // skip cand2\n        if (!dsu.union(e[0], e[1])) {       // cycle detected\n            return cand1 == null ? e : cand1;\n        }\n    }\n    return cand2;\n}\n\nclass DSU {\n    int[] p;\n    DSU(int n) { p = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    boolean union(int a, int b) {\n        int ra = find(a), rb = find(b);\n        if (ra == rb) return false;\n        p[ra] = rb; return true;\n    }\n}"
+      }
+    ],
+    "insight": "Undirected = first union failure. Directed = classify into two-parent vs cycle: record both candidate edges, retry Union-Find skipping the later one, and pick cand1/cand2/current edge from the outcome."
+  },
+  "graphs__accounts-merge": {
+    "title": "Accounts Merge",
+    "topic": "Graphs",
+    "subtopic": "Union-Find",
+    "difficulty": "Medium",
+    "pattern": "Union-Find over emails (shared email => same person)",
+    "notes": "",
+    "statement": "Each account is `[name, email1, email2, ...]`. Two accounts belong to the same person if they share at least one email (names alone are not enough since people can share a name). Merge accounts, returning each merged account as the name followed by its emails in sorted order.",
+    "examples": [
+      { "input": "accounts = [[\"John\",\"a@x\",\"b@x\"],[\"John\",\"b@x\",\"c@x\"],[\"Mary\",\"m@x\"]]", "output": "[[\"John\",\"a@x\",\"b@x\",\"c@x\"],[\"Mary\",\"m@x\"]]", "explanation": "The two Johns share b@x so they merge; Mary is separate." }
+    ],
+    "constraints": [
+      "1 <= accounts.length <= 1000",
+      "2 <= accounts[i].length <= 10",
+      "1 <= accounts[i][j].length <= 30",
+      "emails are lowercase, name is alphabetic"
+    ],
+    "approaches": [
+      {
+        "name": "Union-Find over email ids",
+        "idea": "Assign each distinct email an integer id and remember its owner name. Within each account, union its first email with every other email so all of that account's emails join one component. Group emails by their DSU root, sort each group (a TreeSet keeps them sorted), and prepend the owner name.",
+        "time": "O(N K log(N K)) for sorting, N accounts of up to K emails",
+        "space": "O(N K)",
+        "code": "public List<List<String>> accountsMerge(List<List<String>> accounts) {\n    Map<String, Integer> emailToId = new HashMap<>();\n    Map<String, String> emailToName = new HashMap<>();\n    int id = 0;\n    for (List<String> acc : accounts)\n        for (int i = 1; i < acc.size(); i++) {\n            String email = acc.get(i);\n            if (!emailToId.containsKey(email)) emailToId.put(email, id++);\n            emailToName.put(email, acc.get(0));\n        }\n    DSU dsu = new DSU(id);\n    for (List<String> acc : accounts)\n        for (int i = 2; i < acc.size(); i++)\n            dsu.union(emailToId.get(acc.get(1)), emailToId.get(acc.get(i)));\n\n    Map<Integer, TreeSet<String>> groups = new HashMap<>();\n    for (Map.Entry<String, Integer> e : emailToId.entrySet()) {\n        int root = dsu.find(e.getValue());\n        groups.computeIfAbsent(root, z -> new TreeSet<>()).add(e.getKey());\n    }\n    List<List<String>> res = new ArrayList<>();\n    for (TreeSet<String> emails : groups.values()) {\n        List<String> row = new ArrayList<>();\n        row.add(emailToName.get(emails.first()));\n        row.addAll(emails);\n        res.add(row);\n    }\n    return res;\n}\n\nclass DSU {\n    int[] p;\n    DSU(int n) { p = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    void union(int a, int b) { int ra = find(a), rb = find(b); if (ra != rb) p[ra] = rb; }\n}"
+      }
+    ],
+    "insight": "Emails are the nodes, not accounts: map each email to an id, union all emails inside an account, then group by root and sort. The name is any email's owner."
+  },
+  "graphs__number-of-islands-ii": {
+    "title": "Number of Islands II",
+    "topic": "Graphs",
+    "subtopic": "Union-Find",
+    "difficulty": "Hard",
+    "pattern": "Incremental Union-Find on a grid, maintaining a component count",
+    "notes": "",
+    "statement": "An `m x n` grid starts all water. Given `positions` where each turns a cell to land one at a time, return, after each addition, the number of islands (4-directionally connected land groups).",
+    "examples": [
+      { "input": "m = 3, n = 3, positions = [[0,0],[0,1],[1,2],[2,1]]", "output": "[1,1,2,3]", "explanation": "Adding (0,0)->1; (0,1) merges->1; (1,2) new->2; (2,1) new->3." }
+    ],
+    "constraints": [
+      "1 <= m, n, positions.length <= 10^4",
+      "positions[i].length == 2",
+      "0 <= ri < m, 0 <= ci < n"
+    ],
+    "approaches": [
+      {
+        "name": "Union-Find with running island count",
+        "idea": "Flatten each cell to `r*n + c`. When land is added, increment the count by one, then for each already-land neighbor attempt a union; every successful union merges two distinct islands so decrement the count. Skip positions that are already land (duplicates) to avoid double counting. Record the count after each step.",
+        "time": "O(L alpha(mn)) for L positions",
+        "space": "O(mn)",
+        "code": "public List<Integer> numIslands2(int m, int n, int[][] positions) {\n    DSU dsu = new DSU(m * n);\n    boolean[] land = new boolean[m * n];\n    int count = 0;\n    int[][] dirs = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};\n    List<Integer> res = new ArrayList<>();\n    for (int[] p : positions) {\n        int r = p[0], c = p[1], idx = r * n + c;\n        if (land[idx]) { res.add(count); continue; }   // duplicate add\n        land[idx] = true;\n        count++;\n        for (int[] d : dirs) {\n            int nr = r + d[0], nc = c + d[1];\n            if (nr < 0 || nc < 0 || nr >= m || nc >= n) continue;\n            int nidx = nr * n + nc;\n            if (land[nidx] && dsu.union(idx, nidx)) count--;\n        }\n        res.add(count);\n    }\n    return res;\n}\n\nclass DSU {\n    int[] p;\n    DSU(int n) { p = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    boolean union(int a, int b) {\n        int ra = find(a), rb = find(b);\n        if (ra == rb) return false;\n        p[ra] = rb; return true;\n    }\n}"
+      }
+    ],
+    "insight": "Each new land cell first adds 1 island; every successful union with an existing-land neighbor subtracts 1. Guard duplicate positions."
+  },
+  "graphs__most-stones-removed": {
+    "title": "Most Stones Removed",
+    "topic": "Graphs",
+    "subtopic": "Union-Find",
+    "difficulty": "Medium",
+    "pattern": "Union-Find on rows and columns; answer = stones - components",
+    "notes": "",
+    "statement": "Stones sit on a 2D plane, one per cell. A stone can be removed if another stone shares its row or column. Return the maximum number of stones that can be removed.",
+    "examples": [
+      { "input": "stones = [[0,0],[0,1],[1,0],[1,2],[2,1],[2,2]]", "output": "5", "explanation": "All stones form one connected component, so all but one can be removed." }
+    ],
+    "constraints": [
+      "1 <= stones.length <= 1000",
+      "0 <= xi, yi <= 10^4",
+      "no two stones share the same coordinate"
+    ],
+    "approaches": [
+      {
+        "name": "Union rows with columns, count components",
+        "idea": "Within any connected component (stones linked through shared rows/columns) you can remove every stone except one, so the answer is `stones - components`. Model each row and each column as a node (offset columns to keep ids disjoint) and union a stone's row with its column. The number of distinct roots among used row/column nodes is the component count.",
+        "time": "O(n alpha(n))",
+        "space": "O(n)",
+        "code": "public int removeStones(int[][] stones) {\n    int n = stones.length;\n    int OFFSET = 10001;\n    DSU dsu = new DSU(2 * OFFSET);\n    Set<Integer> used = new HashSet<>();\n    for (int[] s : stones) {\n        int r = s[0], c = s[1] + OFFSET;\n        dsu.union(r, c);\n        used.add(r); used.add(c);\n    }\n    Set<Integer> roots = new HashSet<>();\n    for (int x : used) roots.add(dsu.find(x));\n    return n - roots.size();\n}\n\nclass DSU {\n    int[] p;\n    DSU(int n) { p = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    void union(int a, int b) { int ra = find(a), rb = find(b); if (ra != rb) p[ra] = rb; }\n}"
+      }
+    ],
+    "insight": "Removable = total - number of connected components. Union each stone's row-node with its column-node (offset columns), then count distinct roots of used nodes."
+  },
+  "graphs__smallest-string-with-swaps": {
+    "title": "Smallest String With Swaps",
+    "topic": "Graphs",
+    "subtopic": "Union-Find",
+    "difficulty": "Hard",
+    "pattern": "Union-Find components + sort characters within each component",
+    "notes": "",
+    "statement": "Given a string `s` and pairs of indices `pairs`, you may swap the characters at any given pair any number of times. Return the lexicographically smallest string obtainable.",
+    "examples": [
+      { "input": "s = \"dcab\", pairs = [[0,3],[1,2]]", "output": "\"bacd\"", "explanation": "Swap (0,3) and (1,2) independently to sort each pair." },
+      { "input": "s = \"dcab\", pairs = [[0,3],[1,2],[0,2]]", "output": "\"abcd\"", "explanation": "Indices 0,1,2,3 form one component, so it can be fully sorted." }
+    ],
+    "constraints": [
+      "1 <= s.length <= 10^5",
+      "0 <= pairs.length <= 10^5",
+      "0 <= pairs[i][0], pairs[i][1] < s.length",
+      "s contains only lowercase English letters"
+    ],
+    "approaches": [
+      {
+        "name": "Union-Find over indices, sort each component",
+        "idea": "Swaps are transitive, so indices connected through pairs form a component whose characters can be freely rearranged. Union all paired indices, gather the indices of each component (in ascending order), sort that component's characters, and write the smallest characters back into the ascending index slots.",
+        "time": "O(n log n + P alpha(n))",
+        "space": "O(n)",
+        "code": "public String smallestStringWithSwaps(String s, List<List<Integer>> pairs) {\n    int n = s.length();\n    DSU dsu = new DSU(n);\n    for (List<Integer> p : pairs) dsu.union(p.get(0), p.get(1));\n\n    Map<Integer, List<Integer>> comp = new HashMap<>();\n    for (int i = 0; i < n; i++)\n        comp.computeIfAbsent(dsu.find(i), z -> new ArrayList<>()).add(i); // ascending i\n\n    char[] res = s.toCharArray();\n    for (List<Integer> idxs : comp.values()) {\n        char[] chars = new char[idxs.size()];\n        for (int i = 0; i < idxs.size(); i++) chars[i] = s.charAt(idxs.get(i));\n        Arrays.sort(chars);\n        for (int i = 0; i < idxs.size(); i++) res[idxs.get(i)] = chars[i];\n    }\n    return new String(res);\n}\n\nclass DSU {\n    int[] p;\n    DSU(int n) { p = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    void union(int a, int b) { int ra = find(a), rb = find(b); if (ra != rb) p[ra] = rb; }\n}"
+      }
+    ],
+    "insight": "Swappable indices form Union-Find components; within each component sort the chars and drop them into the component's ascending index positions."
+  },
+  "graphs__number-of-good-paths": {
+    "title": "Number of Good Paths",
+    "topic": "Graphs",
+    "subtopic": "Union-Find",
+    "difficulty": "Hard",
+    "pattern": "Process nodes by increasing value, Union-Find, count equal-max endpoints",
+    "notes": "",
+    "statement": "Given a tree with node values `vals` and `edges`, count good paths. A good path has both endpoints with the same value and every node on the path has a value less than or equal to that endpoint value. Single-node paths count. Paths are undirected and counted once.",
+    "examples": [
+      { "input": "vals = [1,3,2,1,3], edges = [[0,1],[0,2],[2,3],[2,4]]", "output": "6", "explanation": "5 single-node paths plus the 3-3 path between nodes 1 and 4." }
+    ],
+    "constraints": [
+      "n == vals.length",
+      "1 <= n <= 3*10^4",
+      "0 <= vals[i] <= 10^5",
+      "edges forms a valid tree"
+    ],
+    "approaches": [
+      {
+        "name": "Union nodes in increasing value order",
+        "idea": "Process values from smallest to largest. When handling value `v`, union each node of value `v` with any neighbor whose value is `<= v`; this guarantees every node currently in a component has value `<= v`, so `v` is the component's max. Group the value-`v` nodes by root: a root holding `c` such nodes contributes `c*(c-1)/2` good paths (every pair). Start the count at `n` for the single-node paths.",
+        "time": "O(n log n + n alpha(n))",
+        "space": "O(n)",
+        "code": "public int numberOfGoodPaths(int[] vals, int[][] edges) {\n    int n = vals.length;\n    List<List<Integer>> adj = new ArrayList<>();\n    for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n    for (int[] e : edges) { adj.get(e[0]).add(e[1]); adj.get(e[1]).add(e[0]); }\n\n    TreeMap<Integer, List<Integer>> byVal = new TreeMap<>();\n    for (int i = 0; i < n; i++)\n        byVal.computeIfAbsent(vals[i], z -> new ArrayList<>()).add(i);\n\n    DSU dsu = new DSU(n);\n    int good = n; // each node is a good path by itself\n    for (Map.Entry<Integer, List<Integer>> e : byVal.entrySet()) {\n        int v = e.getKey();\n        for (int u : e.getValue())\n            for (int w : adj.get(u))\n                if (vals[w] <= v) dsu.union(u, w);\n        Map<Integer, Integer> cnt = new HashMap<>();\n        for (int u : e.getValue()) {\n            int root = dsu.find(u);\n            int c = cnt.getOrDefault(root, 0);\n            good += c;            // pair u with the c earlier same-value nodes in its component\n            cnt.put(root, c + 1);\n        }\n    }\n    return good;\n}\n\nclass DSU {\n    int[] p;\n    DSU(int n) { p = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    void union(int a, int b) { int ra = find(a), rb = find(b); if (ra != rb) p[ra] = rb; }\n}"
+      }
+    ],
+    "insight": "Add nodes by ascending value so each component's max is the current value; equal-max endpoints in the same component form good paths (`c` nodes -> C(c,2) pairs), plus n single-node paths."
+  },
+  "graphs__making-a-large-island": {
+    "title": "Making a Large Island",
+    "topic": "Graphs",
+    "subtopic": "Union-Find",
+    "difficulty": "Hard",
+    "pattern": "Union-Find with component sizes; try flipping each 0 and sum distinct neighbor islands",
+    "notes": "",
+    "statement": "Given an `n x n` binary grid, you may change at most one `0` to `1`. Return the size of the largest island (4-directionally connected 1s) achievable afterward.",
+    "examples": [
+      { "input": "grid = [[1,0],[0,1]]", "output": "3", "explanation": "Flip one 0 to join the two size-1 islands into size 3." },
+      { "input": "grid = [[1,1],[1,1]]", "output": "4", "explanation": "Already one island of size 4; no flip helps." }
+    ],
+    "constraints": [
+      "n == grid.length == grid[i].length",
+      "1 <= n <= 500",
+      "grid[i][j] is 0 or 1"
+    ],
+    "approaches": [
+      {
+        "name": "Union-Find islands, then evaluate each zero",
+        "idea": "Union all adjacent 1s so every island has a root with a size. The base answer is the largest existing island. For each `0`, gather the DISTINCT island roots among its four neighbors (a set avoids double-counting the same island touched twice) and sum their sizes plus one for the flipped cell. Take the maximum over all zeros.",
+        "time": "O(n^2 alpha(n^2))",
+        "space": "O(n^2)",
+        "code": "public int largestIsland(int[][] grid) {\n    int n = grid.length;\n    DSU dsu = new DSU(n * n);\n    int[][] down = {{0, 1}, {1, 0}};\n    for (int r = 0; r < n; r++)\n        for (int c = 0; c < n; c++)\n            if (grid[r][c] == 1)\n                for (int[] d : down) {\n                    int nr = r + d[0], nc = c + d[1];\n                    if (nr < n && nc < n && grid[nr][nc] == 1)\n                        dsu.union(r * n + c, nr * n + nc);\n                }\n\n    int best = 0;\n    for (int r = 0; r < n; r++)\n        for (int c = 0; c < n; c++)\n            if (grid[r][c] == 1) best = Math.max(best, dsu.size(dsu.find(r * n + c)));\n\n    int[][] dirs = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};\n    for (int r = 0; r < n; r++)\n        for (int c = 0; c < n; c++)\n            if (grid[r][c] == 0) {\n                Set<Integer> roots = new HashSet<>();\n                int total = 1;\n                for (int[] d : dirs) {\n                    int nr = r + d[0], nc = c + d[1];\n                    if (nr >= 0 && nc >= 0 && nr < n && nc < n && grid[nr][nc] == 1) {\n                        int root = dsu.find(nr * n + nc);\n                        if (roots.add(root)) total += dsu.size(root);\n                    }\n                }\n                best = Math.max(best, total);\n            }\n    return best; // all-ones -> n*n; all-zeros -> 1 from the zero loop\n}\n\nclass DSU {\n    int[] p, sz;\n    DSU(int n) { p = new int[n]; sz = new int[n]; for (int i = 0; i < n; i++) { p[i] = i; sz[i] = 1; } }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    void union(int a, int b) { int ra = find(a), rb = find(b); if (ra != rb) { p[ra] = rb; sz[rb] += sz[ra]; } }\n    int size(int root) { return sz[root]; }\n}"
+      }
+    ],
+    "insight": "Label islands with sizes via Union-Find, then for each 0 sum the sizes of the DISTINCT neighboring islands (+1); the set of roots prevents counting the same island twice."
+  }
+}

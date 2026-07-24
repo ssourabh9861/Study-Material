@@ -1,0 +1,357 @@
+{
+"backtracking__n-queens-n-queens-ii": {
+"title": "N-Queens / N-Queens II",
+"topic": "Backtracking",
+"subtopic": "Backtracking",
+"difficulty": "Hard",
+"pattern": "Backtracking with column/diagonal occupancy sets",
+"notes": "",
+"statement": "Place `n` non-attacking queens on an `n x n` chessboard so that no two queens share a row, column, or diagonal. **N-Queens** returns all distinct board configurations (each row a string of `.` and `Q`); **N-Queens II** returns just the number of distinct solutions.",
+"examples": [
+{
+"input": "n = 4",
+"output": "[[\".Q..\",\"...Q\",\"Q...\",\"..Q.\"],[\"..Q.\",\"Q...\",\"...Q\",\".Q..\"]]",
+"explanation": "There are two placements of 4 queens on a 4x4 board."
+}
+],
+"constraints": [
+"1 <= n <= 9"
+],
+"approaches": [
+{
+"name": "Row-by-row backtracking with occupancy arrays",
+"idea": "Place exactly one queen per row. A cell `(r,c)` is safe iff column `c`, main diagonal `r+c`, and anti-diagonal `r-c+n-1` are all unused. Mark the three arrays, recurse to the next row, then unmark. When row `n` is reached a full valid board has been built. This turns each conflict check into O(1).",
+"time": "O(n!) placements explored",
+"space": "O(n)",
+"code": "public List<List<String>> solveNQueens(int n) {\n    List<List<String>> res = new ArrayList<>();\n    boolean[] cols = new boolean[n];\n    boolean[] diag = new boolean[2 * n - 1];   // r + c\n    boolean[] anti = new boolean[2 * n - 1];   // r - c + n - 1\n    int[] queen = new int[n];                  // queen[r] = column\n    backtrack(0, n, cols, diag, anti, queen, res);\n    return res;\n}\n\nprivate void backtrack(int r, int n, boolean[] cols, boolean[] diag,\n                       boolean[] anti, int[] queen, List<List<String>> res) {\n    if (r == n) {\n        List<String> board = new ArrayList<>();\n        for (int i = 0; i < n; i++) {\n            char[] row = new char[n];\n            Arrays.fill(row, '.');\n            row[queen[i]] = 'Q';\n            board.add(new String(row));\n        }\n        res.add(board);\n        return;\n    }\n    for (int c = 0; c < n; c++) {\n        int d = r + c, a = r - c + n - 1;\n        if (cols[c] || diag[d] || anti[a]) continue;\n        cols[c] = diag[d] = anti[a] = true;\n        queen[r] = c;\n        backtrack(r + 1, n, cols, diag, anti, queen, res);\n        cols[c] = diag[d] = anti[a] = false;\n    }\n}"
+},
+{
+"name": "N-Queens II count with bitmasks",
+"idea": "When only the count is needed, represent used columns and the two diagonals as bits of three integers. At each row the free positions are `~(col|diag|anti) & fullMask`; iterate over set bits with `p & -p`. Shifting the diagonal masks left/right when recursing propagates the attack lines. This is the fastest practical way to count.",
+"time": "O(n!) but with tiny constant per node",
+"space": "O(n) recursion",
+"code": "public int totalNQueens(int n) {\n    return count(0, 0, 0, (1 << n) - 1);\n}\n\nprivate int count(int col, int diag, int anti, int full) {\n    if (col == full) return 1;\n    int total = 0;\n    int free = ~(col | diag | anti) & full;\n    while (free != 0) {\n        int p = free & -free;      // lowest set bit\n        free -= p;\n        total += count(col | p, (diag | p) << 1 & full, (anti | p) >> 1, full);\n    }\n    return total;\n}"
+}
+],
+"insight": "One queen per row; check column and both diagonals in O(1) via three occupancy sets (bitmasks for pure counting)."
+},
+"backtracking__sudoku-solver": {
+"title": "Sudoku Solver",
+"topic": "Backtracking",
+"subtopic": "Backtracking",
+"difficulty": "Hard",
+"pattern": "Constraint-propagation backtracking with row/col/box masks",
+"notes": "",
+"statement": "Fill a partially completed `9 x 9` Sudoku board (empty cells are `'.'`) so that every row, every column, and each of the nine `3 x 3` sub-boxes contains the digits `1-9` exactly once. Modify the board in place; a unique solution is guaranteed.",
+"examples": [
+{
+"input": "board with 51 filled cells (standard LeetCode example)",
+"output": "the same board with every '.' replaced by the correct digit",
+"explanation": "Each row, column and 3x3 box ends up holding 1-9 once."
+}
+],
+"constraints": [
+"board.length == 9",
+"board[i].length == 9",
+"board[i][j] is a digit '1'-'9' or '.'",
+"It is guaranteed that the input board has exactly one solution"
+],
+"approaches": [
+{
+"name": "Backtracking with O(1) validity via boolean masks",
+"idea": "Precompute `rows[i][d]`, `cols[j][d]`, `boxes[b][d]` marking whether digit `d` already appears in row `i`, column `j`, or box `b = (i/3)*3 + j/3`. Scan cells in row-major order; for each empty cell try every digit not conflicting in its three masks, set the masks, recurse to the next cell, and undo on failure. Returning `true` up the stack stops as soon as the board is complete.",
+"time": "O(9^(empty cells)) worst case",
+"space": "O(1) extra (fixed 9x9 masks)",
+"code": "public void solveSudoku(char[][] board) {\n    boolean[][] rows = new boolean[9][9];\n    boolean[][] cols = new boolean[9][9];\n    boolean[][] boxes = new boolean[9][9];\n    for (int i = 0; i < 9; i++)\n        for (int j = 0; j < 9; j++)\n            if (board[i][j] != '.') {\n                int d = board[i][j] - '1';\n                rows[i][d] = cols[j][d] = boxes[(i / 3) * 3 + j / 3][d] = true;\n            }\n    solve(board, 0, 0, rows, cols, boxes);\n}\n\nprivate boolean solve(char[][] b, int r, int c, boolean[][] rows,\n                      boolean[][] cols, boolean[][] boxes) {\n    if (r == 9) return true;\n    int nr = (c == 8) ? r + 1 : r;\n    int nc = (c == 8) ? 0 : c + 1;\n    if (b[r][c] != '.') return solve(b, nr, nc, rows, cols, boxes);\n    int box = (r / 3) * 3 + c / 3;\n    for (int d = 0; d < 9; d++) {\n        if (rows[r][d] || cols[c][d] || boxes[box][d]) continue;\n        b[r][c] = (char) ('1' + d);\n        rows[r][d] = cols[c][d] = boxes[box][d] = true;\n        if (solve(b, nr, nc, rows, cols, boxes)) return true;\n        b[r][c] = '.';\n        rows[r][d] = cols[c][d] = boxes[box][d] = false;\n    }\n    return false;\n}"
+}
+],
+"insight": "Keep three boolean masks (row, column, box) so each digit-legality test is O(1); backtrack cell by cell in row-major order."
+},
+"backtracking__word-search-ii": {
+"title": "Word Search II",
+"topic": "Backtracking",
+"subtopic": "Backtracking",
+"difficulty": "Hard",
+"pattern": "Trie + grid DFS backtracking",
+"notes": "",
+"statement": "Given an `m x n` grid of characters and a list of `words`, return all words from the list that can be formed by a path of horizontally or vertically adjacent cells, where each cell is used at most once per word.",
+"examples": [
+{
+"input": "board = [[\"o\",\"a\",\"a\",\"n\"],[\"e\",\"t\",\"a\",\"e\"],[\"i\",\"h\",\"k\",\"r\"],[\"i\",\"f\",\"l\",\"v\"]], words = [\"oath\",\"pea\",\"eat\",\"rain\"]",
+"output": "[\"eat\",\"oath\"]",
+"explanation": "\"oath\" and \"eat\" trace valid adjacent paths; \"pea\" and \"rain\" do not."
+}
+],
+"constraints": [
+"m == board.length",
+"n == board[i].length",
+"1 <= m, n <= 12",
+"1 <= words.length <= 3 * 10^4",
+"1 <= words[i].length <= 10",
+"board[i][j] and words[i] consist of lowercase English letters"
+],
+"approaches": [
+{
+"name": "Build a trie of the words, then DFS each cell once",
+"idea": "Insert all words into a trie so that a single grid traversal can test every word simultaneously; each node stores the full word at its end. DFS from every cell following trie edges: if the current letter has no child the branch is dead, pruning early. When a node holds a word, add it and null it out to avoid duplicates. Mark visited cells with `'#'` and restore on backtrack.",
+"time": "O(m*n*4*3^(L-1)) where L is max word length",
+"space": "O(total letters in words) for the trie",
+"code": "public List<String> findWords(char[][] board, String[] words) {\n    TrieNode root = new TrieNode();\n    for (String w : words) {\n        TrieNode node = root;\n        for (char ch : w.toCharArray()) {\n            int i = ch - 'a';\n            if (node.next[i] == null) node.next[i] = new TrieNode();\n            node = node.next[i];\n        }\n        node.word = w;\n    }\n    List<String> res = new ArrayList<>();\n    for (int i = 0; i < board.length; i++)\n        for (int j = 0; j < board[0].length; j++)\n            dfs(board, i, j, root, res);\n    return res;\n}\n\nprivate void dfs(char[][] board, int i, int j, TrieNode node, List<String> res) {\n    char ch = board[i][j];\n    if (ch == '#' || node.next[ch - 'a'] == null) return;\n    node = node.next[ch - 'a'];\n    if (node.word != null) {\n        res.add(node.word);\n        node.word = null;               // dedupe\n    }\n    board[i][j] = '#';\n    if (i > 0)                     dfs(board, i - 1, j, node, res);\n    if (i < board.length - 1)      dfs(board, i + 1, j, node, res);\n    if (j > 0)                     dfs(board, i, j - 1, node, res);\n    if (j < board[0].length - 1)   dfs(board, i, j + 1, node, res);\n    board[i][j] = ch;\n}\n\nprivate static class TrieNode {\n    TrieNode[] next = new TrieNode[26];\n    String word = null;\n}"
+}
+],
+"insight": "Put the dictionary in a trie so one DFS tests all words at once and dead prefixes prune the search immediately."
+},
+"backtracking__palindrome-partitioning-ii": {
+"title": "Palindrome Partitioning II",
+"topic": "Backtracking",
+"subtopic": "Backtracking",
+"difficulty": "Hard",
+"pattern": "Palindrome DP + min-cut DP",
+"notes": "",
+"statement": "Given a string `s`, partition it so that every substring of the partition is a palindrome. Return the **minimum number of cuts** needed.",
+"examples": [
+{
+"input": "s = \"aab\"",
+"output": "1",
+"explanation": "One cut gives [\"aa\",\"b\"], both palindromes."
+},
+{
+"input": "s = \"a\"",
+"output": "0",
+"explanation": "Already a palindrome."
+}
+],
+"constraints": [
+"1 <= s.length <= 2000",
+"s consists of lowercase English letters only"
+],
+"approaches": [
+{
+"name": "Precompute palindrome table, then 1-D cut DP",
+"idea": "Pure backtracking is exponential, so use DP. First build `pal[i][j]` = is `s[i..j]` a palindrome, filling `i` from right to left so `pal[i+1][j-1]` is ready. Then `dp[j]` = min cuts for prefix `s[0..j]`: if `s[0..j]` is itself a palindrome `dp[j]=0`, else `dp[j] = min over i of dp[i-1]+1` for every `i` where `s[i..j]` is a palindrome. Answer is `dp[n-1]`.",
+"time": "O(n^2)",
+"space": "O(n^2) for the palindrome table",
+"code": "public int minCut(String s) {\n    int n = s.length();\n    boolean[][] pal = new boolean[n][n];\n    for (int i = n - 1; i >= 0; i--)\n        for (int j = i; j < n; j++)\n            if (s.charAt(i) == s.charAt(j) && (j - i < 2 || pal[i + 1][j - 1]))\n                pal[i][j] = true;\n    int[] dp = new int[n];\n    for (int j = 0; j < n; j++) {\n        if (pal[0][j]) { dp[j] = 0; continue; }\n        int min = j;                 // at most j cuts\n        for (int i = 1; i <= j; i++)\n            if (pal[i][j]) min = Math.min(min, dp[i - 1] + 1);\n        dp[j] = min;\n    }\n    return dp[n - 1];\n}"
+}
+],
+"insight": "Precompute an O(n^2) palindrome table, then dp[j] = min(dp[i-1]+1) over palindromic suffixes s[i..j]."
+},
+"backtracking__permutations-ii-subsets-ii-combination-sum-ii": {
+"title": "Permutations II / Subsets II / Combination Sum II",
+"topic": "Backtracking",
+"subtopic": "Backtracking",
+"difficulty": "Medium",
+"pattern": "Sort + skip-duplicate backtracking",
+"notes": "",
+"statement": "Three duplicate-handling backtracking classics on an array that may contain repeats. **Permutations II**: all unique permutations. **Subsets II**: all unique subsets (the power set). **Combination Sum II**: all unique combinations that sum to `target`, each number used at most once.",
+"examples": [
+{
+"input": "nums = [1,1,2]",
+"output": "permuteUnique -> [[1,1,2],[1,2,1],[2,1,1]]",
+"explanation": "Duplicate 1s produce no repeated permutation."
+},
+{
+"input": "candidates = [10,1,2,7,6,1,5], target = 8",
+"output": "combinationSum2 -> [[1,1,6],[1,2,5],[1,7],[2,6]]",
+"explanation": "Each element used once; no duplicate combinations."
+}
+],
+"constraints": [
+"1 <= nums.length <= 8",
+"-10 <= nums[i] <= 10 (Subsets/Permutations)",
+"1 <= candidates.length <= 100",
+"1 <= candidates[i] <= 50",
+"1 <= target <= 30"
+],
+"approaches": [
+{
+"name": "Sort, then skip equal siblings at the same depth",
+"idea": "Sort the array so equal values are adjacent. The universal duplicate rule: at a given recursion level, skip a value equal to its predecessor when that predecessor was not chosen for this branch. For subsets/combinations use a `start` index and skip `i>start && a[i]==a[i-1]`; for permutations use a `used[]` flag and skip `i>0 && a[i]==a[i-1] && !used[i-1]`. Combination Sum II also breaks when `a[i] > target` (sorted prune).",
+"time": "Permutations O(n*n!), Subsets O(n*2^n), CombSum2 O(2^n) worst case",
+"space": "O(n) recursion depth",
+"code": "public List<List<Integer>> permuteUnique(int[] nums) {\n    Arrays.sort(nums);\n    List<List<Integer>> res = new ArrayList<>();\n    permute(nums, new boolean[nums.length], new ArrayList<>(), res);\n    return res;\n}\nprivate void permute(int[] nums, boolean[] used, List<Integer> cur, List<List<Integer>> res) {\n    if (cur.size() == nums.length) { res.add(new ArrayList<>(cur)); return; }\n    for (int i = 0; i < nums.length; i++) {\n        if (used[i]) continue;\n        if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) continue;\n        used[i] = true; cur.add(nums[i]);\n        permute(nums, used, cur, res);\n        cur.remove(cur.size() - 1); used[i] = false;\n    }\n}\n\npublic List<List<Integer>> subsetsWithDup(int[] nums) {\n    Arrays.sort(nums);\n    List<List<Integer>> res = new ArrayList<>();\n    subsets(nums, 0, new ArrayList<>(), res);\n    return res;\n}\nprivate void subsets(int[] nums, int start, List<Integer> cur, List<List<Integer>> res) {\n    res.add(new ArrayList<>(cur));\n    for (int i = start; i < nums.length; i++) {\n        if (i > start && nums[i] == nums[i - 1]) continue;\n        cur.add(nums[i]);\n        subsets(nums, i + 1, cur, res);\n        cur.remove(cur.size() - 1);\n    }\n}\n\npublic List<List<Integer>> combinationSum2(int[] candidates, int target) {\n    Arrays.sort(candidates);\n    List<List<Integer>> res = new ArrayList<>();\n    combine(candidates, target, 0, new ArrayList<>(), res);\n    return res;\n}\nprivate void combine(int[] c, int target, int start, List<Integer> cur, List<List<Integer>> res) {\n    if (target == 0) { res.add(new ArrayList<>(cur)); return; }\n    for (int i = start; i < c.length; i++) {\n        if (i > start && c[i] == c[i - 1]) continue;   // skip duplicate\n        if (c[i] > target) break;                      // sorted prune\n        cur.add(c[i]);\n        combine(c, target - c[i], i + 1, cur, res);\n        cur.remove(cur.size() - 1);\n    }\n}"
+}
+],
+"insight": "Sort first; skip a duplicate at the same tree level (start-index rule for subsets/combos, !used[i-1] rule for permutations)."
+},
+"backtracking__expression-add-operators": {
+"title": "Expression Add Operators",
+"topic": "Backtracking",
+"subtopic": "Backtracking",
+"difficulty": "Hard",
+"pattern": "DFS over digit splits carrying running value and last operand",
+"notes": "",
+"statement": "Given a string `num` of digits and an integer `target`, insert the binary operators `+`, `-`, `*` (and nothing else, no unary) between digits so the resulting expression evaluates to `target`. Return all such expressions. Operands may span multiple digits but must not have leading zeros.",
+"examples": [
+{
+"input": "num = \"123\", target = 6",
+"output": "[\"1*2*3\",\"1+2+3\"]",
+"explanation": "Both evaluate to 6."
+},
+{
+"input": "num = \"105\", target = 5",
+"output": "[\"1*0+5\",\"10-5\"]",
+"explanation": "Leading-zero operands like \"05\" are forbidden."
+}
+],
+"constraints": [
+"1 <= num.length <= 10",
+"num consists of only digits",
+"-2^31 <= target <= 2^31 - 1"
+],
+"approaches": [
+{
+"name": "DFS choosing the next operand and operator, tracking multiplication",
+"idea": "At each position pick the next operand `num[pos..i]` (breaking if it has a leading zero). For the first operand just seed the value. Otherwise branch on `+`, `-`, `*`. Multiplication needs the previous operand: undo its additive contribution and re-add it multiplied, i.e. `eval - prev + prev*cur`, and carry `prev*cur` as the new `prev`. Use `long` to avoid overflow while accumulating.",
+"time": "O(4^n) expressions (n operator gaps, ~4 choices each)",
+"space": "O(n) recursion / path length",
+"code": "public List<String> addOperators(String num, int target) {\n    List<String> res = new ArrayList<>();\n    dfs(num, target, 0, 0, 0, \"\", res);\n    return res;\n}\n\nprivate void dfs(String num, int target, int pos, long eval, long prev,\n                 String path, List<String> res) {\n    if (pos == num.length()) {\n        if (eval == target) res.add(path);\n        return;\n    }\n    for (int i = pos; i < num.length(); i++) {\n        if (i != pos && num.charAt(pos) == '0') break;   // no leading zero\n        long cur = Long.parseLong(num.substring(pos, i + 1));\n        if (pos == 0) {\n            dfs(num, target, i + 1, cur, cur, \"\" + cur, res);\n        } else {\n            dfs(num, target, i + 1, eval + cur, cur, path + \"+\" + cur, res);\n            dfs(num, target, i + 1, eval - cur, -cur, path + \"-\" + cur, res);\n            dfs(num, target, i + 1, eval - prev + prev * cur, prev * cur,\n                path + \"*\" + cur, res);\n        }\n    }\n}"
+}
+],
+"insight": "Carry both the running total and the last operand; for '*' correct the total with eval - prev + prev*cur and set prev = prev*cur."
+},
+"backtracking__remove-invalid-parentheses": {
+"title": "Remove Invalid Parentheses",
+"topic": "Backtracking",
+"subtopic": "Backtracking",
+"difficulty": "Hard",
+"pattern": "Compute minimum removals, then DFS removing exactly that many",
+"notes": "",
+"statement": "Given a string `s` containing letters and parentheses, remove the minimum number of invalid parentheses to make the string valid. Return all distinct valid strings achievable with that minimum number of removals.",
+"examples": [
+{
+"input": "s = \"()())()\"",
+"output": "[\"(())()\",\"()()()\"]",
+"explanation": "Removing one ')' yields these two valid strings."
+},
+{
+"input": "s = \"(a)())()\"",
+"output": "[\"(a())()\",\"(a)()()\"]",
+"explanation": "Letters are kept; one ')' removed."
+}
+],
+"constraints": [
+"1 <= s.length <= 25",
+"s consists of lowercase English letters and parentheses '(' and ')'",
+"There will be at most 20 parentheses in s"
+],
+"approaches": [
+{
+"name": "Count surplus '(' and ')', DFS removing exactly those counts",
+"idea": "First pass computes how many '(' (`rmL`) and ')' (`rmR`) must be deleted to reach validity. DFS scans from a moving `start` index and, to avoid duplicate results, only removes the first bracket of a run of identical characters. Remove a ')' only while `rmR>0` and a '(' only while `rmL>0`. When both counters hit zero, validate the remaining string and collect it.",
+"time": "O(2^n) worst case over bracket positions",
+"space": "O(n) recursion / string copies",
+"code": "public List<String> removeInvalidParentheses(String s) {\n    int rmL = 0, rmR = 0;\n    for (char c : s.toCharArray()) {\n        if (c == '(') rmL++;\n        else if (c == ')') { if (rmL > 0) rmL--; else rmR++; }\n    }\n    Set<String> res = new HashSet<>();\n    dfs(s, 0, rmL, rmR, res);\n    return new ArrayList<>(res);\n}\n\nprivate void dfs(String s, int start, int rmL, int rmR, Set<String> res) {\n    if (rmL == 0 && rmR == 0) {\n        if (isValid(s)) res.add(s);\n        return;\n    }\n    for (int i = start; i < s.length(); i++) {\n        if (i > start && s.charAt(i) == s.charAt(i - 1)) continue;  // skip run duplicates\n        char c = s.charAt(i);\n        if (c != '(' && c != ')') continue;\n        String next = s.substring(0, i) + s.substring(i + 1);\n        if (rmR > 0 && c == ')') dfs(next, i, rmL, rmR - 1, res);\n        else if (rmL > 0 && c == '(') dfs(next, i, rmL - 1, rmR, res);\n    }\n}\n\nprivate boolean isValid(String s) {\n    int bal = 0;\n    for (char c : s.toCharArray()) {\n        if (c == '(') bal++;\n        else if (c == ')' && --bal < 0) return false;\n    }\n    return bal == 0;\n}"
+}
+],
+"insight": "Pre-count the minimum '(' and ')' to delete, then DFS removing exactly those, skipping duplicate characters in a run to dedupe results."
+},
+"backtracking__partition-to-k-equal-sum-subsets": {
+"title": "Partition to K Equal Sum Subsets",
+"topic": "Backtracking",
+"subtopic": "Backtracking",
+"difficulty": "Hard",
+"pattern": "Bucket-filling backtracking with pruning",
+"notes": "",
+"statement": "Given an integer array `nums` and an integer `k`, determine whether it is possible to divide the array into `k` non-empty subsets all having equal sum.",
+"examples": [
+{
+"input": "nums = [4,3,2,3,5,2,1], k = 4",
+"output": "true",
+"explanation": "Subsets (5),(1,4),(2,3),(2,3) each sum to 5."
+},
+{
+"input": "nums = [1,2,3,4], k = 3",
+"output": "false",
+"explanation": "Total 10 is not divisible by 3."
+}
+],
+"constraints": [
+"1 <= k <= nums.length <= 16",
+"1 <= nums[i] <= 10^4",
+"The frequency of each element is in the range [1, 4]"
+],
+"approaches": [
+{
+"name": "Fill one bucket to target at a time, largest-first, with pruning",
+"idea": "If the total is not divisible by `k`, or the max element exceeds `target = sum/k`, it is impossible. Sort ascending and fill from the largest element downward. Recursively fill the current bucket to `target`; when it reaches `target`, start a fresh bucket. Key prunes: skip used items and any that overflow the bucket; if the first item placed into an empty bucket leads to failure, the whole configuration is impossible (return false); skip equal values already tried at this level.",
+"time": "O(k * 2^n) worst case",
+"space": "O(n) for the used array and recursion",
+"code": "public boolean canPartitionKSubsets(int[] nums, int k) {\n    int sum = 0;\n    for (int x : nums) sum += x;\n    if (sum % k != 0) return false;\n    int target = sum / k;\n    Arrays.sort(nums);\n    if (nums[nums.length - 1] > target) return false;\n    boolean[] used = new boolean[nums.length];\n    return backtrack(nums, used, nums.length - 1, k, 0, target);\n}\n\nprivate boolean backtrack(int[] nums, boolean[] used, int idx, int k, int cur, int target) {\n    if (k == 0) return true;\n    if (cur == target) return backtrack(nums, used, nums.length - 1, k - 1, 0, target);\n    for (int i = idx; i >= 0; i--) {\n        if (used[i] || cur + nums[i] > target) continue;\n        used[i] = true;\n        if (backtrack(nums, used, i - 1, k, cur + nums[i], target)) return true;\n        used[i] = false;\n        if (cur == 0) return false;                       // first item of bucket failed\n        while (i > 0 && nums[i - 1] == nums[i]) i--;       // skip duplicates\n    }\n    return false;\n}"
+}
+],
+"insight": "Fill buckets one at a time to sum/k, largest element first; if the first element of an empty bucket can't be placed successfully, it's impossible."
+},
+"backtracking__letter-combinations-restore-ip-addresses": {
+"title": "Letter Combinations / Restore IP Addresses",
+"topic": "Backtracking",
+"subtopic": "Backtracking",
+"difficulty": "Medium",
+"pattern": "Position-indexed DFS building the string incrementally",
+"notes": "",
+"statement": "Two incremental-construction backtracking problems. **Letter Combinations**: given digits `2-9`, return all letter strings the number could spell on a phone keypad. **Restore IP Addresses**: given a digit string, return every valid IPv4 address formable by inserting three dots (each of the 4 parts is 0-255 with no leading zeros).",
+"examples": [
+{
+"input": "digits = \"23\"",
+"output": "letterCombinations -> [\"ad\",\"ae\",\"af\",\"bd\",\"be\",\"bf\",\"cd\",\"ce\",\"cf\"]",
+"explanation": "2->abc, 3->def."
+},
+{
+"input": "s = \"25525511135\"",
+"output": "restoreIpAddresses -> [\"255.255.11.135\",\"255.255.111.35\"]",
+"explanation": "Two ways to split into four valid octets."
+}
+],
+"constraints": [
+"0 <= digits.length <= 4",
+"digits[i] is in the range ['2','9']",
+"1 <= s.length <= 20 (for restoreIpAddresses)",
+"s consists of digits only"
+],
+"approaches": [
+{
+"name": "DFS by position; append a choice, recurse, backtrack",
+"idea": "Letter Combinations: map each digit to its letters and recurse over positions, appending one letter per digit to a shared StringBuilder and undoing on return. Restore IP Addresses: try segment lengths 1-3 at each cut; reject a segment with a leading zero (length>1) or value >255, and since larger lengths only get bigger/keep the leading zero, `break` on failure. After placing 4 parts, accept only if the whole string was consumed.",
+"time": "Letters O(4^n * n); IP O(1) (bounded constant search)",
+"space": "O(n) recursion / builder",
+"code": "public List<String> letterCombinations(String digits) {\n    List<String> res = new ArrayList<>();\n    if (digits == null || digits.isEmpty()) return res;\n    String[] map = {\"\", \"\", \"abc\", \"def\", \"ghi\", \"jkl\", \"mno\", \"pqrs\", \"tuv\", \"wxyz\"};\n    build(digits, 0, map, new StringBuilder(), res);\n    return res;\n}\nprivate void build(String digits, int pos, String[] map, StringBuilder sb, List<String> res) {\n    if (pos == digits.length()) { res.add(sb.toString()); return; }\n    String letters = map[digits.charAt(pos) - '0'];\n    for (int i = 0; i < letters.length(); i++) {\n        sb.append(letters.charAt(i));\n        build(digits, pos + 1, map, sb, res);\n        sb.deleteCharAt(sb.length() - 1);\n    }\n}\n\npublic List<String> restoreIpAddresses(String s) {\n    List<String> res = new ArrayList<>();\n    dfs(s, 0, 0, new StringBuilder(), res);\n    return res;\n}\nprivate void dfs(String s, int start, int parts, StringBuilder cur, List<String> res) {\n    if (parts == 4) {\n        if (start == s.length()) res.add(cur.substring(0, cur.length() - 1)); // drop trailing dot\n        return;\n    }\n    for (int len = 1; len <= 3 && start + len <= s.length(); len++) {\n        String seg = s.substring(start, start + len);\n        if ((seg.length() > 1 && seg.charAt(0) == '0') || Integer.parseInt(seg) > 255) break;\n        int mark = cur.length();\n        cur.append(seg).append('.');\n        dfs(s, start + len, parts + 1, cur, res);\n        cur.setLength(mark);\n    }\n}"
+}
+],
+"insight": "Recurse by position, append one choice and undo it; for IP addresses cap at 4 parts, reject leading zeros / >255, and require the string to be fully consumed."
+},
+"backtracking__matchsticks-to-square": {
+"title": "Matchsticks to Square",
+"topic": "Backtracking",
+"subtopic": "Backtracking",
+"difficulty": "Hard",
+"pattern": "k=4 equal-sum-subset bucket backtracking",
+"notes": "",
+"statement": "Given an array `matchsticks` where `matchsticks[i]` is a stick length, decide whether all sticks can be used (each exactly once, none broken) to form the four sides of a square.",
+"examples": [
+{
+"input": "matchsticks = [1,1,2,2,2]",
+"output": "true",
+"explanation": "Sides 2, 2, (1+1), 2 each equal 2."
+},
+{
+"input": "matchsticks = [3,3,3,3,4]",
+"output": "false",
+"explanation": "Total 16 -> side 4, but a stick of length 3 can never complete a side of 4 with the remaining sticks."
+}
+],
+"constraints": [
+"1 <= matchsticks.length <= 15",
+"1 <= matchsticks[i] <= 10^8"
+],
+"approaches": [
+{
+"name": "Fill 4 buckets to side = total/4, largest-first backtracking",
+"idea": "This is the k=4 case of equal-sum-subset partition. If the total is not divisible by 4, or fewer than 4 sticks, or the longest stick exceeds `side = total/4`, return false. Sort ascending and place sticks largest-first into buckets; complete one bucket to `side` before starting the next. Prune: skip used or overflowing sticks, abort the whole search if the first stick of an empty bucket fails, and skip duplicate lengths at a level.",
+"time": "O(4^n) worst case with heavy pruning",
+"space": "O(n) used array and recursion",
+"code": "public boolean makesquare(int[] matchsticks) {\n    if (matchsticks.length < 4) return false;\n    int sum = 0;\n    for (int x : matchsticks) sum += x;\n    if (sum % 4 != 0) return false;\n    int side = sum / 4;\n    Arrays.sort(matchsticks);\n    if (matchsticks[matchsticks.length - 1] > side) return false;\n    boolean[] used = new boolean[matchsticks.length];\n    return dfs(matchsticks, used, matchsticks.length - 1, 4, 0, side);\n}\n\nprivate boolean dfs(int[] m, boolean[] used, int idx, int k, int cur, int side) {\n    if (k == 0) return true;\n    if (cur == side) return dfs(m, used, m.length - 1, k - 1, 0, side);\n    for (int i = idx; i >= 0; i--) {\n        if (used[i] || cur + m[i] > side) continue;\n        used[i] = true;\n        if (dfs(m, used, i - 1, k, cur + m[i], side)) return true;\n        used[i] = false;\n        if (cur == 0) return false;                  // first stick of side failed\n        while (i > 0 && m[i - 1] == m[i]) i--;        // skip duplicates\n    }\n    return false;\n}"
+}
+],
+"insight": "It's Partition to K Equal Sum Subsets with k=4: fill four side-length buckets largest-first with the same pruning."
+}
+}

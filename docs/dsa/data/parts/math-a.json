@@ -1,0 +1,257 @@
+{
+  "math-bit-manipulation__single-number-ii-iii": {
+    "title": "Single Number II / III",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Hard",
+    "pattern": "Bit counting / XOR partitioning",
+    "notes": "",
+    "statement": "**II:** every element appears **three times** except one (which appears once) — find that single element. **III:** every element appears twice except **two** singletons — find both of them, in any order.",
+    "examples": [
+      { "input": "II: nums = [2,2,3,2]", "output": "3", "explanation": "3 appears once; 2 appears three times." },
+      { "input": "III: nums = [1,2,1,3,2,5]", "output": "[3,5]", "explanation": "3 and 5 each appear once; the rest appear twice." }
+    ],
+    "constraints": [
+      "II: 1 <= nums.length <= 3*10^4, each value appears three times except one that appears once",
+      "III: exactly two elements appear once, all others appear exactly twice"
+    ],
+    "approaches": [
+      {
+        "name": "II — two-state ones/twos machine",
+        "idea": "For each bit position, the number of set bits across all numbers is a multiple of 3 plus the single number's bit. The `ones/twos` bitmask pair tracks which bits have been seen once vs twice and clears them once a bit is seen a third time, so after the loop `ones` holds exactly the unique number.",
+        "time": "O(n)",
+        "space": "O(1)",
+        "code": "public int singleNumberII(int[] nums) {\n    int ones = 0, twos = 0;\n    for (int x : nums) {\n        ones = (ones ^ x) & ~twos;\n        twos = (twos ^ x) & ~ones;\n    }\n    return ones;\n}"
+      },
+      {
+        "name": "III — XOR all, split by a differing bit",
+        "idea": "XOR of everything equals `a ^ b`, the XOR of the two singletons (all paired values cancel). Any set bit in it differs between `a` and `b`; take the lowest set bit via `x & (-x)` and partition all numbers into two groups by that bit. XOR within each group isolates one singleton.",
+        "time": "O(n)",
+        "space": "O(1)",
+        "code": "public int[] singleNumberIII(int[] nums) {\n    int xorAll = 0;\n    for (int x : nums) xorAll ^= x;\n    int diff = xorAll & (-xorAll); // lowest set bit\n    int a = 0, b = 0;\n    for (int x : nums) {\n        if ((x & diff) != 0) a ^= x;\n        else b ^= x;\n    }\n    return new int[]{a, b};\n}"
+      }
+    ],
+    "insight": "II: \"appears 3x\" ⇒ per-bit counts mod 3 via the ones/twos state machine that clears at 3. III: XOR gives a^b, and any set bit there separates the two singletons into independent XOR groups; x & (-x) isolates the lowest set bit."
+  },
+  "math-bit-manipulation__maximum-xor-of-two-numbers": {
+    "title": "Maximum XOR of Two Numbers",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Medium",
+    "pattern": "Greedy bit-by-bit with prefix set (or bitwise trie)",
+    "notes": "",
+    "statement": "Given an integer array `nums`, return the maximum result of `nums[i] XOR nums[j]` over all pairs `i, j`.",
+    "examples": [
+      { "input": "nums = [3,10,5,25,2,8]", "output": "28", "explanation": "5 XOR 25 = 28 is the maximum." },
+      { "input": "nums = [0]", "output": "0", "explanation": "Only one element; XOR with itself is 0." }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 2*10^5",
+      "0 <= nums[i] <= 2^31 - 1"
+    ],
+    "approaches": [
+      {
+        "name": "Greedy from the highest bit using a prefix set",
+        "idea": "Build the answer one bit at a time from the most significant bit down. At each step assume the next bit of the answer can be 1: collect all number prefixes under the current mask into a set, and check whether two prefixes exist whose XOR equals the candidate (using `a ^ b == c` iff `a ^ c == b`). If such a pair exists, keep that bit set.",
+        "time": "O(32 n)",
+        "space": "O(n)",
+        "code": "public int findMaximumXOR(int[] nums) {\n    int max = 0, mask = 0;\n    for (int i = 31; i >= 0; i--) {\n        mask |= (1 << i);\n        java.util.Set<Integer> prefixes = new java.util.HashSet<>();\n        for (int x : nums) prefixes.add(x & mask);\n        int candidate = max | (1 << i);\n        for (int p : prefixes) {\n            if (prefixes.contains(candidate ^ p)) {\n                max = candidate;\n                break;\n            }\n        }\n    }\n    return max;\n}"
+      }
+    ],
+    "insight": "Maximize XOR greedily from the top bit: for each bit, test whether some pair of masked prefixes can realize a 1 there, using a^b=c ⟺ a^c=b to probe a HashSet in O(1)."
+  },
+  "math-bit-manipulation__sum-of-two-integers": {
+    "title": "Sum of Two Integers",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Medium",
+    "pattern": "XOR sum + carry propagation",
+    "notes": "",
+    "statement": "Compute the sum of two integers `a` and `b` **without using the operators `+` and `-`**.",
+    "examples": [
+      { "input": "a = 1, b = 2", "output": "3", "explanation": "" },
+      { "input": "a = 2, b = 3", "output": "5", "explanation": "" }
+    ],
+    "constraints": [
+      "-1000 <= a, b <= 1000"
+    ],
+    "approaches": [
+      {
+        "name": "XOR for sum-without-carry, AND<<1 for carry",
+        "idea": "`a ^ b` adds the bits ignoring carry, while `(a & b) << 1` is the carry that must still be added. Repeat, feeding the carry back in, until the carry becomes zero. Java's two's-complement `int` handles negative values and overflow wraparound automatically.",
+        "time": "O(1)",
+        "space": "O(1)",
+        "code": "public int getSum(int a, int b) {\n    while (b != 0) {\n        int carry = (a & b) << 1;\n        a = a ^ b;\n        b = carry;\n    }\n    return a;\n}"
+      }
+    ],
+    "insight": "Addition = XOR (sum without carry) plus (AND << 1) (the carry), looped until no carry remains."
+  },
+  "math-bit-manipulation__counting-bits": {
+    "title": "Counting Bits",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Medium",
+    "pattern": "DP on bits (i >> 1 relation)",
+    "notes": "",
+    "statement": "Given an integer `n`, return an array `ans` of length `n + 1` where `ans[i]` is the number of set bits (1s) in the binary representation of `i`.",
+    "examples": [
+      { "input": "n = 2", "output": "[0,1,1]", "explanation": "0->0, 1->1, 2(10)->1." },
+      { "input": "n = 5", "output": "[0,1,1,2,1,2]", "explanation": "" }
+    ],
+    "constraints": [
+      "0 <= n <= 10^5"
+    ],
+    "approaches": [
+      {
+        "name": "DP using i >> 1",
+        "idea": "The number of set bits in `i` equals the set bits in `i >> 1` (dropping the lowest bit) plus the lowest bit itself (`i & 1`). Since `i >> 1 < i`, the value is already computed, giving a single O(n) pass.",
+        "time": "O(n)",
+        "space": "O(1) extra (output aside)",
+        "code": "public int[] countBits(int n) {\n    int[] dp = new int[n + 1];\n    for (int i = 1; i <= n; i++) {\n        dp[i] = dp[i >> 1] + (i & 1);\n    }\n    return dp;\n}"
+      }
+    ],
+    "insight": "popcount(i) = popcount(i >> 1) + (i & 1): reuse the answer for the number with its lowest bit removed."
+  },
+  "math-bit-manipulation__subsets-via-bitmask": {
+    "title": "Subsets via bitmask",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Medium",
+    "pattern": "Enumerate all 2^n masks",
+    "notes": "",
+    "statement": "Given an array `nums` of distinct integers, return all possible subsets (the power set). The solution must not contain duplicate subsets.",
+    "examples": [
+      { "input": "nums = [1,2,3]", "output": "[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]", "explanation": "All 2^3 = 8 subsets." },
+      { "input": "nums = [0]", "output": "[[],[0]]", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 10",
+      "-10 <= nums[i] <= 10",
+      "All elements of nums are unique"
+    ],
+    "approaches": [
+      {
+        "name": "Iterate every bitmask from 0 to 2^n - 1",
+        "idea": "Each subset corresponds to an n-bit mask: bit `i` set means `nums[i]` is included. Loop over all `2^n` masks and, for each, collect the elements whose bit is set. This enumerates the power set directly with no recursion.",
+        "time": "O(n * 2^n)",
+        "space": "O(n * 2^n) output",
+        "code": "public java.util.List<java.util.List<Integer>> subsets(int[] nums) {\n    int n = nums.length;\n    java.util.List<java.util.List<Integer>> res = new java.util.ArrayList<>();\n    for (int mask = 0; mask < (1 << n); mask++) {\n        java.util.List<Integer> sub = new java.util.ArrayList<>();\n        for (int i = 0; i < n; i++) {\n            if ((mask & (1 << i)) != 0) sub.add(nums[i]);\n        }\n        res.add(sub);\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "A subset of an n-element set is exactly an n-bit mask; loop 0..2^n-1 and include nums[i] whenever bit i is set."
+  },
+  "math-bit-manipulation__bitwise-and-of-range": {
+    "title": "Bitwise AND of Range",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Medium",
+    "pattern": "Common binary prefix of the range endpoints",
+    "notes": "",
+    "statement": "Given two integers `left` and `right` (with `left <= right`), return the bitwise AND of all numbers in the inclusive range `[left, right]`.",
+    "examples": [
+      { "input": "left = 5, right = 7", "output": "4", "explanation": "5 & 6 & 7 = 4." },
+      { "input": "left = 0, right = 0", "output": "0", "explanation": "" }
+    ],
+    "constraints": [
+      "0 <= left <= right <= 2^31 - 1"
+    ],
+    "approaches": [
+      {
+        "name": "Shift until endpoints share a common prefix",
+        "idea": "AND over a range is 1 in a bit only if that bit is 1 in every number, which happens exactly on the common high-order prefix of `left` and `right`; all lower bits vary within the range and get zeroed. Right-shift both until they are equal (that shared prefix), counting the shifts, then shift back.",
+        "time": "O(log right)",
+        "space": "O(1)",
+        "code": "public int rangeBitwiseAnd(int left, int right) {\n    int shift = 0;\n    while (left < right) {\n        left >>= 1;\n        right >>= 1;\n        shift++;\n    }\n    return left << shift;\n}"
+      }
+    ],
+    "insight": "The AND of a range is the common binary prefix of its endpoints, with all lower (varying) bits cleared."
+  },
+  "math-bit-manipulation__minimum-xor-sum-beautiful-arrangement": {
+    "title": "Minimum XOR Sum / Beautiful Arrangement",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Hard",
+    "pattern": "Bitmask DP over assignments/permutations",
+    "notes": "",
+    "statement": "**Minimum XOR Sum:** given equal-length arrays `nums1` and `nums2`, rearrange `nums2` to minimize `sum(nums1[i] XOR nums2[i])`; return that minimum. **Beautiful Arrangement:** count permutations `perm` of `1..n` such that for every 1-indexed position `i`, either `perm[i] % i == 0` or `i % perm[i] == 0`.",
+    "examples": [
+      { "input": "nums1 = [1,2], nums2 = [2,3]", "output": "2", "explanation": "Pair 2↔2 (0) and 1↔3 (2): total 2." },
+      { "input": "n = 2 (Beautiful Arrangement)", "output": "2", "explanation": "[1,2] and [2,1] both qualify." }
+    ],
+    "constraints": [
+      "Min XOR Sum: 1 <= n <= 14, 0 <= nums1[i], nums2[i] <= 10^7",
+      "Beautiful Arrangement: 1 <= n <= 15"
+    ],
+    "approaches": [
+      {
+        "name": "Min XOR Sum — bitmask DP over used nums2 indices",
+        "idea": "`dp[mask]` = minimum XOR sum after assigning the first `popcount(mask)` entries of `nums1`, where `mask` marks which `nums2` indices are used. The next `nums1` index is `Integer.bitCount(mask)`; try pairing it with each still-free `nums2[j]`, transitioning to `mask | (1<<j)`. Answer is `dp[(1<<n)-1]`.",
+        "time": "O(n * 2^n)",
+        "space": "O(2^n)",
+        "code": "public int minimumXORSum(int[] nums1, int[] nums2) {\n    int n = nums1.length;\n    int[] dp = new int[1 << n];\n    java.util.Arrays.fill(dp, Integer.MAX_VALUE);\n    dp[0] = 0;\n    for (int mask = 0; mask < (1 << n); mask++) {\n        if (dp[mask] == Integer.MAX_VALUE) continue;\n        int i = Integer.bitCount(mask); // index into nums1\n        for (int j = 0; j < n; j++) {\n            if ((mask & (1 << j)) == 0) {\n                int next = mask | (1 << j);\n                dp[next] = Math.min(dp[next], dp[mask] + (nums1[i] ^ nums2[j]));\n            }\n        }\n    }\n    return dp[(1 << n) - 1];\n}"
+      },
+      {
+        "name": "Beautiful Arrangement — bitmask DP counting permutations",
+        "idea": "`dp[mask]` = number of ways to fill the first `popcount(mask)` positions using exactly the numbers in `mask`. The next position is `pos = popcount(mask) + 1`; for each unused number `num` that is divisibility-compatible with `pos`, add `dp[mask]` into `dp[mask | (1<<(num-1))]`. Answer is `dp[(1<<n)-1]`.",
+        "time": "O(n * 2^n)",
+        "space": "O(2^n)",
+        "code": "public int countArrangement(int n) {\n    int[] dp = new int[1 << n];\n    dp[0] = 1;\n    for (int mask = 0; mask < (1 << n); mask++) {\n        if (dp[mask] == 0) continue;\n        int pos = Integer.bitCount(mask) + 1; // 1-indexed position to fill\n        for (int num = 1; num <= n; num++) {\n            if ((mask & (1 << (num - 1))) == 0 && (num % pos == 0 || pos % num == 0)) {\n                dp[mask | (1 << (num - 1))] += dp[mask];\n            }\n        }\n    }\n    return dp[(1 << n) - 1];\n}"
+      }
+    ],
+    "insight": "Both are assignment problems over 1..n: let dp[mask] describe having placed popcount(mask) items; the next slot index is popcount(mask), and you extend by any unused element — O(n·2^n) beats O(n!) permutation search."
+  },
+  "math-bit-manipulation__power-of-two-power-of-three-power-of-four": {
+    "title": "Power of Two / Power of Three / Power of Four",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Medium",
+    "pattern": "Bit tricks and divisibility by the largest power",
+    "notes": "",
+    "statement": "Determine whether a given integer `n` is a power of two, a power of three, or a power of four respectively (i.e. `n == b^x` for some integer `x >= 0`).",
+    "examples": [
+      { "input": "n = 16", "output": "isPowerOfTwo=true, isPowerOfThree=false, isPowerOfFour=true", "explanation": "16 = 2^4 = 4^2." },
+      { "input": "n = 27", "output": "isPowerOfThree=true, isPowerOfTwo=false", "explanation": "27 = 3^3." }
+    ],
+    "constraints": [
+      "-2^31 <= n <= 2^31 - 1"
+    ],
+    "approaches": [
+      {
+        "name": "Bit trick (2 & 4) and largest-power divisibility (3)",
+        "idea": "A power of two has exactly one set bit: `n > 0 && (n & (n-1)) == 0`. A power of four is additionally a power of two whose single set bit lies on an even position, tested with mask `0x55555555`. For power of three there is no bit pattern, so use that `1162261467 = 3^19` is the largest power of three fitting in an `int`; `n` is a power of three iff it is positive and divides it evenly.",
+        "time": "O(1)",
+        "space": "O(1)",
+        "code": "public boolean isPowerOfTwo(int n) {\n    return n > 0 && (n & (n - 1)) == 0;\n}\n\npublic boolean isPowerOfThree(int n) {\n    // 1162261467 = 3^19, the largest power of 3 that fits in an int\n    return n > 0 && 1162261467 % n == 0;\n}\n\npublic boolean isPowerOfFour(int n) {\n    // power of two, and its single set bit sits at an even position\n    return n > 0 && (n & (n - 1)) == 0 && (n & 0x55555555) != 0;\n}"
+      }
+    ],
+    "insight": "Power of two ⇒ (n & (n-1))==0; power of four ⇒ that plus the bit in mask 0x55555555; power of three ⇒ divides 3^19 (1162261467), the max power of 3 in an int."
+  },
+  "math-bit-manipulation__pow-x-n": {
+    "title": "Pow(x,n)",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Medium",
+    "pattern": "Fast exponentiation (binary exponentiation)",
+    "notes": "",
+    "statement": "Implement `pow(x, n)`, which computes `x` raised to the power `n` (i.e. `x^n`).",
+    "examples": [
+      { "input": "x = 2.00000, n = 10", "output": "1024.00000", "explanation": "" },
+      { "input": "x = 2.00000, n = -2", "output": "0.25000", "explanation": "2^-2 = 1/4 = 0.25." }
+    ],
+    "constraints": [
+      "-100.0 < x < 100.0",
+      "-2^31 <= n <= 2^31 - 1",
+      "-10^4 <= x^n <= 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Binary exponentiation",
+        "idea": "Square the base while halving the exponent: whenever the current low bit of the exponent is 1, multiply it into the result. Promote `n` to a `long` before negating so that `Integer.MIN_VALUE` does not overflow when handling negative exponents (a negative `n` means the reciprocal `1/x`).",
+        "time": "O(log n)",
+        "space": "O(1)",
+        "code": "public double myPow(double x, int n) {\n    long N = n;\n    if (N < 0) {\n        x = 1 / x;\n        N = -N;\n    }\n    double result = 1.0;\n    while (N > 0) {\n        if ((N & 1) == 1) result *= x;\n        x *= x;\n        N >>= 1;\n    }\n    return result;\n}"
+      }
+    ],
+    "insight": "Binary exponentiation: multiply in x^(2^k) whenever bit k of n is set, O(log n); widen n to long before negating to survive Integer.MIN_VALUE."
+  }
+}

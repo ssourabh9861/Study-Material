@@ -1,0 +1,373 @@
+{
+"monotonic-stack__largest-rectangle-in-histogram": {
+"title": "Largest Rectangle in Histogram",
+"topic": "Monotonic Stack",
+"subtopic": "Monotonic Stack",
+"difficulty": "Hard",
+"pattern": "Increasing monotonic stack of bar indices; pop to fix each bar's maximal width",
+"notes": "",
+"statement": "Given an array `heights` representing the heights of adjacent bars each of width 1, return the area of the largest rectangle that can be formed within the histogram.",
+"examples": [
+{
+"input": "heights = [2,1,5,6,2,3]",
+"output": "10",
+"explanation": "Bars of height 5 and 6 span width 2, giving area 10."
+},
+{
+"input": "heights = [2,4]",
+"output": "4",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= heights.length <= 10^5",
+"0 <= heights[i] <= 10^4"
+],
+"approaches": [
+{
+"name": "Monotonic increasing stack",
+"idea": "Keep a stack of indices with non-decreasing heights. When the current bar is shorter than the bar on top, that top bar can extend no further right, so pop it and compute its rectangle: its height times the width bounded by the current index on the right and the new stack top on the left. A trailing sentinel height 0 flushes the stack. Each bar is pushed and popped once, so the pass is linear.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public int largestRectangleArea(int[] heights) {\n    int n = heights.length;\n    java.util.Deque<Integer> stack = new java.util.ArrayDeque<>();\n    int maxArea = 0;\n    for (int i = 0; i <= n; i++) {\n        int h = (i == n) ? 0 : heights[i];\n        while (!stack.isEmpty() && heights[stack.peek()] >= h) {\n            int height = heights[stack.pop()];\n            int width = stack.isEmpty() ? i : i - stack.peek() - 1;\n            maxArea = Math.max(maxArea, height * width);\n        }\n        stack.push(i);\n    }\n    return maxArea;\n}"
+}
+],
+"insight": "Each bar's maximal rectangle is bounded by the first strictly shorter bar on each side; a monotonic stack finds both boundaries in one pass."
+},
+"monotonic-stack__maximal-rectangle": {
+"title": "Maximal Rectangle",
+"topic": "Monotonic Stack",
+"subtopic": "Monotonic Stack",
+"difficulty": "Hard",
+"pattern": "Row-by-row histogram + largest rectangle in histogram",
+"notes": "",
+"statement": "Given a binary matrix `matrix` of `'0'` and `'1'` characters, find the largest rectangle containing only `'1'`s and return its area.",
+"examples": [
+{
+"input": "matrix = [[\"1\",\"0\",\"1\",\"0\",\"0\"],[\"1\",\"0\",\"1\",\"1\",\"1\"],[\"1\",\"1\",\"1\",\"1\",\"1\"],[\"1\",\"0\",\"0\",\"1\",\"0\"]]",
+"output": "6",
+"explanation": "The 2x3 block of 1s in the lower-middle gives area 6."
+},
+{
+"input": "matrix = [[\"0\"]]",
+"output": "0",
+"explanation": ""
+}
+],
+"constraints": [
+"rows == matrix.length",
+"cols == matrix[0].length",
+"1 <= rows, cols <= 200",
+"matrix[i][j] is '0' or '1'"
+],
+"approaches": [
+{
+"name": "Histogram per row",
+"idea": "For each row, treat the number of consecutive 1s ending at that row in each column as a histogram bar height (reset to 0 when the cell is 0). The largest all-ones rectangle whose bottom edge lies on this row equals the largest rectangle in that histogram, solved by the monotonic-stack routine. Take the max over all rows.",
+"time": "O(rows * cols)",
+"space": "O(cols)",
+"code": "public int maximalRectangle(char[][] matrix) {\n    if (matrix.length == 0 || matrix[0].length == 0) return 0;\n    int m = matrix.length, n = matrix[0].length;\n    int[] heights = new int[n];\n    int max = 0;\n    for (int i = 0; i < m; i++) {\n        for (int j = 0; j < n; j++) {\n            heights[j] = matrix[i][j] == '1' ? heights[j] + 1 : 0;\n        }\n        max = Math.max(max, largestRectangleArea(heights));\n    }\n    return max;\n}\n\nprivate int largestRectangleArea(int[] heights) {\n    int n = heights.length;\n    java.util.Deque<Integer> stack = new java.util.ArrayDeque<>();\n    int maxArea = 0;\n    for (int i = 0; i <= n; i++) {\n        int h = (i == n) ? 0 : heights[i];\n        while (!stack.isEmpty() && heights[stack.peek()] >= h) {\n            int height = heights[stack.pop()];\n            int width = stack.isEmpty() ? i : i - stack.peek() - 1;\n            maxArea = Math.max(maxArea, height * width);\n        }\n        stack.push(i);\n    }\n    return maxArea;\n}"
+}
+],
+"insight": "Collapse the 2D problem into `rows` independent histograms; each row's answer is a Largest-Rectangle-in-Histogram call."
+},
+"monotonic-stack__trapping-rain-water": {
+"title": "Trapping Rain Water",
+"topic": "Monotonic Stack",
+"subtopic": "Monotonic Stack",
+"difficulty": "Hard",
+"pattern": "Decreasing monotonic stack accumulating water layer by layer",
+"notes": "",
+"statement": "Given `n` non-negative integers `height` representing an elevation map where the width of each bar is 1, compute how much water can be trapped after raining.",
+"examples": [
+{
+"input": "height = [0,1,0,2,1,0,1,3,2,1,2,1]",
+"output": "6",
+"explanation": ""
+},
+{
+"input": "height = [4,2,0,3,2,5]",
+"output": "9",
+"explanation": ""
+}
+],
+"constraints": [
+"n == height.length",
+"1 <= n <= 2 * 10^4",
+"0 <= height[i] <= 10^5"
+],
+"approaches": [
+{
+"name": "Monotonic decreasing stack",
+"idea": "Maintain a stack of indices with non-increasing heights. When the current bar is taller than the top, that top is a valley bottom; pop it and, if a left wall remains on the stack, add the trapped water for that horizontal layer: width times (min(left wall, current) minus valley height). This fills water in horizontal slabs as each right wall appears.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public int trap(int[] height) {\n    java.util.Deque<Integer> stack = new java.util.ArrayDeque<>();\n    int water = 0;\n    for (int i = 0; i < height.length; i++) {\n        while (!stack.isEmpty() && height[i] > height[stack.peek()]) {\n            int bottom = stack.pop();\n            if (stack.isEmpty()) break;\n            int left = stack.peek();\n            int width = i - left - 1;\n            int boundedHeight = Math.min(height[left], height[i]) - height[bottom];\n            water += width * boundedHeight;\n        }\n        stack.push(i);\n    }\n    return water;\n}"
+},
+{
+"name": "Two pointers",
+"idea": "Water above each bar is bounded by the shorter of the tallest wall to its left and right. Move two pointers inward; the side with the smaller running max is fully determined, so add `leftMax/rightMax - height[i]` there. This gives O(1) space and is the most common optimal form.",
+"time": "O(n)",
+"space": "O(1)",
+"code": "public int trap(int[] height) {\n    int l = 0, r = height.length - 1;\n    int leftMax = 0, rightMax = 0, water = 0;\n    while (l < r) {\n        if (height[l] < height[r]) {\n            leftMax = Math.max(leftMax, height[l]);\n            water += leftMax - height[l];\n            l++;\n        } else {\n            rightMax = Math.max(rightMax, height[r]);\n            water += rightMax - height[r];\n            r--;\n        }\n    }\n    return water;\n}"
+}
+],
+"insight": "The stack fills water in horizontal layers between a left wall and the next taller bar on the right."
+},
+"monotonic-stack__sum-of-subarray-minimums": {
+"title": "Sum of Subarray Minimums",
+"topic": "Monotonic Stack",
+"subtopic": "Monotonic Stack",
+"difficulty": "Hard",
+"pattern": "Contribution counting: count subarrays where each element is the minimum",
+"notes": "",
+"statement": "Given an array `arr` of integers, return the sum of `min(b)` over every contiguous subarray `b` of `arr`, modulo `10^9 + 7`.",
+"examples": [
+{
+"input": "arr = [3,1,2,4]",
+"output": "17",
+"explanation": "Subarray minimums sum to 1+2+3+4+1+1+2+1+1+1 = 17."
+},
+{
+"input": "arr = [11,81,94,43,3]",
+"output": "444",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= arr.length <= 3 * 10^4",
+"1 <= arr[i] <= 3 * 10^4"
+],
+"approaches": [
+{
+"name": "Monotonic stack contribution",
+"idea": "Each element `arr[mid]` contributes to every subarray in which it is the minimum. Count those subarrays as (distance to the previous strictly-smaller element) times (distance to the next smaller-or-equal element); the asymmetric tie-breaking prevents double counting equal values. A single increasing stack, popping when the incoming value is strictly smaller, resolves both boundaries at pop time. A trailing sentinel flushes the stack.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public int sumSubarrayMins(int[] arr) {\n    final int MOD = 1_000_000_007;\n    int n = arr.length;\n    long sum = 0;\n    java.util.Deque<Integer> stack = new java.util.ArrayDeque<>();\n    for (int i = 0; i <= n; i++) {\n        int cur = (i == n) ? Integer.MIN_VALUE : arr[i];\n        while (!stack.isEmpty() && arr[stack.peek()] > cur) {\n            int mid = stack.pop();\n            int left = stack.isEmpty() ? -1 : stack.peek();\n            long count = (long) (mid - left) * (i - mid);\n            sum = (sum + count % MOD * arr[mid]) % MOD;\n        }\n        stack.push(i);\n    }\n    return (int) sum;\n}"
+}
+],
+"insight": "Sum contributions per element: how many subarrays it is the minimum of, using previous-strictly-less and next-less-or-equal spans."
+},
+"monotonic-stack__remove-k-digits-remove-duplicate-letters": {
+"title": "Remove K Digits / Remove Duplicate Letters",
+"topic": "Monotonic Stack",
+"subtopic": "Monotonic Stack",
+"difficulty": "Medium",
+"pattern": "Greedy monotonic stack building the lexicographically smallest result",
+"notes": "",
+"statement": "Two greedy-stack problems. **Remove K Digits:** given a numeric string `num` and integer `k`, remove `k` digits so the remaining number is the smallest possible (no leading zeros, `\"0\"` if empty). **Remove Duplicate Letters:** given a string `s`, remove duplicate letters so every letter appears once and the result is the lexicographically smallest among all such strings.",
+"examples": [
+{
+"input": "num = \"1432219\", k = 3",
+"output": "\"1219\"",
+"explanation": "Remove 4, 3, and one 2 to reach the smallest number."
+},
+{
+"input": "s = \"cbacdcbc\"",
+"output": "\"acdb\"",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= num.length <= 10^5, num consists of digits, k <= num.length",
+"1 <= s.length <= 10^4, s consists of lowercase English letters"
+],
+"approaches": [
+{
+"name": "Remove K digits",
+"idea": "Scan digits keeping an increasing stack: while the top digit is larger than the incoming one and we still have removals left, pop it (removing a larger high-order digit shrinks the number most). Any leftover `k` removes trailing digits. Finally strip leading zeros.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public String removeKdigits(String num, int k) {\n    java.util.Deque<Character> stack = new java.util.ArrayDeque<>();\n    for (char c : num.toCharArray()) {\n        while (!stack.isEmpty() && k > 0 && stack.peek() > c) {\n            stack.pop();\n            k--;\n        }\n        stack.push(c);\n    }\n    while (k-- > 0) stack.pop();\n    StringBuilder sb = new StringBuilder();\n    java.util.Iterator<Character> it = stack.descendingIterator();\n    while (it.hasNext()) sb.append(it.next());\n    int i = 0;\n    while (i < sb.length() && sb.charAt(i) == '0') i++;\n    String res = sb.substring(i);\n    return res.isEmpty() ? \"0\" : res;\n}"
+},
+{
+"name": "Remove duplicate letters",
+"idea": "Precompute each letter's last occurrence. Build an increasing stack of not-yet-used letters: before pushing a new letter, pop any larger top letter that still appears later (so it can be re-added). Skip letters already in the stack. This yields the lexicographically smallest string with all distinct letters.",
+"time": "O(n)",
+"space": "O(1)",
+"code": "public String removeDuplicateLetters(String s) {\n    int[] lastIndex = new int[26];\n    for (int i = 0; i < s.length(); i++) lastIndex[s.charAt(i) - 'a'] = i;\n    boolean[] inStack = new boolean[26];\n    java.util.Deque<Integer> stack = new java.util.ArrayDeque<>();\n    for (int i = 0; i < s.length(); i++) {\n        int c = s.charAt(i) - 'a';\n        if (inStack[c]) continue;\n        while (!stack.isEmpty() && stack.peek() > c && lastIndex[stack.peek()] > i) {\n            inStack[stack.pop()] = false;\n        }\n        stack.push(c);\n        inStack[c] = true;\n    }\n    StringBuilder sb = new StringBuilder();\n    java.util.Iterator<Integer> it = stack.descendingIterator();\n    while (it.hasNext()) sb.append((char) ('a' + it.next()));\n    return sb.toString();\n}"
+}
+],
+"insight": "Greedily pop a larger element when a smaller one arrives (as long as popping is allowed/recoverable) to build the lexicographically smallest sequence."
+},
+"monotonic-stack__largest-rectangle-132-pattern": {
+"title": "Largest Rectangle / 132 Pattern",
+"topic": "Monotonic Stack",
+"subtopic": "Monotonic Stack",
+"difficulty": "Hard",
+"pattern": "Reverse scan with a decreasing stack tracking the best '2' value",
+"notes": "",
+"statement": "Given an array `nums`, a 132 pattern is a triple of indices `i < j < k` such that `nums[i] < nums[k] < nums[j]`. Return `true` if such a pattern exists.",
+"examples": [
+{
+"input": "nums = [1,2,3,4]",
+"output": "false",
+"explanation": "No triple forms the 132 shape."
+},
+{
+"input": "nums = [3,1,4,2]",
+"output": "true",
+"explanation": "The triple (1,4,2) with indices 1<2<3 satisfies 1 < 2 < 4."
+}
+],
+"constraints": [
+"n == nums.length",
+"1 <= n <= 2 * 10^5",
+"-10^9 <= nums[i] <= 10^9"
+],
+"approaches": [
+{
+"name": "Right-to-left monotonic stack",
+"idea": "Scan from the right maintaining a decreasing stack of candidate `nums[j]` values (the '3'). Track `third`, the largest value popped from the stack, which is a valid `nums[k]` (the '2') that had some larger `nums[j]` to its left. If the current element is less than `third`, it can serve as `nums[i]` (the '1') and a 132 pattern exists. Popping smaller-or-equal tops raises `third` toward the best achievable '2'.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public boolean find132pattern(int[] nums) {\n    int n = nums.length;\n    java.util.Deque<Integer> stack = new java.util.ArrayDeque<>();\n    int third = Integer.MIN_VALUE;\n    for (int i = n - 1; i >= 0; i--) {\n        if (nums[i] < third) return true;\n        while (!stack.isEmpty() && stack.peek() < nums[i]) {\n            third = stack.pop();\n        }\n        stack.push(nums[i]);\n    }\n    return false;\n}"
+}
+],
+"insight": "Scan right-to-left; the largest value ever popped is the best '2' guaranteed to have a bigger '3' on its right, so any smaller current value completes the pattern."
+},
+"monotonic-stack__maximum-width-ramp": {
+"title": "Maximum Width Ramp",
+"topic": "Monotonic Stack",
+"subtopic": "Monotonic Stack",
+"difficulty": "Hard",
+"pattern": "Decreasing candidate stack of left ends, matched greedily from the right",
+"notes": "",
+"statement": "Given an array `nums`, a ramp is a pair `(i, j)` with `i < j` and `nums[i] <= nums[j]`; its width is `j - i`. Return the maximum width of any ramp, or 0 if none exists.",
+"examples": [
+{
+"input": "nums = [6,0,8,2,1,5]",
+"output": "4",
+"explanation": "Ramp (1,5): nums[1]=0 <= nums[5]=5, width 4."
+},
+{
+"input": "nums = [9,8,1,0,1,9,4,0,4,1]",
+"output": "7",
+"explanation": "Ramp (2,9): nums[2]=1 <= nums[9]=1, width 7."
+}
+],
+"constraints": [
+"2 <= nums.length <= 5 * 10^4",
+"0 <= nums[i] <= 5 * 10^4"
+],
+"approaches": [
+{
+"name": "Decreasing stack + right sweep",
+"idea": "Only strictly-decreasing prefix values are useful left ends `i`: push their indices onto a stack while values strictly decrease. Then scan from the right; for each `j`, pop every stack index whose value is <= nums[j] and update the width `j - i`. Popping is safe because a smaller index (larger width) is popped first, so no later `j` needs it.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public int maxWidthRamp(int[] nums) {\n    int n = nums.length;\n    java.util.Deque<Integer> stack = new java.util.ArrayDeque<>();\n    for (int i = 0; i < n; i++) {\n        if (stack.isEmpty() || nums[stack.peek()] > nums[i]) stack.push(i);\n    }\n    int max = 0;\n    for (int j = n - 1; j >= 0; j--) {\n        while (!stack.isEmpty() && nums[stack.peek()] <= nums[j]) {\n            max = Math.max(max, j - stack.pop());\n        }\n    }\n    return max;\n}"
+}
+],
+"insight": "Candidate left ends form a strictly decreasing stack; sweeping j from the right pops them in decreasing-index order so each is matched with its farthest valid j."
+},
+"monotonic-stack__number-of-visible-people-in-a-queue": {
+"title": "Number of Visible People in a Queue",
+"topic": "Monotonic Stack",
+"subtopic": "Monotonic Stack",
+"difficulty": "Hard",
+"pattern": "Right-to-left decreasing stack counting people seen until first taller",
+"notes": "",
+"statement": "There are `n` people in a queue with distinct heights `heights`. Person `i` can see person `j` (to the right, `i < j`) if everyone strictly between them is shorter than both `heights[i]` and `heights[j]`. For each person, return how many people to their right they can see.",
+"examples": [
+{
+"input": "heights = [10,6,8,5,11,9]",
+"output": "[3,1,2,1,1,0]",
+"explanation": "Person 0 sees persons 1, 2, and 4 (blocked beyond the first taller)."
+},
+{
+"input": "heights = [5,1,2,3,10]",
+"output": "[4,1,1,1,0]",
+"explanation": ""
+}
+],
+"constraints": [
+"n == heights.length",
+"1 <= n <= 10^5",
+"1 <= heights[i] <= 10^5",
+"All the values of heights are unique."
+],
+"approaches": [
+{
+"name": "Monotonic decreasing stack from the right",
+"idea": "Process people right to left keeping a stack of heights that are still visible. For person `i`, pop every shorter person (each is directly visible) and count them; if a taller person remains on the stack, they too are visible (the first taller one blocks the rest), so add one more. Then push person `i`. The stack stays decreasing from bottom to top.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public int[] canSeePersonsCount(int[] heights) {\n    int n = heights.length;\n    int[] ans = new int[n];\n    java.util.Deque<Integer> stack = new java.util.ArrayDeque<>();\n    for (int i = n - 1; i >= 0; i--) {\n        int count = 0;\n        while (!stack.isEmpty() && stack.peek() < heights[i]) {\n            stack.pop();\n            count++;\n        }\n        if (!stack.isEmpty()) count++;\n        ans[i] = count;\n        stack.push(heights[i]);\n    }\n    return ans;\n}"
+}
+],
+"insight": "A person sees every shorter neighbor up to and including the first taller one; a right-to-left decreasing stack counts exactly those."
+},
+"monotonic-stack__online-stock-span": {
+"title": "Online Stock Span",
+"topic": "Monotonic Stack",
+"subtopic": "Monotonic Stack",
+"difficulty": "Medium",
+"pattern": "Monotonic stack of (price, span) collapsing consecutive lower-or-equal days",
+"notes": "",
+"statement": "Design a `StockSpanner` that, for a stream of daily prices, returns after each `next(price)` call the span: the number of consecutive days (ending today, going back) whose price was less than or equal to today's price.",
+"examples": [
+{
+"input": "next calls: 100,80,60,70,60,75,85",
+"output": "[1,1,1,2,1,4,6]",
+"explanation": "e.g. price 75 spans days with 60,70,60,75 -> 4."
+},
+{
+"input": "next(31), next(41), next(48), next(59), next(79)",
+"output": "[1,2,3,4,5]",
+"explanation": "Strictly increasing prices span all prior days."
+}
+],
+"constraints": [
+"1 <= price <= 10^5",
+"At most 10^4 calls to next.",
+"Amortized O(1) per call."
+],
+"approaches": [
+{
+"name": "Monotonic stack of (price, span)",
+"idea": "Keep a stack of pairs (price, span) that is strictly decreasing in price. On each new price, start span at 1 and, while the top price is <= the new price, pop it and add its span (those days are dominated and collapse into today's span). Push the new (price, accumulated span). Each day is pushed and popped once, giving amortized O(1).",
+"time": "O(1) amortized per call",
+"space": "O(n)",
+"code": "class StockSpanner {\n    private java.util.Deque<int[]> stack;\n\n    public StockSpanner() {\n        stack = new java.util.ArrayDeque<>();\n    }\n\n    public int next(int price) {\n        int span = 1;\n        while (!stack.isEmpty() && stack.peek()[0] <= price) {\n            span += stack.pop()[1];\n        }\n        stack.push(new int[]{price, span});\n        return span;\n    }\n}"
+}
+],
+"insight": "Collapse a run of prior days <= today into one span value stored on the stack, so each day is touched only twice."
+},
+"monotonic-stack__sum-of-subarray-ranges": {
+"title": "Sum of Subarray Ranges",
+"topic": "Monotonic Stack",
+"subtopic": "Monotonic Stack",
+"difficulty": "Hard",
+"pattern": "Contribution counting: sum of maxima minus sum of minima over all subarrays",
+"notes": "",
+"statement": "Given an integer array `nums`, the range of a subarray is its maximum element minus its minimum element. Return the sum of ranges over all contiguous subarrays.",
+"examples": [
+{
+"input": "nums = [1,2,3]",
+"output": "4",
+"explanation": "Ranges: [1]=0,[2]=0,[3]=0,[1,2]=1,[2,3]=1,[1,2,3]=2 -> sum 4."
+},
+{
+"input": "nums = [1,3,3]",
+"output": "4",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= nums.length <= 1000",
+"-10^9 <= nums[i] <= 10^9"
+],
+"approaches": [
+{
+"name": "Sum of maxima minus sum of minima",
+"idea": "Total range sum = (sum of the max over every subarray) - (sum of the min over every subarray). Each is computed by contribution counting with a monotonic stack: for the min pass, each element is the minimum of (prev-strictly-smaller span) times (next-smaller-or-equal span) subarrays; the max pass mirrors it with the comparisons flipped. Asymmetric tie-breaking avoids double counting equal values. Uses `long` for the totals.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public long subArrayRanges(int[] nums) {\n    return sumOfExtreme(nums, true) - sumOfExtreme(nums, false);\n}\n\n// max = true sums subarray maxima; max = false sums subarray minima\nprivate long sumOfExtreme(int[] nums, boolean max) {\n    int n = nums.length;\n    long sum = 0;\n    java.util.Deque<Integer> stack = new java.util.ArrayDeque<>();\n    for (int i = 0; i <= n; i++) {\n        while (!stack.isEmpty() && shouldPop(nums, stack.peek(), i, max)) {\n            int mid = stack.pop();\n            int left = stack.isEmpty() ? -1 : stack.peek();\n            sum += (long) (mid - left) * (i - mid) * nums[mid];\n        }\n        stack.push(i);\n    }\n    return sum;\n}\n\nprivate boolean shouldPop(int[] nums, int top, int i, boolean max) {\n    if (i == nums.length) return true; // sentinel flushes the stack\n    return max ? nums[top] < nums[i] : nums[top] > nums[i];\n}"
+}
+],
+"insight": "Range sum splits into sum-of-maxes minus sum-of-mins; each is a contribution-counting monotonic-stack pass over all subarrays."
+}
+}

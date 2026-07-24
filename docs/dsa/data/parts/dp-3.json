@@ -1,0 +1,423 @@
+{
+  "dynamic-programming__palindromic-substrings": {
+    "title": "Palindromic Substrings",
+    "topic": "Dynamic Programming",
+    "subtopic": "Palindrome",
+    "difficulty": "Medium",
+    "pattern": "Expand around each center; count all palindromic substrings",
+    "notes": "",
+    "statement": "Given a string `s`, count how many of its substrings are palindromes. Substrings at different positions count separately even if identical.",
+    "examples": [
+      {
+        "input": "s = \"abc\"",
+        "output": "3",
+        "explanation": "\"a\", \"b\", \"c\"."
+      },
+      {
+        "input": "s = \"aaa\"",
+        "output": "6",
+        "explanation": "\"a\"x3, \"aa\"x2, \"aaa\"."
+      }
+    ],
+    "constraints": [
+      "1 <= s.length <= 1000",
+      "s consists of lowercase English letters"
+    ],
+    "approaches": [
+      {
+        "name": "Expand around center",
+        "idea": "Every palindrome has a center: either a single character (odd length) or a gap between two characters (even length). There are `2n-1` centers; from each, expand outward while the two sides match, counting one palindrome per successful expansion. This avoids the O(n^2) space of a DP table.",
+        "time": "O(n^2)",
+        "space": "O(1)",
+        "code": "public int countSubstrings(String s) {\n    int n = s.length(), count = 0;\n    for (int center = 0; center < 2 * n - 1; center++) {\n        int l = center / 2, r = l + center % 2;\n        while (l >= 0 && r < n && s.charAt(l) == s.charAt(r)) {\n            count++;\n            l--;\n            r++;\n        }\n    }\n    return count;\n}"
+      }
+    ],
+    "insight": "Iterate over all 2n-1 centers and expand; each matching expansion is one more palindromic substring."
+  },
+  "dynamic-programming__longest-palindromic-substring": {
+    "title": "Longest Palindromic Substring",
+    "topic": "Dynamic Programming",
+    "subtopic": "Palindrome",
+    "difficulty": "Medium",
+    "pattern": "Expand around each center; track the longest span",
+    "notes": "",
+    "statement": "Given a string `s`, return the longest contiguous substring of `s` that reads the same forwards and backwards.",
+    "examples": [
+      {
+        "input": "s = \"babad\"",
+        "output": "\"bab\"",
+        "explanation": "\"aba\" is also a valid answer."
+      },
+      {
+        "input": "s = \"cbbd\"",
+        "output": "\"bb\"",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "1 <= s.length <= 1000",
+      "s consists of digits and English letters"
+    ],
+    "approaches": [
+      {
+        "name": "Expand around center",
+        "idea": "For each of the `2n-1` centers, expand outward while characters match and record the maximum span. Handle odd centers (`i,i`) and even centers (`i,i+1`) separately. O(1) extra space, unlike the O(n^2) boolean-table DP which gives the same time.",
+        "time": "O(n^2)",
+        "space": "O(1)",
+        "code": "public String longestPalindrome(String s) {\n    if (s == null || s.length() < 1) return \"\";\n    int start = 0, end = 0;\n    for (int i = 0; i < s.length(); i++) {\n        int len1 = expand(s, i, i);\n        int len2 = expand(s, i, i + 1);\n        int len = Math.max(len1, len2);\n        if (len > end - start + 1) {\n            start = i - (len - 1) / 2;\n            end = i + len / 2;\n        }\n    }\n    return s.substring(start, end + 1);\n}\n\nprivate int expand(String s, int l, int r) {\n    while (l >= 0 && r < s.length() && s.charAt(l) == s.charAt(r)) {\n        l--;\n        r++;\n    }\n    return r - l - 1;\n}"
+      }
+    ],
+    "insight": "Expand from every center (both odd and even) and keep the widest palindrome; recover bounds from center and length."
+  },
+  "dynamic-programming__palindrome-partitioning-ii": {
+    "title": "Palindrome Partitioning II",
+    "topic": "Dynamic Programming",
+    "subtopic": "Palindrome",
+    "difficulty": "Hard",
+    "pattern": "Palindrome table + min-cut prefix DP",
+    "notes": "",
+    "statement": "Return the minimum number of cuts needed to partition string `s` so that every resulting piece is a palindrome.",
+    "examples": [
+      {
+        "input": "s = \"aab\"",
+        "output": "1",
+        "explanation": "Partition into [\"aa\",\"b\"]."
+      },
+      {
+        "input": "s = \"a\"",
+        "output": "0",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "1 <= s.length <= 2000",
+      "s consists of lowercase English letters only"
+    ],
+    "approaches": [
+      {
+        "name": "Palindrome table + cut DP",
+        "idea": "Precompute `pal[i][j]` (is `s[i..j]` a palindrome) via interval DP so substring checks are O(1). Then `cut[j]` = min cuts for the prefix ending at `j`: 0 if `s[0..j]` is itself a palindrome, else `min over i of cut[i-1]+1` where `s[i..j]` is a palindrome. Filling `pal` with `i` descending and `j` ascending makes `pal[i+1][j-1]` available.",
+        "time": "O(n^2)",
+        "space": "O(n^2)",
+        "code": "public int minCut(String s) {\n    int n = s.length();\n    boolean[][] pal = new boolean[n][n];\n    for (int i = n - 1; i >= 0; i--)\n        for (int j = i; j < n; j++)\n            pal[i][j] = s.charAt(i) == s.charAt(j) && (j - i < 2 || pal[i + 1][j - 1]);\n\n    int[] cut = new int[n];\n    for (int j = 0; j < n; j++) {\n        if (pal[0][j]) { cut[j] = 0; continue; }\n        int best = Integer.MAX_VALUE;\n        for (int i = 1; i <= j; i++)\n            if (pal[i][j]) best = Math.min(best, cut[i - 1] + 1);\n        cut[j] = best;\n    }\n    return cut[n - 1];\n}"
+      }
+    ],
+    "insight": "Two DPs: a palindrome table for O(1) checks, then a min-cut prefix DP that extends by one palindromic piece at a time."
+  },
+  "dynamic-programming__palindrome-removal": {
+    "title": "Palindrome Removal",
+    "topic": "Dynamic Programming",
+    "subtopic": "Palindrome",
+    "difficulty": "Very Hard",
+    "pattern": "Interval DP; merge equal endpoints into an inner palindrome removal",
+    "notes": "",
+    "statement": "Given an integer array `arr`, in one move you may remove any contiguous subarray that is a palindrome; the remaining parts join together. Return the minimum number of moves to remove all elements.",
+    "examples": [
+      {
+        "input": "arr = [1,2]",
+        "output": "2",
+        "explanation": "No length>=2 palindrome; remove each element separately."
+      },
+      {
+        "input": "arr = [1,3,4,1,5]",
+        "output": "3",
+        "explanation": "Remove [4], then [1,3,1], then [5]."
+      }
+    ],
+    "constraints": [
+      "1 <= arr.length <= 100",
+      "1 <= arr[i] <= 20"
+    ],
+    "approaches": [
+      {
+        "name": "Interval DP on equal endpoints",
+        "idea": "`dp[i][j]` = min moves to clear `arr[i..j]`. Baseline: remove `arr[i]` alone, `dp[i+1][j]+1`. If `arr[i]==arr[i+1]` they can vanish together with the inner block: `1 + dp[i+2][j]`. For any `k>i+1` with `arr[i]==arr[k]`, first clear `arr[i+1..k-1]`; then `arr[i]` and `arr[k]` become adjacent equal ends of the palindrome clearing `arr[k..j]`, giving `dp[i+1][k-1] + dp[k+1][j]`. Fill by increasing length.",
+        "time": "O(n^3)",
+        "space": "O(n^2)",
+        "code": "public int minimumMoves(int[] arr) {\n    int n = arr.length;\n    int[][] dp = new int[n][n];\n    for (int i = 0; i < n; i++) dp[i][i] = 1;\n    for (int len = 2; len <= n; len++) {\n        for (int i = 0; i + len - 1 < n; i++) {\n            int j = i + len - 1;\n            dp[i][j] = dp[i + 1][j] + 1;\n            if (arr[i] == arr[i + 1])\n                dp[i][j] = Math.min(dp[i][j], (i + 2 <= j ? dp[i + 2][j] : 0) + 1);\n            for (int k = i + 2; k <= j; k++)\n                if (arr[i] == arr[k])\n                    dp[i][j] = Math.min(dp[i][j],\n                            dp[i + 1][k - 1] + (k + 1 <= j ? dp[k + 1][j] : 0));\n        }\n    }\n    return dp[0][n - 1];\n}"
+      }
+    ],
+    "insight": "When two equal values bracket a range, clearing the inside lets the pair collapse for free with the enclosing palindrome removal."
+  },
+  "dynamic-programming__count-different-palindromic-subsequences": {
+    "title": "Count Different Palindromic Subsequences",
+    "topic": "Dynamic Programming",
+    "subtopic": "Palindrome",
+    "difficulty": "Very Hard",
+    "pattern": "Interval DP counting distinct palindromic subsequences with dedup on equal ends",
+    "notes": "",
+    "statement": "Given a string `s`, return the number of **distinct** non-empty palindromic subsequences of `s`, modulo `10^9 + 7`. Two subsequences are different if the resulting strings differ.",
+    "examples": [
+      {
+        "input": "s = \"bccb\"",
+        "output": "6",
+        "explanation": "b, c, bb, cc, bcb, bccb."
+      },
+      {
+        "input": "s = \"abcdabcdabcdabcdabcdabcdabcdabcddcbadcbadcbadcbadcbadcbadcbadcba\"",
+        "output": "104860361",
+        "explanation": "Answer taken modulo 10^9+7."
+      }
+    ],
+    "constraints": [
+      "1 <= s.length <= 1000",
+      "s consists of only 'a', 'b', 'c', 'd'"
+    ],
+    "approaches": [
+      {
+        "name": "Interval DP with duplicate-endpoint handling",
+        "idea": "`dp[i][j]` = number of distinct palindromic subsequences in `s[i..j]`. If `s[i]!=s[j]`, inclusion-exclusion: `dp[i+1][j]+dp[i][j-1]-dp[i+1][j-1]`. If `s[i]==s[j]=c`, scan inward for the next/prev occurrence of `c` at `lo`/`hi`: if none inside, `2*dp[i+1][j-1]+2` (add `c` and `cc`); if exactly one, `2*dp[i+1][j-1]+1`; else subtract the doubly-counted inner core `dp[lo+1][hi-1]`. Take mod, keeping it non-negative.",
+        "time": "O(n^2)",
+        "space": "O(n^2)",
+        "code": "public int countPalindromicSubsequences(String s) {\n    int MOD = 1_000_000_007;\n    int n = s.length();\n    char[] c = s.toCharArray();\n    long[][] dp = new long[n][n];\n    for (int i = 0; i < n; i++) dp[i][i] = 1;\n    for (int len = 2; len <= n; len++) {\n        for (int i = 0; i + len - 1 < n; i++) {\n            int j = i + len - 1;\n            if (c[i] != c[j]) {\n                dp[i][j] = dp[i + 1][j] + dp[i][j - 1] - dp[i + 1][j - 1];\n            } else {\n                int lo = i + 1, hi = j - 1;\n                while (lo <= hi && c[lo] != c[i]) lo++;\n                while (lo <= hi && c[hi] != c[i]) hi--;\n                if (lo > hi) dp[i][j] = dp[i + 1][j - 1] * 2 + 2;\n                else if (lo == hi) dp[i][j] = dp[i + 1][j - 1] * 2 + 1;\n                else dp[i][j] = dp[i + 1][j - 1] * 2 - dp[lo + 1][hi - 1];\n            }\n            dp[i][j] = ((dp[i][j] % MOD) + MOD) % MOD;\n        }\n    }\n    return (int) dp[0][n - 1];\n}"
+      }
+    ],
+    "insight": "Equal ends double the inner count plus the new c/cc palindromes, but subtract the inner duplicate core when c already appears inside."
+  },
+  "dynamic-programming__burst-balloons": {
+    "title": "Burst Balloons",
+    "topic": "Dynamic Programming",
+    "subtopic": "Interval",
+    "difficulty": "Hard",
+    "pattern": "Interval DP on the LAST balloon to burst",
+    "notes": "Took hint",
+    "statement": "Given `nums` where bursting balloon `i` yields `nums[i-1]*nums[i]*nums[i+1]` coins (out-of-range neighbors count as 1), return the maximum coins obtainable by bursting all balloons.",
+    "examples": [
+      {
+        "input": "nums = [3,1,5,8]",
+        "output": "167",
+        "explanation": "Burst order 1,5,3,8 gives 3*1*5 + 3*5*8 + 1*3*8 + 1*8*1 = 167."
+      },
+      {
+        "input": "nums = [1,5]",
+        "output": "10",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 300",
+      "0 <= nums[i] <= 100"
+    ],
+    "approaches": [
+      {
+        "name": "Interval DP, last balloon to burst",
+        "idea": "Pad the array with 1s at both ends. `dp[i][k]` = max coins from bursting all balloons strictly between indices `i` and `k`. Choose `j` as the **last** balloon burst in `(i,k)`; at that moment its only neighbors are the fixed boundaries `arr[i]` and `arr[k]`, so `dp[i][k] = max over i<j<k of dp[i][j] + arr[i]*arr[j]*arr[k] + dp[j][k]`. Picking the last (not first) balloon makes the two sides independent.",
+        "time": "O(n^3)",
+        "space": "O(n^2)",
+        "code": "public int maxCoins(int[] nums) {\n    int n = nums.length;\n    int[] arr = new int[n + 2];\n    arr[0] = arr[n + 1] = 1;\n    for (int i = 0; i < n; i++) arr[i + 1] = nums[i];\n\n    int[][] dp = new int[n + 2][n + 2];\n    for (int len = 2; len <= n + 1; len++)\n        for (int i = 0; i + len <= n + 1; i++) {\n            int k = i + len;\n            for (int j = i + 1; j < k; j++)\n                dp[i][k] = Math.max(dp[i][k],\n                        dp[i][j] + arr[i] * arr[j] * arr[k] + dp[j][k]);\n        }\n    return dp[0][n + 1];\n}"
+      }
+    ],
+    "insight": "Decompose by the LAST balloon to burst in an interval; its neighbors are then the fixed boundaries, making the two halves independent."
+  },
+  "dynamic-programming__matrix-chain-minimum-cost-to-merge-stones": {
+    "title": "Matrix Chain / Minimum Cost to Merge Stones",
+    "topic": "Dynamic Programming",
+    "subtopic": "Interval",
+    "difficulty": "Hard",
+    "pattern": "Interval DP with step k-1; add merge cost when a range collapses to one pile",
+    "notes": "",
+    "statement": "There are `n` piles of stones in a row; `stones[i]` is the count in pile `i`. In each move you merge exactly `k` **consecutive** piles into one pile, at a cost equal to the total number of stones in those `k` piles. Return the minimum total cost to merge all piles into one, or `-1` if impossible.",
+    "examples": [
+      {
+        "input": "stones = [3,2,4,1], k = 2",
+        "output": "20",
+        "explanation": "Merge to [5,4,1], then [5,5], then [10]; costs 5+5+10=20."
+      },
+      {
+        "input": "stones = [3,5,1,2,6], k = 3",
+        "output": "25",
+        "explanation": "Merge [5,1,2] (8) to [3,8,6], then all three (17); 8+17=25."
+      }
+    ],
+    "constraints": [
+      "1 <= stones.length <= 30",
+      "1 <= stones[i] <= 100",
+      "2 <= k <= 30"
+    ],
+    "approaches": [
+      {
+        "name": "Interval DP",
+        "idea": "Each merge reduces pile count by `k-1`, so reaching one pile is possible only if `(n-1) % (k-1) == 0`. Let `dp[i][j]` = min cost to merge `stones[i..j]` into the fewest possible piles. Split at `m` in steps of `k-1` (so the left part is fully mergeable): `dp[i][j] = min(dp[i][m] + dp[m+1][j])`. If the whole range `[i,j]` can collapse to exactly one pile (`(len-1)%(k-1)==0`), add its stone sum via prefix sums.",
+        "time": "O(n^3 / k)",
+        "space": "O(n^2)",
+        "code": "public int mergeStones(int[] stones, int k) {\n    int n = stones.length;\n    if ((n - 1) % (k - 1) != 0) return -1;\n    int[] prefix = new int[n + 1];\n    for (int i = 0; i < n; i++) prefix[i + 1] = prefix[i] + stones[i];\n    int[][] dp = new int[n][n];\n    for (int len = k; len <= n; len++) {\n        for (int i = 0; i + len - 1 < n; i++) {\n            int j = i + len - 1;\n            dp[i][j] = Integer.MAX_VALUE;\n            for (int m = i; m < j; m += k - 1)\n                dp[i][j] = Math.min(dp[i][j], dp[i][m] + dp[m + 1][j]);\n            if ((len - 1) % (k - 1) == 0)\n                dp[i][j] += prefix[j + 1] - prefix[i];\n        }\n    }\n    return dp[0][n - 1];\n}"
+      }
+    ],
+    "insight": "Feasibility hinges on (n-1)%(k-1)==0; split in steps of k-1 and add the range sum only when it can collapse to a single pile."
+  },
+  "dynamic-programming__stone-game-vii": {
+    "title": "Stone Game VII",
+    "topic": "Dynamic Programming",
+    "subtopic": "Interval",
+    "difficulty": "Hard",
+    "pattern": "Interval DP on score difference with prefix sums",
+    "notes": "",
+    "statement": "Alice and Bob play with a row of stones of values `stones`. On each turn the current player removes either the leftmost or rightmost stone and gains points equal to the **sum of the remaining** stones. Alice goes first; she maximizes and Bob minimizes the score difference. Both play optimally. Return the resulting difference (Alice's score minus Bob's).",
+    "examples": [
+      {
+        "input": "stones = [5,3,1,4,2]",
+        "output": "6",
+        "explanation": "Optimal play yields a difference of 6."
+      },
+      {
+        "input": "stones = [7,90,5,1,100,10,10,2]",
+        "output": "122",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "n == stones.length",
+      "2 <= n <= 1000",
+      "1 <= stones[i] <= 1000"
+    ],
+    "approaches": [
+      {
+        "name": "Interval DP (relative score)",
+        "idea": "Let `dp[i][j]` be the best achievable score difference (current player minus opponent) for the subarray `stones[i..j]`. Removing the left stone earns `sum(i+1..j)` and hands the opponent `dp[i+1][j]`; removing the right earns `sum(i..j-1)` minus `dp[i][j-1]`. So `dp[i][j] = max(sum(i+1..j) - dp[i+1][j], sum(i..j-1) - dp[i][j-1])`, using prefix sums for the range totals. Base `dp[i][i]=0`.",
+        "time": "O(n^2)",
+        "space": "O(n^2)",
+        "code": "public int stoneGameVII(int[] stones) {\n    int n = stones.length;\n    int[] prefix = new int[n + 1];\n    for (int i = 0; i < n; i++) prefix[i + 1] = prefix[i] + stones[i];\n    int[][] dp = new int[n][n];\n    for (int len = 2; len <= n; len++) {\n        for (int i = 0; i + len - 1 < n; i++) {\n            int j = i + len - 1;\n            int removeLeft = (prefix[j + 1] - prefix[i + 1]) - dp[i + 1][j];\n            int removeRight = (prefix[j] - prefix[i]) - dp[i][j - 1];\n            dp[i][j] = Math.max(removeLeft, removeRight);\n        }\n    }\n    return dp[0][n - 1];\n}"
+      }
+    ],
+    "insight": "Track the relative score (me minus opponent): each choice earns the remaining sum then subtracts the opponent's optimal result on the smaller range."
+  },
+  "dynamic-programming__stone-game-v": {
+    "title": "Stone Game V",
+    "topic": "Dynamic Programming",
+    "subtopic": "Interval",
+    "difficulty": "Very Hard",
+    "pattern": "Interval DP: split a row, keep the smaller half's value",
+    "notes": "",
+    "statement": "Given `stoneValue`, in each round Alice splits the current row into two non-empty halves. Bob computes the sum of each half and discards the half with the **larger** sum (Alice's score gains the smaller sum); on a tie Alice chooses which half to keep. Play continues on the kept half until one stone remains. Return the maximum score Alice can accumulate.",
+    "examples": [
+      {
+        "input": "stoneValue = [6,2,3,4,5,5]",
+        "output": "18",
+        "explanation": "Split to keep smaller halves optimally, accumulating 11+0+4+3=18."
+      },
+      {
+        "input": "stoneValue = [7,7,7,7,7,7,7]",
+        "output": "28",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "1 <= stoneValue.length <= 500",
+      "1 <= stoneValue[i] <= 10^6"
+    ],
+    "approaches": [
+      {
+        "name": "Memoized interval DP",
+        "idea": "`solve(i,j)` = max score from `stoneValue[i..j]`. Try every split point `m`: `left=sum(i..m)`, `right=sum(m+1..j)`. If `left<right`, Bob keeps the left, so gain `left + solve(i,m)`; if `left>right`, gain `right + solve(m+1,j)`; if equal, Alice picks the better side, gain `left + max(solve(i,m), solve(m+1,j))`. Memoize on `(i,j)`; prefix sums give O(1) range sums.",
+        "time": "O(n^3)",
+        "space": "O(n^2)",
+        "code": "public int stoneGameV(int[] stoneValue) {\n    int n = stoneValue.length;\n    int[] prefix = new int[n + 1];\n    for (int i = 0; i < n; i++) prefix[i + 1] = prefix[i] + stoneValue[i];\n    Integer[][] memo = new Integer[n][n];\n    return solve(0, n - 1, prefix, memo);\n}\n\nprivate int solve(int i, int j, int[] prefix, Integer[][] memo) {\n    if (i == j) return 0;\n    if (memo[i][j] != null) return memo[i][j];\n    int best = 0;\n    for (int m = i; m < j; m++) {\n        int left = prefix[m + 1] - prefix[i];\n        int right = prefix[j + 1] - prefix[m + 1];\n        if (left < right) best = Math.max(best, left + solve(i, m, prefix, memo));\n        else if (left > right) best = Math.max(best, right + solve(m + 1, j, prefix, memo));\n        else best = Math.max(best, left + Math.max(solve(i, m, prefix, memo), solve(m + 1, j, prefix, memo)));\n    }\n    return memo[i][j] = best;\n}"
+      }
+    ],
+    "insight": "Try each split; you always keep the smaller-sum half (your free choice only on ties) and recurse on that side."
+  },
+  "dynamic-programming__remove-boxes": {
+    "title": "Remove Boxes",
+    "topic": "Dynamic Programming",
+    "subtopic": "Interval",
+    "difficulty": "Very Hard",
+    "pattern": "3D interval DP carrying a count of attached equal boxes",
+    "notes": "",
+    "statement": "Given `boxes` of colored boxes, repeatedly remove a maximal run of `k` consecutive boxes of the same color to score `k*k` points; the gap closes. Return the maximum points obtainable by removing all boxes.",
+    "examples": [
+      {
+        "input": "boxes = [1,3,2,2,2,3,4,3,1]",
+        "output": "23",
+        "explanation": "Remove the three 2s (9), then the run of 3s that becomes adjacent, etc., totaling 23."
+      },
+      {
+        "input": "boxes = [1,1,1]",
+        "output": "9",
+        "explanation": "Remove all three at once: 3*3=9."
+      }
+    ],
+    "constraints": [
+      "1 <= boxes.length <= 100",
+      "1 <= boxes[i] <= 100"
+    ],
+    "approaches": [
+      {
+        "name": "3D DP with attached count",
+        "idea": "`calc(i,j,k)` = max points for `boxes[i..j]` given `k` extra boxes of color `boxes[i]` already glued to the left of `i`. Option A: burst `boxes[i]` together with the attached run now for `(k+1)^2 + calc(i+1,j,0)`. Option B: for any later `m` with `boxes[m]==boxes[i]`, first clear the middle `calc(i+1,m-1,0)`, then merge `boxes[i]`'s group with position `m`: `calc(m,j,k+1)`. First compress leading equal boxes into `k`. Memoize on the original indices.",
+        "time": "O(n^4)",
+        "space": "O(n^3)",
+        "code": "public int removeBoxes(int[] boxes) {\n    int n = boxes.length;\n    int[][][] dp = new int[n][n][n];\n    return calc(boxes, dp, 0, n - 1, 0);\n}\n\nprivate int calc(int[] boxes, int[][][] dp, int i, int j, int k) {\n    if (i > j) return 0;\n    if (dp[i][j][k] != 0) return dp[i][j][k];\n    int i0 = i, k0 = k;\n    while (i < j && boxes[i] == boxes[i + 1]) { i++; k++; }\n    int res = (k + 1) * (k + 1) + calc(boxes, dp, i + 1, j, 0);\n    for (int m = i + 1; m <= j; m++)\n        if (boxes[m] == boxes[i])\n            res = Math.max(res,\n                    calc(boxes, dp, i + 1, m - 1, 0) + calc(boxes, dp, m, j, k + 1));\n    dp[i0][j][k0] = res;\n    return res;\n}"
+      }
+    ],
+    "insight": "Add a third dimension for boxes of the same color already glued to the left, so you can defer bursting until more matching boxes merge."
+  },
+  "dynamic-programming__strange-printer": {
+    "title": "Strange Printer",
+    "topic": "Dynamic Programming",
+    "subtopic": "Interval",
+    "difficulty": "Hard",
+    "pattern": "Interval DP; extend a print run to a later equal character",
+    "notes": "",
+    "statement": "A strange printer prints a sequence of the same character in one turn and can overwrite existing characters starting at any position. Given a string `s`, return the minimum number of turns needed to print it.",
+    "examples": [
+      {
+        "input": "s = \"aaabbb\"",
+        "output": "2",
+        "explanation": "Print \"aaa\" then \"bbb\"."
+      },
+      {
+        "input": "s = \"aba\"",
+        "output": "2",
+        "explanation": "Print \"aaa\", then overwrite the middle with \"b\"."
+      }
+    ],
+    "constraints": [
+      "1 <= s.length <= 100",
+      "s consists of lowercase English letters"
+    ],
+    "approaches": [
+      {
+        "name": "Interval DP",
+        "idea": "`dp[i][j]` = min turns to print `s[i..j]`. Start from printing `s[j]` on its own turn: `dp[i][j-1]+1`. But if some `k` in `[i,j)` has `s[k]==s[j]`, that later equal character can be printed in the **same** run as `s[k]`, saving a turn: `dp[i][j] = min(dp[i][k] + dp[k+1][j-1])`. Fill with `i` descending, `j` ascending.",
+        "time": "O(n^3)",
+        "space": "O(n^2)",
+        "code": "public int strangePrinter(String s) {\n    if (s == null || s.isEmpty()) return 0;\n    int n = s.length();\n    int[][] dp = new int[n][n];\n    for (int i = n - 1; i >= 0; i--) {\n        dp[i][i] = 1;\n        for (int j = i + 1; j < n; j++) {\n            dp[i][j] = dp[i][j - 1] + 1;\n            for (int k = i; k < j; k++)\n                if (s.charAt(k) == s.charAt(j))\n                    dp[i][j] = Math.min(dp[i][j],\n                            dp[i][k] + (k + 1 <= j - 1 ? dp[k + 1][j - 1] : 0));\n        }\n    }\n    return dp[0][n - 1];\n}"
+      }
+    ],
+    "insight": "A character equal to an earlier one can ride the same print stroke, so match s[j] with an earlier s[k] to drop a turn."
+  },
+  "dynamic-programming__guess-number-higher-or-lower-ii": {
+    "title": "Guess Number Higher or Lower II",
+    "topic": "Dynamic Programming",
+    "subtopic": "Interval",
+    "difficulty": "Hard",
+    "pattern": "Interval DP minimizing worst-case (minimax) cost",
+    "notes": "",
+    "statement": "You pick a number from `1` to `n`. Each time you guess a wrong number `x`, you pay `x` dollars and are told whether the target is higher or lower. Return the minimum amount of money that **guarantees** a win regardless of the target.",
+    "examples": [
+      {
+        "input": "n = 10",
+        "output": "16",
+        "explanation": "A guaranteeing strategy costs at most 16."
+      },
+      {
+        "input": "n = 1",
+        "output": "0",
+        "explanation": "Only one option; no guess needed."
+      }
+    ],
+    "constraints": [
+      "1 <= n <= 200"
+    ],
+    "approaches": [
+      {
+        "name": "Minimax interval DP",
+        "idea": "`dp[i][j]` = min money to guarantee a win when the target is known to lie in `[i,j]`. For a guess `k`, the worst case pays `k` plus the costlier of the two remaining ranges: `k + max(dp[i][k-1], dp[k+1][j])`. Minimize over all `k` in `[i,j]`. Build by increasing interval length; empty sub-ranges cost 0.",
+        "time": "O(n^3)",
+        "space": "O(n^2)",
+        "code": "public int getMoneyAmount(int n) {\n    int[][] dp = new int[n + 2][n + 2];\n    for (int len = 2; len <= n; len++) {\n        for (int i = 1; i + len - 1 <= n; i++) {\n            int j = i + len - 1;\n            dp[i][j] = Integer.MAX_VALUE;\n            for (int k = i; k <= j; k++) {\n                int cost = k + Math.max(k - 1 >= i ? dp[i][k - 1] : 0,\n                                        k + 1 <= j ? dp[k + 1][j] : 0);\n                dp[i][j] = Math.min(dp[i][j], cost);\n            }\n        }\n    }\n    return dp[1][n];\n}"
+      }
+    ],
+    "insight": "Guarantee means minimize the worst case: for each guess take the max of the two sides, then minimize over guesses."
+  }
+}

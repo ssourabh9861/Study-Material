@@ -1,0 +1,135 @@
+/* DSA Tracker — custom UI on top of MkDocs Material. Theme-aware via Material CSS vars. */
+
+#dsa-app {
+  --easy: #16a34a;
+  --medium: #d97706;
+  --hard: #dc2626;
+  --veryhard: #7c3aed;
+  --solved: #16a34a;
+  --card-bg: var(--md-default-bg-color);
+  --line: color-mix(in srgb, var(--md-default-fg-color) 12%, transparent);
+  --muted: var(--md-default-fg-color--light);
+  font-feature-settings: "tnum";
+}
+[data-md-color-scheme="slate"] #dsa-app {
+  --line: color-mix(in srgb, var(--md-default-fg-color) 18%, transparent);
+}
+
+#dsa-app * { box-sizing: border-box; }
+#dsa-app .dsa-hidden { display: none !important; }
+
+/* ---------- toolbar ---------- */
+.dsa-toolbar {
+  display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
+  margin: 0 0 1rem; padding: .6rem .75rem;
+  border: 1px solid var(--line); border-radius: .7rem;
+  background: color-mix(in srgb, var(--md-primary-fg-color) 5%, transparent);
+  position: sticky; top: 3.2rem; z-index: 5;
+  backdrop-filter: blur(6px);
+}
+.dsa-toolbar input[type="search"], .dsa-toolbar select {
+  padding: .4rem .6rem; border: 1px solid var(--line); border-radius: .5rem;
+  background: var(--card-bg); color: var(--md-default-fg-color); font-size: .82rem;
+}
+.dsa-toolbar input[type="search"] { flex: 1 1 180px; min-width: 140px; }
+.dsa-btn {
+  display: inline-flex; align-items: center; gap: .35rem; cursor: pointer;
+  padding: .42rem .8rem; border: 1px solid var(--line); border-radius: .5rem;
+  background: var(--card-bg); color: var(--md-default-fg-color);
+  font-size: .82rem; font-weight: 600; transition: .15s;
+}
+.dsa-btn:hover { border-color: var(--md-primary-fg-color); }
+.dsa-btn.primary { background: var(--md-primary-fg-color); color: #fff; border-color: transparent; }
+.dsa-sync-time { font-size: .72rem; color: var(--muted); margin-left: auto; }
+.dsa-toggle { display: inline-flex; align-items: center; gap: .4rem; font-size: .8rem; cursor: pointer; }
+.dsa-toggle input { accent-color: var(--md-primary-fg-color); }
+.dsa-spin { animation: dsa-spin 0.8s linear infinite; }
+@keyframes dsa-spin { to { transform: rotate(360deg); } }
+
+/* ---------- dashboard ---------- */
+.dsa-dash { display: grid; grid-template-columns: auto 1fr; gap: 1.2rem; align-items: center;
+  margin-bottom: 1.4rem; padding: 1.1rem 1.2rem; border: 1px solid var(--line); border-radius: .9rem;
+  background: var(--card-bg); }
+@media (max-width: 640px) { .dsa-dash { grid-template-columns: 1fr; justify-items: center; } }
+.dsa-ring { position: relative; width: 128px; height: 128px; }
+.dsa-ring svg { transform: rotate(-90deg); }
+.dsa-ring .track { stroke: var(--line); }
+.dsa-ring .prog { stroke: var(--md-primary-fg-color); stroke-linecap: round; transition: stroke-dashoffset .6s ease; }
+.dsa-ring .label { position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; }
+.dsa-ring .label b { font-size: 1.7rem; line-height: 1; }
+.dsa-ring .label span { font-size: .72rem; color: var(--muted); }
+.dsa-diffbars { display: flex; flex-direction: column; gap: .6rem; width: 100%; }
+.dsa-diffbar { display: grid; grid-template-columns: 78px 1fr 62px; gap: .6rem; align-items: center; font-size: .8rem; }
+.dsa-diffbar .name { font-weight: 600; }
+.dsa-diffbar .count { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.dsa-bar { height: 9px; border-radius: 6px; background: var(--line); overflow: hidden; }
+.dsa-bar > i { display: block; height: 100%; border-radius: 6px; transition: width .6s ease; }
+
+/* ---------- topic sections ---------- */
+.dsa-topic { border: 1px solid var(--line); border-radius: .8rem; margin-bottom: .8rem; overflow: hidden; background: var(--card-bg); }
+.dsa-topic-head { display: grid; grid-template-columns: 1.4rem 1fr auto; gap: .7rem; align-items: center;
+  padding: .8rem 1rem; cursor: pointer; user-select: none; }
+.dsa-topic-head:hover { background: color-mix(in srgb, var(--md-primary-fg-color) 6%, transparent); }
+.dsa-topic-head .chev { transition: transform .2s; color: var(--muted); }
+.dsa-topic.open .chev { transform: rotate(90deg); }
+.dsa-topic-title { font-weight: 700; font-size: .95rem; }
+.dsa-topic-title .sub { font-weight: 500; color: var(--muted); font-size: .78rem; }
+.dsa-topic-meta { display: flex; align-items: center; gap: .7rem; }
+.dsa-topic-meta .frac { font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; min-width: 48px; text-align: right; }
+.dsa-topic-meta .dsa-bar { width: 90px; }
+.dsa-topic-body { padding: .3rem .6rem .7rem; display: none; }
+.dsa-topic.open .dsa-topic-body { display: block; }
+.dsa-subhead { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted);
+  margin: .7rem .4rem .3rem; font-weight: 700; }
+
+/* ---------- problem cards ---------- */
+.dsa-card { border: 1px solid var(--line); border-radius: .6rem; margin: .35rem 0; overflow: hidden; }
+.dsa-card-head { display: grid; grid-template-columns: 1.3rem 1fr auto; gap: .6rem; align-items: center;
+  padding: .55rem .7rem; cursor: pointer; }
+.dsa-card-head:hover { background: color-mix(in srgb, var(--md-default-fg-color) 4%, transparent); }
+.dsa-card .status { font-size: 1rem; line-height: 1; }
+.dsa-card.solved .status { color: var(--solved); }
+.dsa-card .ptitle { font-weight: 600; font-size: .88rem; }
+.dsa-card .badges { display: inline-flex; gap: .35rem; align-items: center; flex-wrap: wrap; }
+.dsa-pill { font-size: .68rem; font-weight: 700; padding: .12rem .5rem; border-radius: 1rem;
+  border: 1px solid transparent; white-space: nowrap; }
+.pill-medium { color: var(--medium); background: color-mix(in srgb, var(--medium) 14%, transparent); }
+.pill-hard { color: var(--hard); background: color-mix(in srgb, var(--hard) 14%, transparent); }
+.pill-veryhard, .pill-very-hard { color: var(--veryhard); background: color-mix(in srgb, var(--veryhard) 14%, transparent); }
+.dsa-note { font-size: .68rem; font-weight: 700; padding: .12rem .5rem; border-radius: 1rem;
+  color: var(--md-primary-fg-color); background: color-mix(in srgb, var(--md-primary-fg-color) 14%, transparent); }
+
+/* locked (unsolved, hidden) */
+.dsa-card.locked .dsa-card-head { color: var(--muted); }
+.dsa-card.locked.collapsed-lock { opacity: .82; }
+.dsa-reveal-row { padding: .5rem .7rem; display: flex; align-items: center; gap: .6rem;
+  background: color-mix(in srgb, var(--md-default-fg-color) 3%, transparent); font-size: .8rem; color: var(--muted); }
+
+/* card body / detail */
+.dsa-card-body { display: none; padding: .3rem .9rem 1rem; border-top: 1px solid var(--line); }
+.dsa-card.open .dsa-card-body { display: block; }
+.dsa-card-body h4 { margin: 1rem 0 .35rem; font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.dsa-card-body p { margin: .2rem 0; font-size: .9rem; line-height: 1.5; }
+.dsa-ex { border-left: 3px solid var(--line); padding: .3rem .7rem; margin: .3rem 0; font-size: .84rem; }
+.dsa-ex code { white-space: pre-wrap; }
+.dsa-constraints { margin: .2rem 0 .2rem 1.1rem; font-size: .84rem; }
+.dsa-constraints li { margin: .1rem 0; }
+.dsa-code { margin: .4rem 0; border-radius: .5rem; overflow: auto; border: 1px solid var(--line); }
+.dsa-code pre { margin: 0; padding: .8rem 1rem; font-size: .8rem; line-height: 1.45; }
+.dsa-cmplx { font-size: .76rem; color: var(--muted); margin: .3rem 0; }
+.dsa-cmplx b { color: var(--md-default-fg-color); }
+.dsa-insight { margin-top: .8rem; padding: .6rem .8rem; border-radius: .5rem;
+  background: color-mix(in srgb, var(--md-primary-fg-color) 8%, transparent);
+  border-left: 3px solid var(--md-primary-fg-color); font-size: .86rem; }
+
+/* approach tabs */
+.dsa-tabs { display: flex; gap: .35rem; flex-wrap: wrap; margin: .3rem 0; }
+.dsa-tab { font-size: .76rem; padding: .3rem .65rem; border-radius: .4rem; cursor: pointer;
+  border: 1px solid var(--line); background: var(--card-bg); }
+.dsa-tab.active { background: var(--md-primary-fg-color); color: #fff; border-color: transparent; }
+.dsa-approach { display: none; }
+.dsa-approach.active { display: block; }
+
+.dsa-empty { padding: 2rem 1rem; text-align: center; color: var(--muted); }
+.dsa-pending { font-style: italic; color: var(--muted); font-size: .85rem; padding: .5rem 0; }

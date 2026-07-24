@@ -1,0 +1,320 @@
+{
+  "greedy__jump-game-ii": {
+    "title": "Jump Game II",
+    "topic": "Greedy",
+    "subtopic": "Greedy",
+    "difficulty": "Medium",
+    "pattern": "Greedy BFS by \"layers\" (range expansion)",
+    "notes": "",
+    "statement": "`nums[i]` is the maximum jump length from index `i`. Return the minimum number of jumps needed to reach the last index; the last index is guaranteed reachable.",
+    "examples": [
+      { "input": "nums = [2,3,1,1,4]", "output": "2", "explanation": "0 -> 1 -> 4." }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 10^4",
+      "0 <= nums[i] <= 1000",
+      "The last index is always reachable"
+    ],
+    "approaches": [
+      {
+        "name": "Track current jump's reachable end",
+        "idea": "Walk the array keeping `curEnd`, the farthest index reachable with the current number of jumps, and `farthest`, the farthest reachable overall. When `i` reaches `curEnd` you must jump: increment the count and set `curEnd = farthest`. Loop only to `n-2` so you never over-count a jump at the last index.",
+        "time": "O(n)",
+        "space": "O(1)",
+        "code": "public int jump(int[] nums) {\n    int jumps = 0, curEnd = 0, farthest = 0;\n    for (int i = 0; i < nums.length - 1; i++) {\n        farthest = Math.max(farthest, i + nums[i]);\n        if (i == curEnd) { jumps++; curEnd = farthest; }\n    }\n    return jumps;\n}"
+      }
+    ],
+    "insight": "It is BFS in disguise: each layer is the set of indices reachable with j jumps; crossing the layer boundary curEnd costs one jump."
+  },
+  "greedy__gas-station": {
+    "title": "Gas Station",
+    "topic": "Greedy",
+    "subtopic": "Greedy",
+    "difficulty": "Medium",
+    "pattern": "Greedy single-pass with reset",
+    "notes": "",
+    "statement": "On a circular route, `gas[i]` is the fuel available at station `i` and `cost[i]` is the fuel needed to travel to the next station. Starting with an empty tank, return the index of the station from which you can complete the circuit once, or `-1` if impossible.",
+    "examples": [
+      { "input": "gas = [1,2,3,4,5], cost = [3,4,5,1,2]", "output": "3", "explanation": "Start at index 3." }
+    ],
+    "constraints": [
+      "1 <= n <= 10^5",
+      "0 <= gas[i], cost[i] <= 10^4",
+      "gas.length == cost.length == n"
+    ],
+    "approaches": [
+      {
+        "name": "Running tank with reset",
+        "idea": "Track a running `tank`. Whenever it drops below 0, no station in `[start..i]` can be the answer (they would all fail even earlier), so reset `start = i+1` and `tank = 0`. The circuit is feasible if and only if total gas >= total cost, in which case the surviving `start` is the unique answer.",
+        "time": "O(n)",
+        "space": "O(1)",
+        "code": "public int canCompleteCircuit(int[] gas, int[] cost) {\n    int total = 0, tank = 0, start = 0;\n    for (int i = 0; i < gas.length; i++) {\n        int diff = gas[i] - cost[i];\n        total += diff;\n        tank  += diff;\n        if (tank < 0) { start = i + 1; tank = 0; }\n    }\n    return total >= 0 ? start : -1;\n}"
+      }
+    ],
+    "insight": "If you run dry between start and i, none of those stations can start; jump start to i+1. Global feasibility is purely sum(gas) >= sum(cost)."
+  },
+  "greedy__candy": {
+    "title": "Candy",
+    "topic": "Greedy",
+    "subtopic": "Greedy",
+    "difficulty": "Hard",
+    "pattern": "Two greedy passes (left-to-right, right-to-left)",
+    "notes": "",
+    "statement": "Children stand in a line with integer `ratings`. Each child must get at least one candy, and any child with a higher rating than an adjacent neighbor must get more candy than that neighbor. Return the minimum total number of candies.",
+    "examples": [
+      { "input": "ratings = [1,0,2]", "output": "5", "explanation": "Distribution [2,1,2]." }
+    ],
+    "constraints": [
+      "1 <= n <= 2*10^4",
+      "0 <= ratings[i] <= 2*10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Two directional sweeps",
+        "idea": "Give everyone 1 candy. Left-to-right: if `ratings[i] > ratings[i-1]`, set `c[i] = c[i-1]+1` to satisfy the left neighbor. Right-to-left: if `ratings[i] > ratings[i+1]`, set `c[i] = max(c[i], c[i+1]+1)`. Taking the max on the second pass makes both neighbor constraints hold simultaneously. Sum the array.",
+        "time": "O(n)",
+        "space": "O(n)",
+        "code": "public int candy(int[] r) {\n    int n = r.length;\n    int[] c = new int[n];\n    java.util.Arrays.fill(c, 1);\n    for (int i = 1; i < n; i++)\n        if (r[i] > r[i - 1]) c[i] = c[i - 1] + 1;\n    for (int i = n - 2; i >= 0; i--)\n        if (r[i] > r[i + 1]) c[i] = Math.max(c[i], c[i + 1] + 1);\n    int sum = 0;\n    for (int x : c) sum += x;\n    return sum;\n}"
+      }
+    ],
+    "insight": "One direction cannot satisfy both neighbors at once; do two sweeps and take the max so left and right conditions both hold."
+  },
+  "greedy__task-scheduler": {
+    "title": "Task Scheduler",
+    "topic": "Greedy",
+    "subtopic": "Greedy",
+    "difficulty": "Medium",
+    "pattern": "Greedy formula on the most frequent task",
+    "notes": "",
+    "statement": "Given CPU `tasks` (uppercase letters) and a cooldown `n`, identical tasks must be at least `n` intervals apart. Each interval runs one task or is idle. Return the minimum number of intervals needed to finish all tasks.",
+    "examples": [
+      { "input": "tasks = [\"A\",\"A\",\"A\",\"B\",\"B\",\"B\"], n = 2", "output": "8", "explanation": "A B _ A B _ A B." }
+    ],
+    "constraints": [
+      "1 <= tasks.length <= 10^4",
+      "tasks[i] is an uppercase English letter",
+      "0 <= n <= 100"
+    ],
+    "approaches": [
+      {
+        "name": "Arrange around the max-frequency task",
+        "idea": "Let `maxFreq` be the highest task count and `cntMax` how many tasks tie for it. The skeleton is `(maxFreq-1)` gaps of size `(n+1)` plus a final row of the tied-max tasks: `(maxFreq-1)*(n+1) + cntMax`. The answer is the max of that and `tasks.length` (when tasks are diverse enough, no idling is needed).",
+        "time": "O(n)",
+        "space": "O(1)",
+        "code": "public int leastInterval(char[] tasks, int n) {\n    int[] freq = new int[26];\n    for (char t : tasks) freq[t - 'A']++;\n    int maxFreq = 0;\n    for (int f : freq) maxFreq = Math.max(maxFreq, f);\n    int cntMax = 0;\n    for (int f : freq) if (f == maxFreq) cntMax++;\n    int frame = (maxFreq - 1) * (n + 1) + cntMax;\n    return Math.max(frame, tasks.length);\n}"
+      }
+    ],
+    "insight": "Build the schedule around the most frequent task: (maxFreq-1) full gaps of size (n+1) plus a final row of tied-max tasks; if tasks are diverse enough, tasks.length dominates with zero idle."
+  },
+  "greedy__partition-labels": {
+    "title": "Partition Labels",
+    "topic": "Greedy",
+    "subtopic": "Greedy",
+    "difficulty": "Medium",
+    "pattern": "Greedy interval covering by last occurrence",
+    "notes": "",
+    "statement": "Partition string `s` into as many parts as possible so that each letter appears in at most one part. Return a list of the sizes of these parts, in order. The concatenation of the parts must equal `s`.",
+    "examples": [
+      { "input": "s = \"ababcbacadefegdehijhklij\"", "output": "[9,7,8]", "explanation": "Parts are \"ababcbaca\", \"defegde\", \"hijhklij\"." }
+    ],
+    "constraints": [
+      "1 <= s.length <= 500",
+      "s consists of lowercase English letters"
+    ],
+    "approaches": [
+      {
+        "name": "Last-occurrence sweep",
+        "idea": "Record the last index of each letter. Sweep left to right keeping the current part's `end = max(end, last[c])`. When the running index `i` equals `end`, every letter seen so far ends within this window, so cut a part of size `i - start + 1` and start a new one.",
+        "time": "O(n)",
+        "space": "O(1)",
+        "code": "public java.util.List<Integer> partitionLabels(String s) {\n    int[] last = new int[26];\n    for (int i = 0; i < s.length(); i++)\n        last[s.charAt(i) - 'a'] = i;\n    java.util.List<Integer> res = new java.util.ArrayList<>();\n    int start = 0, end = 0;\n    for (int i = 0; i < s.length(); i++) {\n        end = Math.max(end, last[s.charAt(i) - 'a']);\n        if (i == end) {\n            res.add(i - start + 1);\n            start = i + 1;\n        }\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "A part must extend to the last occurrence of every letter it contains; cut only when the sweep index reaches that running maximum."
+  },
+  "greedy__minimum-number-of-refueling-stops": {
+    "title": "Minimum Number of Refueling Stops",
+    "topic": "Greedy",
+    "subtopic": "Greedy",
+    "difficulty": "Hard",
+    "pattern": "Max-heap of passed fuel (greedy refuel in hindsight)",
+    "notes": "",
+    "statement": "A car starts with `startFuel` liters and must reach `target` miles; 1 liter drives 1 mile. Each `stations[i] = [position, fuel]` lets you add `fuel` liters at that position. Return the minimum number of refueling stops to reach the target, or `-1` if impossible.",
+    "examples": [
+      { "input": "target = 100, startFuel = 10, stations = [[10,60],[20,30],[30,30],[60,40]]", "output": "2", "explanation": "Refuel at position 10 (+60) and 60 (+40)." }
+    ],
+    "constraints": [
+      "1 <= target, startFuel <= 10^9",
+      "0 <= stations.length <= 500",
+      "0 < positions in strictly increasing order; 0 < fuel"
+    ],
+    "approaches": [
+      {
+        "name": "Max-heap, refuel in hindsight",
+        "idea": "Drive forward tracking the farthest reach `fuel`. Push the fuel of every station you pass into a max-heap. Whenever `fuel < target` and you cannot reach the next station (or the target), pop the largest fuel amount seen so far and add it, counting a stop; the biggest tank always extends reach the most. If the heap empties before reaching, return -1.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public int minRefuelStops(int target, int startFuel, int[][] stations) {\n    java.util.PriorityQueue<Integer> heap =\n        new java.util.PriorityQueue<>(java.util.Collections.reverseOrder());\n    long fuel = startFuel;\n    int stops = 0, i = 0, n = stations.length;\n    while (fuel < target) {\n        while (i < n && stations[i][0] <= fuel) {\n            heap.offer(stations[i][1]);\n            i++;\n        }\n        if (heap.isEmpty()) return -1;\n        fuel += heap.poll();\n        stops++;\n    }\n    return stops;\n}"
+      }
+    ],
+    "insight": "You do not decide to refuel at a station when passing it; bank all passed stations in a max-heap and only draw the largest tank when you actually run short."
+  },
+  "greedy__course-schedule-iii": {
+    "title": "Course Schedule III",
+    "topic": "Greedy",
+    "subtopic": "Greedy",
+    "difficulty": "Hard",
+    "pattern": "Greedy sort by deadline + max-heap of durations",
+    "notes": "Redo",
+    "statement": "You are given courses as `[duration, lastDay]`, meaning a course takes `duration` days and must be finished on or before `lastDay`. Starting on day 1 you take courses sequentially (no overlap). Return the maximum number of courses you can take.",
+    "examples": [
+      { "input": "courses = [[100,200],[200,1300],[1000,1250],[2000,3200]]", "output": "3", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= courses.length <= 10^4",
+      "1 <= duration, lastDay <= 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Sort by deadline, swap out the longest",
+        "idea": "Sort courses by `lastDay`. Maintain running `time` and a max-heap of taken durations. Add each course to `time` and the heap; if `time` now exceeds this course's deadline, pop the longest taken course and refund its duration. Swapping out the longest never lowers the count and lowers total time, keeping the maximum feasible set.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public int scheduleCourse(int[][] courses) {\n    java.util.Arrays.sort(courses, (a, b) -> a[1] - b[1]);\n    java.util.PriorityQueue<Integer> heap =\n        new java.util.PriorityQueue<>(java.util.Collections.reverseOrder());\n    int time = 0;\n    for (int[] c : courses) {\n        time += c[0];\n        heap.offer(c[0]);\n        if (time > c[1]) time -= heap.poll();\n    }\n    return heap.size();\n}"
+      }
+    ],
+    "insight": "Process by deadline; always try to take a course, and if it overflows the deadline drop the longest course chosen so far - an exchange argument that never reduces the count."
+  },
+  "greedy__maximum-number-of-events-that-can-be-attended": {
+    "title": "Maximum Number of Events That Can Be Attended",
+    "topic": "Greedy",
+    "subtopic": "Greedy",
+    "difficulty": "Hard",
+    "pattern": "Sort by start + min-heap of end days (attend earliest-ending)",
+    "notes": "",
+    "statement": "Given `events[i] = [startDay, endDay]`, you can attend at most one event per day, on any single day within `[startDay, endDay]` inclusive. Return the maximum number of events you can attend.",
+    "examples": [
+      { "input": "events = [[1,2],[2,3],[3,4]]", "output": "3", "explanation": "Attend day 1, day 2, day 3." }
+    ],
+    "constraints": [
+      "1 <= events.length <= 10^5",
+      "1 <= startDay <= endDay <= 10^5"
+    ],
+    "approaches": [
+      {
+        "name": "Day sweep with min-heap of end days",
+        "idea": "Sort events by start day. Sweep day by day: add all events that have started to a min-heap keyed by end day, discard events whose end day has passed, then attend the event ending soonest (pop the heap). Greedily consuming the earliest-ending available event each day maximizes how many remain attendable.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public int maxEvents(int[][] events) {\n    java.util.Arrays.sort(events, (a, b) -> a[0] - b[0]);\n    java.util.PriorityQueue<Integer> heap = new java.util.PriorityQueue<>();\n    int i = 0, n = events.length, attended = 0, maxDay = 0;\n    for (int[] e : events) maxDay = Math.max(maxDay, e[1]);\n    for (int day = 1; day <= maxDay; day++) {\n        while (i < n && events[i][0] == day) heap.offer(events[i++][1]);\n        while (!heap.isEmpty() && heap.peek() < day) heap.poll();\n        if (!heap.isEmpty()) { heap.poll(); attended++; }\n    }\n    return attended;\n}"
+      }
+    ],
+    "insight": "Each day, attend the available event that ends soonest; deferring it risks losing it, while later-ending events stay flexible."
+  },
+  "greedy__two-city-scheduling": {
+    "title": "Two City Scheduling",
+    "topic": "Greedy",
+    "subtopic": "Greedy",
+    "difficulty": "Medium",
+    "pattern": "Sort by cost difference (exchange argument)",
+    "notes": "",
+    "statement": "There are `2n` people; `costs[i] = [aCost, bCost]` is the cost of flying person `i` to city A or city B. Send exactly `n` people to each city and return the minimum total cost.",
+    "examples": [
+      { "input": "costs = [[10,20],[30,200],[400,50],[30,20]]", "output": "110", "explanation": "Persons 0 and 3 to A (10+30), persons 1 and 2 to B (200+50) is not optimal; sending by cheapest difference gives 110." }
+    ],
+    "constraints": [
+      "2 * n == costs.length",
+      "1 <= n <= 100",
+      "1 <= aCost, bCost <= 1000"
+    ],
+    "approaches": [
+      {
+        "name": "Sort by aCost - bCost",
+        "idea": "Send everyone to city A first, then pick the `n` people who are cheapest to move to B, i.e. those with the smallest `aCost - bCost`. Sorting by that difference puts the strongest A-preferrers first; the first `n` go to A and the rest to B. The exchange argument shows swapping any two across this boundary cannot reduce cost.",
+        "time": "O(n log n)",
+        "space": "O(1)",
+        "code": "public int twoCitySchedCost(int[][] costs) {\n    java.util.Arrays.sort(costs, (a, b) -> (a[0] - a[1]) - (b[0] - b[1]));\n    int n = costs.length / 2, total = 0;\n    for (int i = 0; i < n; i++) total += costs[i][0];\n    for (int i = n; i < costs.length; i++) total += costs[i][1];\n    return total;\n}"
+      }
+    ],
+    "insight": "Rank people by how much cheaper A is than B (aCost - bCost); the top half go to A, the bottom half to B."
+  },
+  "greedy__video-stitching": {
+    "title": "Video Stitching",
+    "topic": "Greedy",
+    "subtopic": "Greedy",
+    "difficulty": "Medium",
+    "pattern": "Greedy interval covering (like Jump Game II)",
+    "notes": "",
+    "statement": "Given clips `clips[i] = [start, end]` (each can be re-cut to any sub-interval), cover the whole interval `[0, time]` using the fewest clips. Return the minimum number of clips, or `-1` if it cannot be covered.",
+    "examples": [
+      { "input": "clips = [[0,2],[4,6],[8,10],[1,9],[1,5],[5,9]], time = 10", "output": "3", "explanation": "[0,2] + [1,9] + [8,10]." }
+    ],
+    "constraints": [
+      "1 <= clips.length <= 100",
+      "0 <= start, end, time <= 100"
+    ],
+    "approaches": [
+      {
+        "name": "Farthest-reach greedy",
+        "idea": "Bucket each start `s` to `maxReach[s]`, the farthest end among clips starting at `s`. Sweep like Jump Game II: within the current covered window extend `farthest` to the best reachable end; when the sweep index passes `curEnd`, take another clip and jump `curEnd` to `farthest`. If `i > farthest` at any point there is an uncoverable gap, so return -1.",
+        "time": "O(n + time)",
+        "space": "O(time)",
+        "code": "public int videoStitching(int[][] clips, int time) {\n    int[] maxReach = new int[time + 1];\n    for (int[] c : clips)\n        if (c[0] <= time) maxReach[c[0]] = Math.max(maxReach[c[0]], c[1]);\n\n    int count = 0, curEnd = 0, farthest = 0;\n    for (int i = 0; i <= time; i++) {\n        if (i > farthest) return -1;\n        if (i > curEnd) { count++; curEnd = farthest; }\n        farthest = Math.max(farthest, maxReach[i]);\n    }\n    return count;\n}"
+      }
+    ],
+    "insight": "Same layer-expansion greedy as Jump Game II but over intervals: bucket each start to its farthest end, extend the covered window, and a gap (i > farthest) makes it impossible."
+  },
+  "greedy__remove-k-digits": {
+    "title": "Remove K Digits",
+    "topic": "Greedy",
+    "subtopic": "Greedy",
+    "difficulty": "Medium",
+    "pattern": "Monotonic stack (greedy)",
+    "notes": "",
+    "statement": "Given a numeric string `num` and an integer `k`, remove exactly `k` digits so that the resulting number is the smallest possible. Return it as a string with no leading zeros, or `\"0\"` if the result is empty.",
+    "examples": [
+      { "input": "num = \"1432219\", k = 3", "output": "\"1219\"", "explanation": "Remove 4, 3, and one 2." }
+    ],
+    "constraints": [
+      "1 <= k <= num.length <= 10^5",
+      "num has no leading zeros unless it is \"0\""
+    ],
+    "approaches": [
+      {
+        "name": "Monotonic increasing stack",
+        "idea": "Build a non-decreasing stack of digits. For each incoming digit, while the top is greater and budget `k>0`, pop it (removing a larger digit at a higher place value shrinks the number most). If budget remains after the pass, trim from the end. Finally strip leading zeros and return `\"0\"` if empty.",
+        "time": "O(n)",
+        "space": "O(n)",
+        "code": "public String removeKdigits(String num, int k) {\n    StringBuilder st = new StringBuilder();\n    for (char c : num.toCharArray()) {\n        while (k > 0 && st.length() > 0 && st.charAt(st.length() - 1) > c) {\n            st.deleteCharAt(st.length() - 1);\n            k--;\n        }\n        st.append(c);\n    }\n    st.setLength(st.length() - k);\n    int i = 0;\n    while (i < st.length() && st.charAt(i) == '0') i++;\n    String res = st.substring(i);\n    return res.isEmpty() ? \"0\" : res;\n}"
+      }
+    ],
+    "insight": "Remove a digit whenever it is larger than the next one - a bigger digit at a higher place value gives the biggest reduction; leftover budget trims the non-decreasing tail."
+  },
+  "greedy__ipo": {
+    "title": "IPO",
+    "topic": "Greedy",
+    "subtopic": "Greedy",
+    "difficulty": "Hard",
+    "pattern": "Two heaps: sort by capital, max-heap of affordable profits",
+    "notes": "",
+    "statement": "You can complete at most `k` projects to maximize capital, starting with `w`. Project `i` requires `capital[i]` to start and yields net `profits[i]` on completion (profit is added to your capital). Return the maximum capital after finishing at most `k` projects.",
+    "examples": [
+      { "input": "k = 2, w = 0, profits = [1,2,3], capital = [0,1,1]", "output": "4", "explanation": "Do project 0 (w=1), then project 2 (w=4)." }
+    ],
+    "constraints": [
+      "1 <= k <= 10^5",
+      "0 <= w <= 10^9",
+      "1 <= n <= 10^5; 0 <= profits[i], capital[i] <= 10^9"
+    ],
+    "approaches": [
+      {
+        "name": "Sort by capital + max-heap of profits",
+        "idea": "Sort projects by required capital. In each of up to `k` rounds, push into a max-heap the profits of all projects now affordable with current `w`, then take the most profitable one and add it to `w`. Because completing a project only increases capital, greedily taking the highest affordable profit each round is optimal. Stop early if no project is affordable.",
+        "time": "O(n log n + k log n)",
+        "space": "O(n)",
+        "code": "public int findMaximizedCapital(int k, int w, int[] profits, int[] capital) {\n    int n = profits.length;\n    int[][] proj = new int[n][2];\n    for (int i = 0; i < n; i++) { proj[i][0] = capital[i]; proj[i][1] = profits[i]; }\n    java.util.Arrays.sort(proj, (a, b) -> a[0] - b[0]);\n    java.util.PriorityQueue<Integer> heap =\n        new java.util.PriorityQueue<>(java.util.Collections.reverseOrder());\n    int i = 0;\n    for (int round = 0; round < k; round++) {\n        while (i < n && proj[i][0] <= w) heap.offer(proj[i++][1]);\n        if (heap.isEmpty()) break;\n        w += heap.poll();\n    }\n    return w;\n}"
+      }
+    ],
+    "insight": "Since capital only grows, unlock all affordable projects into a max-heap and always take the highest profit; do this k times."
+  }
+}

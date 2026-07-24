@@ -1,0 +1,400 @@
+{
+  "dynamic-programming__russian-doll-envelopes": {
+    "title": "Russian Doll Envelopes",
+    "topic": "Dynamic Programming",
+    "subtopic": "LIS & Patience",
+    "difficulty": "Hard",
+    "pattern": "Sort + LIS (2-D reduced to 1-D)",
+    "notes": "",
+    "statement": "You are given `envelopes` where `envelopes[i] = [w, h]`. One envelope fits into another only if **both** its width and height are strictly greater. Return the maximum number of envelopes you can nest (Russian doll style).",
+    "examples": [
+      { "input": "envelopes = [[5,4],[6,4],[6,7],[2,3]]", "output": "3", "explanation": "[2,3] -> [5,4] -> [6,7]" }
+    ],
+    "constraints": [
+      "1 <= envelopes.length <= 10^5",
+      "1 <= w, h <= 10^5"
+    ],
+    "approaches": [
+      {
+        "name": "Sort by width asc, height desc on ties; LIS on heights",
+        "idea": "Sorting height **descending** within equal widths prevents two same-width envelopes from both being counted, since they cannot nest. After that a strictly-increasing LIS on the height sequence (via the patience/tails binary-search trick) gives the answer.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public int maxEnvelopes(int[][] env) {\n    Arrays.sort(env, (a, b) -> a[0] != b[0] ? a[0] - b[0] : b[1] - a[1]);\n    int[] tails = new int[env.length];\n    int size = 0;\n    for (int[] e : env) {\n        int x = e[1], lo = 0, hi = size;\n        while (lo < hi) { int m = (lo + hi) >>> 1; if (tails[m] < x) lo = m + 1; else hi = m; }\n        tails[lo] = x;\n        if (lo == size) size++;\n    }\n    return size;\n}"
+      }
+    ],
+    "insight": "Fix one dimension by sorting, reduce to LIS on the other. The height-descending tie-break is essential: it blocks equal-width envelopes from forming a fake increasing run."
+  },
+  "dynamic-programming__number-of-lis": {
+    "title": "Number of LIS",
+    "topic": "Dynamic Programming",
+    "subtopic": "LIS & Patience",
+    "difficulty": "Hard",
+    "pattern": "LIS with count bookkeeping",
+    "notes": "",
+    "statement": "Given an integer array `nums`, return the number of longest strictly-increasing subsequences.",
+    "examples": [
+      { "input": "nums = [1,3,5,4,7]", "output": "2", "explanation": "The two LIS of length 4 are [1,3,4,7] and [1,3,5,7]." }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 2000",
+      "-10^6 <= nums[i] <= 10^6"
+    ],
+    "approaches": [
+      {
+        "name": "length[i] and count[i]",
+        "idea": "For each `i`, scan `j < i` with `nums[j] < nums[i]`: if `len[j]+1 > len[i]` we found a strictly longer run, so **reset** `cnt[i] = cnt[j]`; if `len[j]+1 == len[i]` we tie, so **accumulate** `cnt[i] += cnt[j]`. Sum counts over all `i` whose length equals the global maximum.",
+        "time": "O(n^2)",
+        "space": "O(n)",
+        "code": "public int findNumberOfLIS(int[] nums) {\n    int n = nums.length, maxLen = 0, result = 0;\n    int[] len = new int[n], cnt = new int[n];\n    for (int i = 0; i < n; i++) {\n        len[i] = cnt[i] = 1;\n        for (int j = 0; j < i; j++) if (nums[j] < nums[i]) {\n            if (len[j] + 1 > len[i]) { len[i] = len[j] + 1; cnt[i] = cnt[j]; }\n            else if (len[j] + 1 == len[i]) cnt[i] += cnt[j];\n        }\n        if (len[i] > maxLen) { maxLen = len[i]; result = cnt[i]; }\n        else if (len[i] == maxLen) result += cnt[i];\n    }\n    return result;\n}"
+      }
+    ],
+    "insight": "Track both the best length ending at i and how many ways achieve it: replace the count on a strictly longer extension, accumulate on a tie."
+  },
+  "dynamic-programming__maximum-height-by-stacking-cuboids": {
+    "title": "Maximum Height by Stacking Cuboids",
+    "topic": "Dynamic Programming",
+    "subtopic": "LIS & Patience",
+    "difficulty": "Hard",
+    "pattern": "Sort dimensions + sort cuboids, LIS-style DP",
+    "notes": "",
+    "statement": "Given `n` cuboids `[width, length, height]` that may be rotated, you can place cuboid `i` on top of cuboid `j` only if all three sorted dimensions of `i` are `<=` those of `j`. Return the maximum achievable total stack height.",
+    "examples": [
+      { "input": "cuboids = [[50,45,20],[95,37,53],[45,23,12]]", "output": "190", "explanation": "Stack all three after rotating each to its sorted orientation." }
+    ],
+    "constraints": [
+      "1 <= cuboids.length <= 100",
+      "1 <= widthi, lengthi, heighti <= 100"
+    ],
+    "approaches": [
+      {
+        "name": "Sort each cuboid's dims, sort cuboids, LIS on height",
+        "idea": "Rotation freedom means the smallest usable orientation sorts each cuboid's three dimensions ascending. Sort cuboids so a valid stacking is a subsequence, then run an LIS-style DP: `dp[i] = height[i] + max(dp[j])` over earlier `j` whose all three dims are `<=` those of `i`.",
+        "time": "O(n^2)",
+        "space": "O(n)",
+        "code": "public int maxHeight(int[][] cuboids) {\n    for (int[] c : cuboids) Arrays.sort(c);\n    Arrays.sort(cuboids, (a, b) ->\n        a[0] != b[0] ? a[0] - b[0] : a[1] != b[1] ? a[1] - b[1] : a[2] - b[2]);\n    int n = cuboids.length, ans = 0;\n    int[] dp = new int[n];\n    for (int i = 0; i < n; i++) {\n        dp[i] = cuboids[i][2];\n        for (int j = 0; j < i; j++)\n            if (cuboids[j][0] <= cuboids[i][0] && cuboids[j][1] <= cuboids[i][1]\n                    && cuboids[j][2] <= cuboids[i][2])\n                dp[i] = Math.max(dp[i], dp[j] + cuboids[i][2]);\n        ans = Math.max(ans, dp[i]);\n    }\n    return ans;\n}"
+      }
+    ],
+    "insight": "Rotation freedom lets you sort each cuboid's dims so 'smaller in all dims' becomes a clean 3-way comparison; then it is LIS maximizing height (the largest dim)."
+  },
+  "dynamic-programming__longest-increasing-path-in-a-matrix": {
+    "title": "Longest Increasing Path in a Matrix",
+    "topic": "Dynamic Programming",
+    "subtopic": "LIS & Patience",
+    "difficulty": "Hard",
+    "pattern": "DFS + memoization on an implicit DAG",
+    "notes": "",
+    "statement": "Given an `m x n` integer `matrix`, return the length of the longest strictly increasing path. From a cell you may move up, down, left, or right (no diagonals, no wrapping).",
+    "examples": [
+      { "input": "matrix = [[9,9,4],[6,6,8],[2,1,1]]", "output": "4", "explanation": "The longest increasing path is 1 -> 2 -> 6 -> 9." }
+    ],
+    "constraints": [
+      "1 <= m, n <= 200",
+      "0 <= matrix[i][j] <= 2^31 - 1"
+    ],
+    "approaches": [
+      {
+        "name": "Memoized DFS",
+        "idea": "Let `memo[i][j]` be the longest increasing path starting at `(i,j)`. Recurse only into strictly-greater neighbors. Because you always move to a larger value, the graph is acyclic, so each cell is computed once and memoization is safe (no visited set needed).",
+        "time": "O(m*n)",
+        "space": "O(m*n)",
+        "code": "private int[][] memo;\nprivate static final int[][] DIRS = {{0,1},{0,-1},{1,0},{-1,0}};\n\npublic int longestIncreasingPath(int[][] g) {\n    int m = g.length, n = g[0].length, best = 0;\n    memo = new int[m][n];\n    for (int i = 0; i < m; i++)\n        for (int j = 0; j < n; j++)\n            best = Math.max(best, dfs(g, i, j));\n    return best;\n}\nprivate int dfs(int[][] g, int i, int j) {\n    if (memo[i][j] != 0) return memo[i][j];\n    int best = 1;\n    for (int[] d : DIRS) {\n        int ni = i + d[0], nj = j + d[1];\n        if (ni >= 0 && ni < g.length && nj >= 0 && nj < g[0].length && g[ni][nj] > g[i][j])\n            best = Math.max(best, 1 + dfs(g, ni, nj));\n    }\n    return memo[i][j] = best;\n}"
+      }
+    ],
+    "insight": "Strictly increasing implies no cycles implies a DAG, so memoized DFS computes each cell once; no visited set is needed because you only step to strictly larger cells."
+  },
+  "dynamic-programming__make-array-strictly-increasing": {
+    "title": "Make Array Strictly Increasing",
+    "topic": "Dynamic Programming",
+    "subtopic": "LIS & Patience",
+    "difficulty": "Very Hard",
+    "pattern": "DP over last-kept value + binary search into a sorted swap pool",
+    "notes": "",
+    "statement": "Given two arrays `arr1` and `arr2`, in one operation you may replace any `arr1[i]` with any element of `arr2`. Return the minimum number of operations to make `arr1` strictly increasing, or `-1` if impossible.",
+    "examples": [
+      { "input": "arr1 = [1,5,3,6,7], arr2 = [1,3,2,4]", "output": "1", "explanation": "Replace 3 with 4 to get [1,5,4,6,7]." }
+    ],
+    "constraints": [
+      "1 <= arr1.length, arr2.length <= 2000",
+      "0 <= arr1[i], arr2[i] <= 10^9"
+    ],
+    "approaches": [
+      {
+        "name": "Map {previous value -> min ops} across positions",
+        "idea": "Sort and dedup `arr2`. Keep a map from 'possible last value after processing position i' to the minimum operations to reach it. At each element you either keep it (0 cost, allowed only if it exceeds the previous value) or replace it with the smallest `arr2` value strictly greater than the previous value (found by binary search, +1 cost). Merge by keeping the min ops per resulting last value.",
+        "time": "O(n * k log k)",
+        "space": "O(k)",
+        "code": "public int makeArrayIncreasing(int[] arr1, int[] arr2) {\n    int[] b = Arrays.stream(arr2).distinct().sorted().toArray();\n    Map<Integer, Integer> dp = new HashMap<>();\n    dp.put(-1, 0);\n    for (int x : arr1) {\n        Map<Integer, Integer> next = new HashMap<>();\n        for (Map.Entry<Integer, Integer> e : dp.entrySet()) {\n            int prev = e.getKey(), ops = e.getValue();\n            if (x > prev)\n                next.merge(x, ops, Math::min);\n            int idx = upperBound(b, prev);\n            if (idx < b.length)\n                next.merge(b[idx], ops + 1, Math::min);\n        }\n        if (next.isEmpty()) return -1;\n        dp = next;\n    }\n    int ans = Integer.MAX_VALUE;\n    for (int v : dp.values()) ans = Math.min(ans, v);\n    return ans;\n}\nprivate int upperBound(int[] a, int key) {\n    int lo = 0, hi = a.length;\n    while (lo < hi) { int m = (lo + hi) >>> 1; if (a[m] <= key) lo = m + 1; else hi = m; }\n    return lo;\n}"
+      }
+    ],
+    "insight": "State = smallest possible last value mapped to min ops; at each position either keep (if it stays increasing) or swap in the smallest eligible replacement via binary search."
+  },
+  "dynamic-programming__best-time-to-buy-sell-stock-iii": {
+    "title": "Best Time to Buy/Sell Stock III",
+    "topic": "Dynamic Programming",
+    "subtopic": "Stock / State-machine",
+    "difficulty": "Hard",
+    "pattern": "At-most-k transactions state machine (k = 2)",
+    "notes": "",
+    "statement": "Given `prices` where `prices[i]` is the price on day `i`, find the maximum profit with **at most two** transactions. You must sell before buying again (no overlapping holds).",
+    "examples": [
+      { "input": "prices = [3,3,5,0,0,3,1,4]", "output": "6", "explanation": "Buy at 0 sell at 3 (profit 3), then buy at 1 sell at 4 (profit 3)." }
+    ],
+    "constraints": [
+      "1 <= prices.length <= 10^5",
+      "0 <= prices[i] <= 10^5"
+    ],
+    "approaches": [
+      {
+        "name": "buy[j]/sell[j] rolling states with k = 2",
+        "idea": "This is the general at-most-k solution specialized to `k = 2`. Track for each transaction `j` the best balance after buying (`buy[j]`) and after selling (`sell[j]`): `buy[j] = max(buy[j], sell[j-1] - price)` and `sell[j] = max(sell[j], buy[j] + price)`. Answer is `sell[k]`.",
+        "time": "O(n*k)",
+        "space": "O(k)",
+        "code": "public int maxProfit(int[] prices) {\n    return maxProfit(2, prices);\n}\nprivate int maxProfit(int k, int[] prices) {\n    int n = prices.length;\n    if (n == 0 || k == 0) return 0;\n    int[] buy = new int[k + 1], sell = new int[k + 1];\n    Arrays.fill(buy, Integer.MIN_VALUE);\n    for (int p : prices)\n        for (int j = 1; j <= k; j++) {\n            buy[j]  = Math.max(buy[j], sell[j - 1] - p);\n            sell[j] = Math.max(sell[j], buy[j] + p);\n        }\n    return sell[k];\n}"
+      }
+    ],
+    "insight": "Two interleaved states per transaction count (holding vs sold); buy[j] draws on sell[j-1], the profit carried from the previous completed transaction. Stock III is just the k=2 case of Stock IV."
+  },
+  "dynamic-programming__best-time-to-buy-sell-stock-iv": {
+    "title": "Best Time to Buy/Sell Stock IV",
+    "topic": "Dynamic Programming",
+    "subtopic": "Stock / State-machine",
+    "difficulty": "Hard",
+    "pattern": "At-most-k transactions state machine",
+    "notes": "",
+    "statement": "Given an integer `k` and `prices` where `prices[i]` is the price on day `i`, find the maximum profit achievable with **at most `k`** transactions. You must sell before buying again.",
+    "examples": [
+      { "input": "k = 2, prices = [3,2,6,5,0,3]", "output": "7", "explanation": "Buy at 2 sell at 6 (profit 4), then buy at 0 sell at 3 (profit 3)." }
+    ],
+    "constraints": [
+      "1 <= k <= 100",
+      "1 <= prices.length <= 1000",
+      "0 <= prices[i] <= 1000"
+    ],
+    "approaches": [
+      {
+        "name": "buy[j]/sell[j] rolling states with unlimited shortcut",
+        "idea": "If `k >= n/2` the transaction cap is not binding, so profit is just the sum of every positive daily gain. Otherwise, for each transaction `j` track the best balance after buying (`buy[j]`) and after selling (`sell[j]`): `buy[j] = max(buy[j], sell[j-1] - price)`, `sell[j] = max(sell[j], buy[j] + price)`. The answer is `sell[k]`.",
+        "time": "O(n*k), O(n) in the unlimited branch",
+        "space": "O(k)",
+        "code": "public int maxProfit(int k, int[] prices) {\n    int n = prices.length;\n    if (n == 0 || k == 0) return 0;\n    if (k >= n / 2) {\n        int profit = 0;\n        for (int i = 1; i < n; i++)\n            if (prices[i] > prices[i - 1]) profit += prices[i] - prices[i - 1];\n        return profit;\n    }\n    int[] buy = new int[k + 1], sell = new int[k + 1];\n    Arrays.fill(buy, Integer.MIN_VALUE);\n    for (int p : prices)\n        for (int j = 1; j <= k; j++) {\n            buy[j]  = Math.max(buy[j], sell[j - 1] - p);\n            sell[j] = Math.max(sell[j], buy[j] + p);\n        }\n    return sell[k];\n}"
+      }
+    ],
+    "insight": "Two interleaved states per transaction count; buy[j] uses sell[j-1] to carry prior profit. The k >= n/2 shortcut collapses to the unlimited-transactions greedy and avoids the DP entirely."
+  },
+  "dynamic-programming__best-time-to-buy-sell-stock-with-cooldown": {
+    "title": "Best Time to Buy/Sell Stock with Cooldown",
+    "topic": "Dynamic Programming",
+    "subtopic": "Stock / State-machine",
+    "difficulty": "Medium",
+    "pattern": "Three-state machine (hold / sold / rest)",
+    "notes": "",
+    "statement": "Given `prices` where `prices[i]` is the price on day `i`, find the maximum profit with unlimited transactions, subject to a cooldown: after you sell you cannot buy on the very next day. You may not hold more than one share at a time.",
+    "examples": [
+      { "input": "prices = [1,2,3,0,2]", "output": "3", "explanation": "buy, sell, cooldown, buy, sell -> profit 3." }
+    ],
+    "constraints": [
+      "1 <= prices.length <= 5000",
+      "0 <= prices[i] <= 1000"
+    ],
+    "approaches": [
+      {
+        "name": "Hold / sold / rest rolling states",
+        "idea": "Maintain three states each day: `hold` (best balance while holding a share), `sold` (best balance if we sell today), `rest` (best balance not holding and free to buy). Transitions: `sold = hold + price`, `hold = max(hold, rest - price)`, `rest = max(rest, prevSold)`. Using the previous day's `sold` for `rest` enforces the one-day cooldown before the next buy.",
+        "time": "O(n)",
+        "space": "O(1)",
+        "code": "public int maxProfit(int[] prices) {\n    int hold = Integer.MIN_VALUE, sold = 0, rest = 0;\n    for (int p : prices) {\n        int prevSold = sold;\n        sold = hold + p;\n        hold = Math.max(hold, rest - p);\n        rest = Math.max(rest, prevSold);\n    }\n    return Math.max(sold, rest);\n}"
+      }
+    ],
+    "insight": "Cooldown = you may only buy from the 'rest' state, and 'rest' can only absorb yesterday's 'sold', delaying re-entry by exactly one day."
+  },
+  "dynamic-programming__best-time-to-buy-sell-stock-with-transaction-fee": {
+    "title": "Best Time to Buy/Sell Stock with Transaction Fee",
+    "topic": "Dynamic Programming",
+    "subtopic": "Stock / State-machine",
+    "difficulty": "Medium",
+    "pattern": "Two-state machine (cash / hold) with fee",
+    "notes": "",
+    "statement": "Given `prices` and an integer `fee`, find the maximum profit with unlimited transactions where a fixed `fee` is charged per completed transaction. You may not hold more than one share at a time.",
+    "examples": [
+      { "input": "prices = [1,3,2,8,4,9], fee = 2", "output": "8", "explanation": "Buy at 1 sell at 8 (profit 7-2=5), buy at 4 sell at 9 (profit 5-2=3), total 8." }
+    ],
+    "constraints": [
+      "1 <= prices.length <= 5 * 10^4",
+      "1 <= prices[i] < 5 * 10^4",
+      "0 <= fee < 5 * 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Cash / hold rolling states",
+        "idea": "Track `cash` (best balance not holding) and `hold` (best balance holding one share). Selling pays the fee once: `cash = max(cash, hold + price - fee)`; buying is `hold = max(hold, cash - price)`. Charging the fee on sell (rather than buy) keeps both updates clean and never double-counts.",
+        "time": "O(n)",
+        "space": "O(1)",
+        "code": "public int maxProfit(int[] prices, int fee) {\n    int cash = 0, hold = -prices[0];\n    for (int i = 1; i < prices.length; i++) {\n        cash = Math.max(cash, hold + prices[i] - fee);\n        hold = Math.max(hold, cash - prices[i]);\n    }\n    return cash;\n}"
+      }
+    ],
+    "insight": "Fold the fee into the sell transition so a transaction is only worth completing when the gain exceeds the fee; two rolling states suffice."
+  },
+  "dynamic-programming__partition-to-k-equal-sum-subsets": {
+    "title": "Partition to K Equal Sum Subsets",
+    "topic": "Dynamic Programming",
+    "subtopic": "Bitmask",
+    "difficulty": "Hard",
+    "pattern": "Bitmask DP over chosen elements",
+    "notes": "",
+    "statement": "Given an integer array `nums` and an integer `k`, return `true` if you can partition all elements into `k` non-empty subsets whose sums are all equal.",
+    "examples": [
+      { "input": "nums = [4,3,2,3,5,2,1], k = 4", "output": "true", "explanation": "Groups (5), (1,4), (2,3), (2,3) each sum to 5." }
+    ],
+    "constraints": [
+      "1 <= k <= nums.length <= 16",
+      "1 <= nums[i] <= 10^4",
+      "The total sum fits in a 32-bit integer"
+    ],
+    "approaches": [
+      {
+        "name": "Bitmask DP tracking current-subset fill",
+        "idea": "If the total is not divisible by `k`, fail. Let `target = sum/k`. For each subset of elements (bitmask), store `dp[mask]` = the fill amount of the current in-progress bucket, taken modulo `target`, or `-1` if unreachable. From a reachable `mask`, add any unused element `i` whose addition keeps the current bucket `<= target`; taking it mod `target` automatically rolls over to a fresh bucket when one fills exactly. All `k` buckets are filled iff `dp[fullMask] == 0`.",
+        "time": "O(2^n * n)",
+        "space": "O(2^n)",
+        "code": "public boolean canPartitionKSubsets(int[] nums, int k) {\n    int sum = 0;\n    for (int x : nums) sum += x;\n    if (sum % k != 0) return false;\n    int target = sum / k, n = nums.length;\n    Arrays.sort(nums);\n    if (nums[n - 1] > target) return false;\n    int[] dp = new int[1 << n];\n    Arrays.fill(dp, -1);\n    dp[0] = 0;\n    for (int mask = 0; mask < (1 << n); mask++) {\n        if (dp[mask] == -1) continue;\n        for (int i = 0; i < n; i++) {\n            if ((mask & (1 << i)) == 0 && dp[mask] + nums[i] <= target) {\n                int next = mask | (1 << i);\n                if (dp[next] == -1)\n                    dp[next] = (dp[mask] + nums[i]) % target;\n            }\n        }\n    }\n    return dp[(1 << n) - 1] == 0;\n}"
+      }
+    ],
+    "insight": "One integer per subset-mask (current bucket fill mod target) collapses 'which bucket' bookkeeping; a full valid partition is exactly dp[fullMask] == 0."
+  },
+  "dynamic-programming__shortest-path-visiting-all-nodes": {
+    "title": "Shortest Path Visiting All Nodes",
+    "topic": "Dynamic Programming",
+    "subtopic": "Bitmask",
+    "difficulty": "Hard",
+    "pattern": "BFS over (node, visited-bitmask) state space",
+    "notes": "",
+    "statement": "Given an undirected connected graph of `n` nodes given as an adjacency list `graph`, return the length of the shortest walk that visits every node. You may start and end at any node and may revisit nodes and reuse edges.",
+    "examples": [
+      { "input": "graph = [[1,2,3],[0],[0],[0]]", "output": "4", "explanation": "One shortest walk is 1 -> 0 -> 2 -> 0 -> 3." }
+    ],
+    "constraints": [
+      "1 <= n <= 12",
+      "graph[i] contains distinct neighbors, graph is connected",
+      "0 <= graph[i].length < n"
+    ],
+    "approaches": [
+      {
+        "name": "Multi-source BFS on (node, mask)",
+        "idea": "A state is `(currentNode, visitedMask)`. Because revisiting is allowed, the shortest number of edges to reach a state is found by BFS. Seed the queue with every start node `i` at state `(i, 1<<i)`. The first time any state reaches `mask == fullMask`, the current BFS level is the answer. The `visited[node][mask]` table prevents re-expanding states.",
+        "time": "O(2^n * n^2)",
+        "space": "O(2^n * n)",
+        "code": "public int shortestPathLength(int[][] graph) {\n    int n = graph.length;\n    if (n == 1) return 0;\n    int full = (1 << n) - 1;\n    boolean[][] visited = new boolean[n][1 << n];\n    Deque<int[]> queue = new ArrayDeque<>();\n    for (int i = 0; i < n; i++) {\n        queue.offer(new int[]{i, 1 << i});\n        visited[i][1 << i] = true;\n    }\n    int steps = 0;\n    while (!queue.isEmpty()) {\n        int size = queue.size();\n        for (int s = 0; s < size; s++) {\n            int[] cur = queue.poll();\n            int node = cur[0], mask = cur[1];\n            if (mask == full) return steps;\n            for (int next : graph[node]) {\n                int nmask = mask | (1 << next);\n                if (!visited[next][nmask]) {\n                    visited[next][nmask] = true;\n                    queue.offer(new int[]{next, nmask});\n                }\n            }\n        }\n        steps++;\n    }\n    return -1;\n}"
+      }
+    ],
+    "insight": "Augment the node with a visited-set bitmask; unweighted shortest walk over this expanded state graph is plain BFS, and revisiting is free because the mask, not the node, is the identity."
+  },
+  "dynamic-programming__minimum-cost-to-connect-two-groups": {
+    "title": "Minimum Cost to Connect Two Groups",
+    "topic": "Dynamic Programming",
+    "subtopic": "Bitmask",
+    "difficulty": "Hard",
+    "pattern": "DP over group-1 index + bitmask of covered group-2 nodes",
+    "notes": "",
+    "statement": "Two groups of points have sizes `m` and `n` with `m >= n` allowed either way; `cost[i][j]` is the cost of connecting point `i` of group 1 to point `j` of group 2. Every point in both groups must be connected to at least one point in the other group (a point may have multiple connections). Return the minimum total connection cost.",
+    "examples": [
+      { "input": "cost = [[15,96],[36,2]]", "output": "17", "explanation": "Connect (0->0) and (1->1): 15 + 2 = 17, covering all points." }
+    ],
+    "constraints": [
+      "1 <= cost.length, cost[0].length <= 12",
+      "1 <= cost[i][j] <= 100"
+    ],
+    "approaches": [
+      {
+        "name": "Memoized DFS over group-1 rows with group-2 coverage mask",
+        "idea": "Process group-1 points left to right. State `(i, mask)` = point `i` is next and `mask` marks which group-2 points are already connected. Each group-1 point must connect to at least one group-2 point, so try every `j`, adding `cost[i][j]` and marking `j`. When all group-1 points are placed, every still-uncovered group-2 point `j` must be attached to its cheapest group-1 partner, precomputed as `minConnect[j]`.",
+        "time": "O(2^n * m * n)",
+        "space": "O(2^n * m)",
+        "code": "public int connectTwoGroups(List<List<Integer>> cost) {\n    int m = cost.size(), n = cost.get(0).size();\n    int[] minConnect = new int[n];\n    Arrays.fill(minConnect, Integer.MAX_VALUE);\n    for (int i = 0; i < m; i++)\n        for (int j = 0; j < n; j++)\n            minConnect[j] = Math.min(minConnect[j], cost.get(i).get(j));\n    Integer[][] memo = new Integer[m][1 << n];\n    return dfs(0, 0, cost, minConnect, memo, m, n);\n}\nprivate int dfs(int i, int mask, List<List<Integer>> cost, int[] minConnect,\n                Integer[][] memo, int m, int n) {\n    if (i == m) {\n        int total = 0;\n        for (int j = 0; j < n; j++)\n            if ((mask & (1 << j)) == 0) total += minConnect[j];\n        return total;\n    }\n    if (memo[i][mask] != null) return memo[i][mask];\n    int best = Integer.MAX_VALUE;\n    for (int j = 0; j < n; j++) {\n        int c = cost.get(i).get(j) + dfs(i + 1, mask | (1 << j), cost, minConnect, memo, m, n);\n        best = Math.min(best, c);\n    }\n    return memo[i][mask] = best;\n}"
+      }
+    ],
+    "insight": "Iterate one group fully (each must connect to >=1), track the other group's coverage as a bitmask, and patch any leftover uncovered nodes with their cheapest single edge."
+  },
+  "dynamic-programming__find-the-shortest-superstring": {
+    "title": "Find the Shortest Superstring",
+    "topic": "Dynamic Programming",
+    "subtopic": "Bitmask",
+    "difficulty": "Very Hard",
+    "pattern": "Held-Karp bitmask DP (TSP) on pairwise overlaps",
+    "notes": "",
+    "statement": "Given an array of strings `words` (no string is a substring of another), return any shortest string that contains each `words[i]` as a substring.",
+    "examples": [
+      { "input": "words = [\"catg\",\"ctaagt\",\"gcta\",\"ttca\",\"atgcatc\"]", "output": "gctaagttcatgcatc", "explanation": "This 16-char string contains every input word as a substring." }
+    ],
+    "constraints": [
+      "1 <= words.length <= 12",
+      "1 <= words[i].length <= 20",
+      "words[i] consists of lowercase letters and no word is a substring of another"
+    ],
+    "approaches": [
+      {
+        "name": "Bitmask DP maximizing total overlap, then reconstruct",
+        "idea": "Precompute `overlap[i][j]` = longest suffix of word `i` that is a prefix of word `j`; concatenating `j` after `i` saves that many characters. Minimizing superstring length equals maximizing total overlap along an ordering of all words, a Hamiltonian-path DP: `dp[mask][i]` = max overlap for a path covering `mask` ending at word `i`, with `parent` for reconstruction. Rebuild the best full-mask ordering and glue words, trimming each join by its overlap.",
+        "time": "O(2^n * n^2)",
+        "space": "O(2^n * n)",
+        "code": "public String shortestSuperstring(String[] words) {\n    int n = words.length;\n    int[][] overlap = new int[n][n];\n    for (int i = 0; i < n; i++)\n        for (int j = 0; j < n; j++)\n            if (i != j) overlap[i][j] = calcOverlap(words[i], words[j]);\n    int[][] dp = new int[1 << n][n];\n    int[][] parent = new int[1 << n][n];\n    for (int[] row : parent) Arrays.fill(row, -1);\n    for (int mask = 1; mask < (1 << n); mask++)\n        for (int i = 0; i < n; i++) {\n            if ((mask & (1 << i)) == 0) continue;\n            int prevMask = mask ^ (1 << i);\n            if (prevMask == 0) continue;\n            for (int j = 0; j < n; j++) {\n                if ((prevMask & (1 << j)) == 0) continue;\n                int val = dp[prevMask][j] + overlap[j][i];\n                if (val > dp[mask][i]) {\n                    dp[mask][i] = val;\n                    parent[mask][i] = j;\n                }\n            }\n        }\n    int full = (1 << n) - 1, last = 0, best = -1;\n    for (int i = 0; i < n; i++)\n        if (dp[full][i] > best) { best = dp[full][i]; last = i; }\n    List<Integer> order = new ArrayList<>();\n    int mask = full, cur = last;\n    while (cur != -1) {\n        order.add(cur);\n        int p = parent[mask][cur];\n        mask ^= (1 << cur);\n        cur = p;\n    }\n    Collections.reverse(order);\n    StringBuilder sb = new StringBuilder(words[order.get(0)]);\n    for (int k = 1; k < order.size(); k++) {\n        int ov = overlap[order.get(k - 1)][order.get(k)];\n        sb.append(words[order.get(k)].substring(ov));\n    }\n    return sb.toString();\n}\nprivate int calcOverlap(String a, String b) {\n    int max = Math.min(a.length(), b.length());\n    for (int len = max; len > 0; len--)\n        if (a.regionMatches(a.length() - len, b, 0, len)) return len;\n    return 0;\n}"
+      }
+    ],
+    "insight": "Shortest superstring = maximum-overlap Hamiltonian path; solve as Held-Karp bitmask DP over pairwise suffix/prefix overlaps and reconstruct via parent pointers."
+  },
+  "dynamic-programming__maximum-students-taking-exam": {
+    "title": "Maximum Students Taking Exam",
+    "topic": "Dynamic Programming",
+    "subtopic": "Bitmask",
+    "difficulty": "Hard",
+    "pattern": "Row-by-row bitmask DP with adjacency + diagonal constraints",
+    "notes": "",
+    "statement": "Given an `m x n` classroom `seats` where `'.'` is a good seat and `'#'` is broken, seat the maximum number of students so that no student can copy from the left, right, upper-left, or upper-right neighbor. Return that maximum count.",
+    "examples": [
+      { "input": "seats = [[\"#\",\".\",\"#\",\"#\",\".\",\"#\"],[\".\",\"#\",\"#\",\"#\",\"#\",\".\"],[\"#\",\".\",\"#\",\"#\",\".\",\"#\"]]", "output": "4", "explanation": "Four students can be seated with no left/right or diagonal-front conflicts." }
+    ],
+    "constraints": [
+      "seats contains only '.' and '#'",
+      "1 <= m <= 8",
+      "1 <= n <= 8"
+    ],
+    "approaches": [
+      {
+        "name": "Bitmask DP over rows",
+        "idea": "Represent each row's seating as a bitmask. A mask is valid within a row if it only uses good seats and has no two horizontally adjacent bits (`mask & (mask<<1) == 0`). A row mask is compatible with the previous row's mask if there is no upper-left/upper-right conflict (`mask & (prev<<1) == 0` and `mask & (prev>>1) == 0`). `dp[row][mask]` = max students for rows up to `row` ending with that mask; answer is the max over the last row.",
+        "time": "O(m * 4^n)",
+        "space": "O(2^n)",
+        "code": "public int maxStudents(char[][] seats) {\n    int m = seats.length, n = seats[0].length;\n    int[] valid = new int[m];\n    for (int i = 0; i < m; i++)\n        for (int j = 0; j < n; j++)\n            if (seats[i][j] == '.') valid[i] |= (1 << j);\n    int[] prev = new int[1 << n];\n    Arrays.fill(prev, -1);\n    prev[0] = 0;\n    for (int i = 0; i < m; i++) {\n        int[] cur = new int[1 << n];\n        Arrays.fill(cur, -1);\n        for (int mask = 0; mask < (1 << n); mask++) {\n            if ((mask & valid[i]) != mask) continue;\n            if ((mask & (mask << 1)) != 0) continue;\n            for (int pmask = 0; pmask < (1 << n); pmask++) {\n                if (prev[pmask] == -1) continue;\n                if ((mask & (pmask << 1)) != 0) continue;\n                if ((mask & (pmask >> 1)) != 0) continue;\n                cur[mask] = Math.max(cur[mask], prev[pmask] + Integer.bitCount(mask));\n            }\n        }\n        prev = cur;\n    }\n    int ans = 0;\n    for (int v : prev) ans = Math.max(ans, v);\n    return ans;\n}"
+      }
+    ],
+    "insight": "Encode each row as a bitmask; intra-row rule is 'no adjacent bits', inter-row rule is 'no diagonal bits vs previous row', then it is a standard layered bitmask DP."
+  },
+  "dynamic-programming__number-of-ways-to-wear-different-hats": {
+    "title": "Number of Ways to Wear Different Hats",
+    "topic": "Dynamic Programming",
+    "subtopic": "Bitmask",
+    "difficulty": "Very Hard",
+    "pattern": "Bitmask DP over people, iterating hats",
+    "notes": "",
+    "statement": "There are `n` people and 40 types of hats labeled 1..40. `hats[i]` lists the hats person `i` likes. Assign each person one hat they like such that no two people wear the same hat. Return the number of ways, modulo 10^9 + 7.",
+    "examples": [
+      { "input": "hats = [[3,4],[4,5],[5]]", "output": "1", "explanation": "Person 0 wears 3, person 1 wears 4, person 2 wears 5 is the only assignment." }
+    ],
+    "constraints": [
+      "n == hats.length",
+      "1 <= n <= 10",
+      "1 <= hats[i].length <= 40",
+      "1 <= hats[i][j] <= 40 and hats[i] contains distinct values"
+    ],
+    "approaches": [
+      {
+        "name": "DP over hats with people bitmask",
+        "idea": "Iterate hats 1..40 (few people, many hats: assign hats to people, not the reverse, so the mask stays over `n <= 10` people). `dp[mask]` = number of ways so that exactly the people in `mask` have received a hat among the hats processed so far. For each new hat, either skip it, or give it to any person who likes it and is not yet assigned: `next[mask | (1<<p)] += dp[mask]`. Answer is `dp[fullMask]`.",
+        "time": "O(40 * 2^n * n)",
+        "space": "O(2^n)",
+        "code": "public int numberWays(List<List<Integer>> hats) {\n    final int MOD = 1_000_000_007;\n    int n = hats.size();\n    List<List<Integer>> hatToPeople = new ArrayList<>();\n    for (int h = 0; h <= 40; h++) hatToPeople.add(new ArrayList<>());\n    for (int p = 0; p < n; p++)\n        for (int h : hats.get(p))\n            hatToPeople.get(h).add(p);\n    int full = (1 << n) - 1;\n    long[] dp = new long[1 << n];\n    dp[0] = 1;\n    for (int h = 1; h <= 40; h++) {\n        long[] next = dp.clone();\n        for (int mask = 0; mask <= full; mask++) {\n            if (dp[mask] == 0) continue;\n            for (int p : hatToPeople.get(h)) {\n                if ((mask & (1 << p)) != 0) continue;\n                int nmask = mask | (1 << p);\n                next[nmask] = (next[nmask] + dp[mask]) % MOD;\n            }\n        }\n        dp = next;\n    }\n    return (int) dp[full];\n}"
+      }
+    ],
+    "insight": "Up to 40 hats but only <=10 people, so make the bitmask over people and iterate hats; cloning dp each hat encodes the 'skip this hat' option cleanly."
+  }
+}

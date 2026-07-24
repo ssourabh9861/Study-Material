@@ -1,0 +1,318 @@
+{
+  "tries__word-search-ii": {
+    "title": "Word Search II",
+    "topic": "Tries",
+    "subtopic": "Tries",
+    "difficulty": "Hard",
+    "pattern": "Build a Trie of words, then DFS the board pruning by Trie edges",
+    "notes": "",
+    "statement": "Given an `m x n` board of characters and a list of `words`, return all words that can be formed by a sequence of adjacent (up/down/left/right) cells, where each cell is used at most once per word.",
+    "examples": [
+      {
+        "input": "board = [[\"o\",\"a\",\"a\",\"n\"],[\"e\",\"t\",\"a\",\"e\"],[\"i\",\"h\",\"k\",\"r\"],[\"i\",\"f\",\"l\",\"v\"]], words = [\"oath\",\"pea\",\"eat\",\"rain\"]",
+        "output": "[\"eat\",\"oath\"]",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "1 <= m, n <= 12",
+      "1 <= words.length <= 3*10^4",
+      "1 <= words[i].length <= 10",
+      "board[i][j] and words[i] consist of lowercase English letters"
+    ],
+    "approaches": [
+      {
+        "name": "Trie + backtracking DFS on the board",
+        "idea": "Insert all words into a Trie, storing the full word at its terminal node. Run DFS from every cell, advancing simultaneously through the board and the Trie; prune instantly when the current letter has no matching Trie child. When a node holds a word, collect it and null it out to avoid duplicates. Sharing prefixes across words in the Trie is what makes this far faster than searching each word independently.",
+        "time": "O(m*n*4^L) worst case where L is max word length, but heavily pruned by the Trie",
+        "space": "O(total characters in words)",
+        "code": "class TrieNode {\n    TrieNode[] children = new TrieNode[26];\n    String word = null;\n}\n\npublic List<String> findWords(char[][] board, String[] words) {\n    TrieNode root = new TrieNode();\n    for (String w : words) {\n        TrieNode node = root;\n        for (char c : w.toCharArray()) {\n            int idx = c - 'a';\n            if (node.children[idx] == null) node.children[idx] = new TrieNode();\n            node = node.children[idx];\n        }\n        node.word = w;\n    }\n    List<String> res = new ArrayList<>();\n    for (int i = 0; i < board.length; i++)\n        for (int j = 0; j < board[0].length; j++)\n            dfs(board, i, j, root, res);\n    return res;\n}\n\nprivate void dfs(char[][] board, int i, int j, TrieNode node, List<String> res) {\n    char c = board[i][j];\n    if (c == '#' || node.children[c - 'a'] == null) return;\n    node = node.children[c - 'a'];\n    if (node.word != null) {\n        res.add(node.word);\n        node.word = null; // dedup\n    }\n    board[i][j] = '#';\n    if (i > 0) dfs(board, i - 1, j, node, res);\n    if (i + 1 < board.length) dfs(board, i + 1, j, node, res);\n    if (j > 0) dfs(board, i, j - 1, node, res);\n    if (j + 1 < board[0].length) dfs(board, i, j + 1, node, res);\n    board[i][j] = c;\n}"
+      }
+    ],
+    "insight": "Flip the search: put the dictionary in a Trie and walk the board once, letting Trie edges prune dead branches."
+  },
+  "tries__design-add-and-search-words": {
+    "title": "Design Add and Search Words",
+    "topic": "Tries",
+    "subtopic": "Tries",
+    "difficulty": "Medium",
+    "pattern": "Trie with DFS wildcard matching",
+    "notes": "",
+    "statement": "Design a data structure that supports `addWord(word)` and `search(word)`, where `search` may contain the wildcard `'.'` that matches any single letter. Return whether any added word matches.",
+    "examples": [
+      {
+        "input": "addWord(\"bad\"); addWord(\"dad\"); search(\"b..\"); search(\".ad\")",
+        "output": "true; true",
+        "explanation": "\"b..\" matches \"bad\"; \".ad\" matches \"bad\" and \"dad\""
+      }
+    ],
+    "constraints": [
+      "1 <= word.length <= 25",
+      "word in addWord consists of lowercase English letters",
+      "word in search consists of '.' or lowercase English letters",
+      "At most 10^4 calls to addWord and search"
+    ],
+    "approaches": [
+      {
+        "name": "Trie with recursive wildcard search",
+        "idea": "Store words in a standard 26-way Trie. Search recursively: a normal letter follows the single matching child, while `'.'` branches into every non-null child and succeeds if any branch matches the remainder. Recursion depth is bounded by word length, so wildcards only fan out where they appear.",
+        "time": "O(n) per addWord; per search O(n) with no dots, up to O(26^d * n) with d dots",
+        "space": "O(total characters added) plus O(word length) recursion stack",
+        "code": "class WordDictionary {\n    private static class TrieNode {\n        TrieNode[] children = new TrieNode[26];\n        boolean isWord = false;\n    }\n    private final TrieNode root = new TrieNode();\n\n    public WordDictionary() {}\n\n    public void addWord(String word) {\n        TrieNode node = root;\n        for (char c : word.toCharArray()) {\n            int idx = c - 'a';\n            if (node.children[idx] == null) node.children[idx] = new TrieNode();\n            node = node.children[idx];\n        }\n        node.isWord = true;\n    }\n\n    public boolean search(String word) {\n        return dfs(word, 0, root);\n    }\n\n    private boolean dfs(String word, int i, TrieNode node) {\n        if (node == null) return false;\n        if (i == word.length()) return node.isWord;\n        char c = word.charAt(i);\n        if (c == '.') {\n            for (TrieNode child : node.children)\n                if (dfs(word, i + 1, child)) return true;\n            return false;\n        }\n        return dfs(word, i + 1, node.children[c - 'a']);\n    }\n}"
+      }
+    ],
+    "insight": "A '.' in the query means try every child; everything else is an ordinary Trie walk."
+  },
+  "tries__maximum-xor-of-two-numbers-in-an-array": {
+    "title": "Maximum XOR of Two Numbers in an Array",
+    "topic": "Tries",
+    "subtopic": "Tries",
+    "difficulty": "Medium",
+    "pattern": "Binary (bitwise) Trie, greedily pick opposite bits",
+    "notes": "",
+    "statement": "Given an integer array `nums`, return the maximum value of `nums[i] XOR nums[j]` over all pairs `i, j`.",
+    "examples": [
+      {
+        "input": "nums = [3,10,5,25,2,8]",
+        "output": "28",
+        "explanation": "5 XOR 25 = 28"
+      }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 2*10^5",
+      "0 <= nums[i] <= 2^31 - 1"
+    ],
+    "approaches": [
+      {
+        "name": "Binary Trie of bits, greedy per bit",
+        "idea": "Insert every number into a binary Trie from the most significant bit down. For each number, greedily walk the Trie choosing the opposite bit whenever available, which maximizes that bit of the XOR; if the opposite child is missing, take the same bit. Each query builds the best possible partner one bit at a time, giving the global maximum in O(32) per number.",
+        "time": "O(32n)",
+        "space": "O(32n)",
+        "code": "class TrieNode {\n    TrieNode[] children = new TrieNode[2];\n}\n\npublic int findMaximumXOR(int[] nums) {\n    TrieNode root = new TrieNode();\n    for (int num : nums) insert(root, num);\n    int max = 0;\n    for (int num : nums) max = Math.max(max, query(root, num));\n    return max;\n}\n\nprivate void insert(TrieNode root, int num) {\n    TrieNode node = root;\n    for (int i = 31; i >= 0; i--) {\n        int bit = (num >> i) & 1;\n        if (node.children[bit] == null) node.children[bit] = new TrieNode();\n        node = node.children[bit];\n    }\n}\n\nprivate int query(TrieNode root, int num) {\n    TrieNode node = root;\n    int xor = 0;\n    for (int i = 31; i >= 0; i--) {\n        int bit = (num >> i) & 1;\n        int want = 1 - bit; // prefer opposite bit to maximize XOR\n        if (node.children[want] != null) {\n            xor |= (1 << i);\n            node = node.children[want];\n        } else {\n            node = node.children[bit];\n        }\n    }\n    return xor;\n}"
+      }
+    ],
+    "insight": "Store numbers as bit-paths in a binary Trie and greedily chase the opposite bit at each level."
+  },
+  "tries__maximum-xor-with-an-element-from-array": {
+    "title": "Maximum XOR With an Element From Array",
+    "topic": "Tries",
+    "subtopic": "Tries",
+    "difficulty": "Hard",
+    "pattern": "Offline queries sorted by limit + incremental binary Trie",
+    "notes": "",
+    "statement": "Given `nums` and queries `queries[i] = [xi, mi]`, for each query return the maximum `xi XOR nums[j]` over all `nums[j] <= mi`, or `-1` if no such element exists.",
+    "examples": [
+      {
+        "input": "nums = [0,1,2,3,4], queries = [[3,1],[1,3],[5,6]]",
+        "output": "[3,3,7]",
+        "explanation": "For [3,1]: candidates {0,1}, max 3^0=3. For [1,3]: {0,1,2,3}, max 1^2=3. For [5,6]: all, max 5^2=7"
+      }
+    ],
+    "constraints": [
+      "1 <= nums.length, queries.length <= 10^5",
+      "0 <= nums[j], xi, mi <= 10^9"
+    ],
+    "approaches": [
+      {
+        "name": "Sort queries by mi, add eligible numbers to a binary Trie",
+        "idea": "Sort `nums` ascending and process queries in increasing order of the cap `mi`. Maintain a pointer that inserts numbers `<= mi` into a binary Trie, so the Trie always holds exactly the eligible candidates for the current query. Then answer each query with the same greedy opposite-bit walk as basic Maximum XOR; if nothing was inserted yet, the answer is `-1`.",
+        "time": "O((n + q) * 32 + q log q)",
+        "space": "O(32n)",
+        "code": "class TrieNode {\n    TrieNode[] children = new TrieNode[2];\n}\n\npublic int[] maximizeXor(int[] nums, int[][] queries) {\n    Arrays.sort(nums);\n    int q = queries.length;\n    Integer[] order = new Integer[q];\n    for (int i = 0; i < q; i++) order[i] = i;\n    Arrays.sort(order, (a, b) -> Integer.compare(queries[a][1], queries[b][1]));\n    int[] ans = new int[q];\n    TrieNode root = new TrieNode();\n    int idx = 0;\n    for (int oi : order) {\n        int x = queries[oi][0], m = queries[oi][1];\n        while (idx < nums.length && nums[idx] <= m) insert(root, nums[idx++]);\n        ans[oi] = (idx == 0) ? -1 : query(root, x);\n    }\n    return ans;\n}\n\nprivate void insert(TrieNode root, int num) {\n    TrieNode node = root;\n    for (int i = 31; i >= 0; i--) {\n        int bit = (num >> i) & 1;\n        if (node.children[bit] == null) node.children[bit] = new TrieNode();\n        node = node.children[bit];\n    }\n}\n\nprivate int query(TrieNode root, int num) {\n    TrieNode node = root;\n    int xor = 0;\n    for (int i = 31; i >= 0; i--) {\n        int bit = (num >> i) & 1;\n        int want = 1 - bit;\n        if (node.children[want] != null) {\n            xor |= (1 << i);\n            node = node.children[want];\n        } else {\n            node = node.children[bit];\n        }\n    }\n    return xor;\n}"
+      }
+    ],
+    "insight": "The `<= mi` constraint becomes trivial if you answer queries offline in increasing mi, growing the Trie monotonically."
+  },
+  "tries__concatenated-words": {
+    "title": "Concatenated Words",
+    "topic": "Tries",
+    "subtopic": "Tries",
+    "difficulty": "Hard",
+    "pattern": "Trie of shorter words + word-break DP",
+    "notes": "",
+    "statement": "Given an array of distinct `words`, return all words that are concatenations of at least two words from the same array.",
+    "examples": [
+      {
+        "input": "words = [\"cat\",\"cats\",\"catsdogcats\",\"dog\",\"dogcatsdog\",\"hippopotamuses\",\"rat\",\"ratcatdogcat\"]",
+        "output": "[\"catsdogcats\",\"dogcatsdog\",\"ratcatdogcat\"]",
+        "explanation": "\"catsdogcats\" = \"cats\"+\"dog\"+\"cats\""
+      }
+    ],
+    "constraints": [
+      "1 <= words.length <= 10^4",
+      "1 <= sum of words[i].length <= 10^5",
+      "words[i] consists of lowercase English letters",
+      "All words are distinct"
+    ],
+    "approaches": [
+      {
+        "name": "Sort by length, Trie of processed words, DP break",
+        "idea": "Sort words by length so any concatenation is built only from strictly shorter words already inserted into a Trie. For each word run a word-break DP over the Trie: `dp[i]` means the prefix of length `i` is decomposable; extend from every reachable position by walking Trie edges and marking `dp[j+1]` at each word-terminal. Because building blocks are strictly shorter, reaching the end guarantees at least two pieces.",
+        "time": "O(n log n + sum(L^2)) where L is word length",
+        "space": "O(total characters)",
+        "code": "class TrieNode {\n    TrieNode[] children = new TrieNode[26];\n    boolean isWord = false;\n}\nprivate final TrieNode root = new TrieNode();\n\npublic List<String> findAllConcatenatedWordsInADict(String[] words) {\n    Arrays.sort(words, (a, b) -> a.length() - b.length());\n    List<String> res = new ArrayList<>();\n    for (String w : words) {\n        if (w.isEmpty()) continue;\n        if (canForm(w)) res.add(w);\n        insert(w); // insert after checking so a word never builds itself\n    }\n    return res;\n}\n\nprivate void insert(String w) {\n    TrieNode node = root;\n    for (char c : w.toCharArray()) {\n        int idx = c - 'a';\n        if (node.children[idx] == null) node.children[idx] = new TrieNode();\n        node = node.children[idx];\n    }\n    node.isWord = true;\n}\n\nprivate boolean canForm(String w) {\n    int n = w.length();\n    boolean[] dp = new boolean[n + 1];\n    dp[0] = true;\n    for (int i = 0; i < n; i++) {\n        if (!dp[i]) continue;\n        TrieNode node = root;\n        for (int j = i; j < n; j++) {\n            node = node.children[w.charAt(j) - 'a'];\n            if (node == null) break;\n            if (node.isWord) dp[j + 1] = true;\n        }\n    }\n    return dp[n];\n}"
+      }
+    ],
+    "insight": "Insert words shortest-first and break each against the Trie; if it splits at all, it splits into >= 2 pieces."
+  },
+  "tries__palindrome-pairs": {
+    "title": "Palindrome Pairs",
+    "topic": "Tries",
+    "subtopic": "Tries",
+    "difficulty": "Hard",
+    "pattern": "Hash map of words + palindrome split analysis",
+    "notes": "",
+    "statement": "Given a list of unique `words`, return all pairs of distinct indices `(i, j)` such that `words[i] + words[j]` is a palindrome.",
+    "examples": [
+      {
+        "input": "words = [\"abcd\",\"dcba\",\"lls\",\"s\",\"sssll\"]",
+        "output": "[[0,1],[1,0],[3,2],[2,4]]",
+        "explanation": "[\"dcbaabcd\",\"abcddcba\",\"slls\",\"llssssll\"]"
+      }
+    ],
+    "constraints": [
+      "1 <= words.length <= 5000",
+      "0 <= words[i].length <= 300",
+      "words[i] consists of lowercase English letters"
+    ],
+    "approaches": [
+      {
+        "name": "Map lookup on palindromic splits",
+        "idea": "Map each word to its index. For a word `w`, try every split `w = left + right`. If `left` is a palindrome and the reverse of `right` exists as another word `k`, then `k + w` is a palindrome (pair `[k, i]`). Symmetrically, if `right` is a palindrome and the reverse of `left` exists as word `k`, then `w + k` is a palindrome (pair `[i, k]`). Guarding the second case with `j != n` prevents counting the same pair twice while still handling empty strings.",
+        "time": "O(n * k^2) where k is max word length",
+        "space": "O(n * k)",
+        "code": "public List<List<Integer>> palindromePairs(String[] words) {\n    Map<String, Integer> map = new HashMap<>();\n    for (int i = 0; i < words.length; i++) map.put(words[i], i);\n    List<List<Integer>> res = new ArrayList<>();\n    for (int i = 0; i < words.length; i++) {\n        String w = words[i];\n        int n = w.length();\n        for (int j = 0; j <= n; j++) {\n            String left = w.substring(0, j);\n            String right = w.substring(j);\n            if (isPalindrome(left)) {\n                String rev = new StringBuilder(right).reverse().toString();\n                Integer k = map.get(rev);\n                if (k != null && k != i) res.add(Arrays.asList(k, i));\n            }\n            if (j != n && isPalindrome(right)) {\n                String rev = new StringBuilder(left).reverse().toString();\n                Integer k = map.get(rev);\n                if (k != null && k != i) res.add(Arrays.asList(i, k));\n            }\n        }\n    }\n    return res;\n}\n\nprivate boolean isPalindrome(String s) {\n    int l = 0, r = s.length() - 1;\n    while (l < r) if (s.charAt(l++) != s.charAt(r--)) return false;\n    return true;\n}"
+      }
+    ],
+    "insight": "Split each word; a palindromic half plus the reversed other half found in the map gives a pair (the reversed-suffix Trie is the O(n*k) alternative)."
+  },
+  "tries__stream-of-characters": {
+    "title": "Stream of Characters",
+    "topic": "Tries",
+    "subtopic": "Tries",
+    "difficulty": "Hard",
+    "pattern": "Trie of reversed words, match the stream backwards",
+    "notes": "",
+    "statement": "Implement `StreamChecker(words)` and `query(letter)` that returns `true` if some word in `words` is a suffix of the characters queried so far.",
+    "examples": [
+      {
+        "input": "StreamChecker([\"cd\",\"f\",\"kl\"]); query(\"a\"),query(\"b\"),query(\"c\"),query(\"d\")",
+        "output": "false,false,false,true",
+        "explanation": "After \"d\" the stream ends with \"cd\""
+      }
+    ],
+    "constraints": [
+      "1 <= words.length <= 2000",
+      "1 <= words[i].length <= 200",
+      "words[i] consists of lowercase English letters",
+      "1 <= letter is a lowercase English letter",
+      "At most 4*10^4 calls to query"
+    ],
+    "approaches": [
+      {
+        "name": "Reversed-word Trie matched from newest char backward",
+        "idea": "Insert each word reversed into a Trie. Keep the running stream; on each query walk the Trie from the most recent character backward, which matches word suffixes. Stop early once you pass `maxLen` characters or fall off the Trie, and return `true` as soon as a terminal node is reached.",
+        "time": "O(maxWordLength) per query",
+        "space": "O(total characters in words)",
+        "code": "class StreamChecker {\n    private static class TrieNode {\n        TrieNode[] children = new TrieNode[26];\n        boolean isWord = false;\n    }\n    private final TrieNode root = new TrieNode();\n    private final StringBuilder sb = new StringBuilder();\n    private int maxLen = 0;\n\n    public StreamChecker(String[] words) {\n        for (String w : words) {\n            maxLen = Math.max(maxLen, w.length());\n            TrieNode node = root;\n            for (int i = w.length() - 1; i >= 0; i--) {\n                int idx = w.charAt(i) - 'a';\n                if (node.children[idx] == null) node.children[idx] = new TrieNode();\n                node = node.children[idx];\n            }\n            node.isWord = true;\n        }\n    }\n\n    public boolean query(char letter) {\n        sb.append(letter);\n        TrieNode node = root;\n        for (int i = sb.length() - 1; i >= 0 && i >= sb.length() - maxLen; i--) {\n            int idx = sb.charAt(i) - 'a';\n            if (node.children[idx] == null) return false;\n            node = node.children[idx];\n            if (node.isWord) return true;\n        }\n        return false;\n    }\n}"
+      }
+    ],
+    "insight": "Suffix matching becomes prefix matching if you store words reversed and read the stream backward."
+  },
+  "tries__word-squares": {
+    "title": "Word Squares",
+    "topic": "Tries",
+    "subtopic": "Tries",
+    "difficulty": "Hard",
+    "pattern": "Trie prefix index + backtracking",
+    "notes": "",
+    "statement": "Given a list of unique `words` all of the same length, return all word squares that can be built. A sequence of words forms a word square if the k-th row and k-th column read the same string, for every k.",
+    "examples": [
+      {
+        "input": "words = [\"area\",\"lead\",\"wall\",\"lady\",\"ball\"]",
+        "output": "[[\"ball\",\"area\",\"lead\",\"lady\"],[\"wall\",\"area\",\"lead\",\"lady\"]]",
+        "explanation": "Each row equals the corresponding column"
+      }
+    ],
+    "constraints": [
+      "1 <= words.length <= 1000",
+      "1 <= words[i].length <= 4",
+      "All words[i] have the same length",
+      "words[i] consists of lowercase English letters",
+      "All words[i] are unique"
+    ],
+    "approaches": [
+      {
+        "name": "Trie prefix lookup with row-by-row backtracking",
+        "idea": "Build a Trie where every node stores the indices of words passing through it, giving O(1)-ish prefix-to-candidates lookup. Fill the square row by row: when placing row `step`, the required prefix is the column formed by the already-placed rows' characters at position `step`. Query the Trie for words with that prefix, recurse, and backtrack. This prunes the search dramatically versus trying all word orderings.",
+        "time": "O(n * 26^L * L) worst case, but prefix pruning makes it fast in practice",
+        "space": "O(n * L) for the Trie",
+        "code": "class TrieNode {\n    TrieNode[] children = new TrieNode[26];\n    List<Integer> indices = new ArrayList<>();\n}\nprivate TrieNode root;\nprivate String[] words;\n\npublic List<List<String>> wordSquares(String[] words) {\n    this.words = words;\n    root = new TrieNode();\n    for (int i = 0; i < words.length; i++) insert(words[i], i);\n    List<List<String>> res = new ArrayList<>();\n    int n = words[0].length();\n    List<String> square = new ArrayList<>();\n    for (String w : words) {\n        square.add(w);\n        backtrack(1, n, square, res);\n        square.remove(square.size() - 1);\n    }\n    return res;\n}\n\nprivate void insert(String w, int index) {\n    TrieNode node = root;\n    for (char c : w.toCharArray()) {\n        int idx = c - 'a';\n        if (node.children[idx] == null) node.children[idx] = new TrieNode();\n        node = node.children[idx];\n        node.indices.add(index);\n    }\n}\n\nprivate List<Integer> startsWith(String prefix) {\n    TrieNode node = root;\n    for (char c : prefix.toCharArray()) {\n        int idx = c - 'a';\n        if (node.children[idx] == null) return new ArrayList<>();\n        node = node.children[idx];\n    }\n    return node.indices;\n}\n\nprivate void backtrack(int step, int n, List<String> square, List<List<String>> res) {\n    if (step == n) {\n        res.add(new ArrayList<>(square));\n        return;\n    }\n    StringBuilder prefix = new StringBuilder();\n    for (int i = 0; i < step; i++) prefix.append(square.get(i).charAt(step));\n    for (int index : startsWith(prefix.toString())) {\n        square.add(words[index]);\n        backtrack(step + 1, n, square, res);\n        square.remove(square.size() - 1);\n    }\n}"
+      }
+    ],
+    "insight": "Rows and columns must agree, so the next row's prefix is fixed by prior rows; a Trie turns that prefix into an instant candidate list."
+  },
+  "tries__replace-words": {
+    "title": "Replace Words",
+    "topic": "Tries",
+    "subtopic": "Tries",
+    "difficulty": "Medium",
+    "pattern": "Trie of roots, replace each word by its shortest root prefix",
+    "notes": "",
+    "statement": "Given a `dictionary` of root words and a `sentence`, replace every word in the sentence that has a root prefix in the dictionary with the shortest such root. Return the resulting sentence.",
+    "examples": [
+      {
+        "input": "dictionary = [\"cat\",\"bat\",\"rat\"], sentence = \"the cattle was rattled by the battery\"",
+        "output": "\"the cat was rat by the bat\"",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "1 <= dictionary.length <= 1000",
+      "1 <= dictionary[i].length <= 100",
+      "1 <= sentence words <= 1000",
+      "sentence consists of lowercase letters and single spaces"
+    ],
+    "approaches": [
+      {
+        "name": "Trie of roots, first terminal wins",
+        "idea": "Insert all roots into a Trie. For each word in the sentence, walk the Trie character by character and return the prefix at the first terminal node encountered, which is by construction the shortest matching root. If the walk falls off the Trie, keep the original word.",
+        "time": "O(total characters in dictionary + sentence)",
+        "space": "O(total characters in dictionary)",
+        "code": "class TrieNode {\n    TrieNode[] children = new TrieNode[26];\n    boolean isEnd = false;\n}\n\npublic String replaceWords(List<String> dictionary, String sentence) {\n    TrieNode root = new TrieNode();\n    for (String r : dictionary) {\n        TrieNode node = root;\n        for (char c : r.toCharArray()) {\n            int idx = c - 'a';\n            if (node.children[idx] == null) node.children[idx] = new TrieNode();\n            node = node.children[idx];\n        }\n        node.isEnd = true;\n    }\n    String[] words = sentence.split(\" \");\n    StringBuilder sb = new StringBuilder();\n    for (int w = 0; w < words.length; w++) {\n        if (w > 0) sb.append(' ');\n        sb.append(shortestRoot(words[w], root));\n    }\n    return sb.toString();\n}\n\nprivate String shortestRoot(String word, TrieNode root) {\n    TrieNode node = root;\n    for (int i = 0; i < word.length(); i++) {\n        int idx = word.charAt(i) - 'a';\n        if (node.children[idx] == null) return word;\n        node = node.children[idx];\n        if (node.isEnd) return word.substring(0, i + 1);\n    }\n    return word;\n}"
+      }
+    ],
+    "insight": "Walk each word down a Trie of roots and stop at the first word-end, which is automatically the shortest root."
+  },
+  "tries__count-pairs-with-xor-in-a-range": {
+    "title": "Count Pairs With XOR in a Range",
+    "topic": "Tries",
+    "subtopic": "Tries",
+    "difficulty": "Very Hard",
+    "pattern": "Binary Trie with subtree counts; count(<=high) - count(<low)",
+    "notes": "",
+    "statement": "Given `nums` and integers `low` and `high`, count pairs `(i, j)` with `i < j` such that `low <= nums[i] XOR nums[j] <= high`.",
+    "examples": [
+      {
+        "input": "nums = [1,4,2,7], low = 2, high = 6",
+        "output": "6",
+        "explanation": "Pairs with xor in [2,6]: (1,4)=5,(1,2)=3,(1,7)=6,(4,2)=6,(4,7)=3,(2,7)=5"
+      }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 2*10^4",
+      "1 <= nums[i] <= 2*10^4",
+      "1 <= low <= high <= 2*10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Binary Trie with counts, reduce range to two prefix counts",
+        "idea": "Answer = f(high+1) - f(low), where f(limit) counts pairs with XOR strictly less than limit. Process numbers left to right in a binary Trie whose nodes carry subtree counts; for each new number add (against already-inserted values) the count of partners giving XOR < high+1 minus those giving XOR < low, then insert it. To count partners with `num ^ v < limit`: at each bit, if the limit bit is 1, every partner keeping that XOR bit 0 is definitely smaller so add that whole subtree, then descend the branch that keeps the prefix tight; if the limit bit is 0, only the XOR-bit-0 branch can stay smaller, so descend there.",
+        "time": "O(n * B) where B = 15 bits",
+        "space": "O(n * B)",
+        "code": "private static final int HIGH = 15; // 2*10^4 < 2^15\n\nclass TrieNode {\n    TrieNode[] children = new TrieNode[2];\n    int count = 0;\n}\n\npublic int countPairs(int[] nums, int low, int high) {\n    TrieNode root = new TrieNode();\n    int result = 0;\n    for (int num : nums) {\n        result += countSmaller(root, num, high + 1) - countSmaller(root, num, low);\n        insert(root, num);\n    }\n    return result;\n}\n\nprivate void insert(TrieNode root, int num) {\n    TrieNode node = root;\n    for (int i = HIGH - 1; i >= 0; i--) {\n        int bit = (num >> i) & 1;\n        if (node.children[bit] == null) node.children[bit] = new TrieNode();\n        node = node.children[bit];\n        node.count++;\n    }\n}\n\n// count of already-inserted v with (num ^ v) < limit\nprivate int countSmaller(TrieNode root, int num, int limit) {\n    TrieNode node = root;\n    int count = 0;\n    for (int i = HIGH - 1; i >= 0 && node != null; i--) {\n        int numBit = (num >> i) & 1;\n        int limitBit = (limit >> i) & 1;\n        if (limitBit == 1) {\n            if (node.children[numBit] != null) count += node.children[numBit].count; // xor bit 0 < 1\n            node = node.children[numBit ^ 1]; // keep prefix equal (xor bit 1)\n        } else {\n            node = node.children[numBit]; // xor bit must be 0 to stay smaller\n        }\n    }\n    return count;\n}"
+      }
+    ],
+    "insight": "Range XOR count = (pairs with XOR < high+1) - (pairs with XOR < low), and each is a single Trie descent using subtree counts."
+  }
+}

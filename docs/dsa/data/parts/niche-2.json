@@ -1,0 +1,355 @@
+{
+  "niche-advanced__sliding-window-maximum": {
+    "title": "Sliding Window Maximum",
+    "topic": "Niche / Advanced",
+    "subtopic": "Monotonic Deque",
+    "difficulty": "Hard",
+    "pattern": "Monotonic decreasing deque of indices",
+    "notes": "",
+    "statement": "Return the maximum of every contiguous window of size `k` as it slides from left to right across `nums`.",
+    "examples": [
+      { "input": "nums = [1,3,-1,-3,5,3,6,7], k = 3", "output": "[3,3,5,5,6,7]", "explanation": "Each window's maximum, in order." }
+    ],
+    "constraints": [
+      "1 <= n <= 10^5",
+      "1 <= k <= n",
+      "-10^4 <= nums[i] <= 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Deque of indices, decreasing values",
+        "idea": "Maintain indices whose values are in decreasing order. For each `i`, pop from the back while the back's value `<= nums[i]` (a smaller value behind a larger one can never be the max again), push `i`, then pop the front if it has slid outside the window (`<= i-k`). The front index always holds the current window's max.",
+        "time": "O(n)",
+        "space": "O(k)",
+        "code": "public int[] maxSlidingWindow(int[] nums, int k) {\n    int n = nums.length;\n    int[] res = new int[n - k + 1];\n    Deque<Integer> dq = new ArrayDeque<>();       // indices, values decreasing\n    for (int i = 0; i < n; i++) {\n        while (!dq.isEmpty() && nums[dq.peekLast()] <= nums[i]) dq.pollLast();\n        dq.offerLast(i);\n        if (dq.peekFirst() <= i - k) dq.pollFirst();\n        if (i >= k - 1) res[i - k + 1] = nums[dq.peekFirst()];\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "Store indices, keep values monotonically decreasing. A smaller value behind a larger one is useless, so pop it. Front = max; evict it when it slides out of the window."
+  },
+  "niche-advanced__shortest-subarray-with-sum-at-least-k": {
+    "title": "Shortest Subarray with Sum at Least K",
+    "topic": "Niche / Advanced",
+    "subtopic": "Monotonic Deque",
+    "difficulty": "Hard",
+    "pattern": "Prefix sums + monotonic increasing deque",
+    "notes": "",
+    "statement": "Given an integer array `nums` (which may contain negatives) and an integer `k`, return the length of the shortest non-empty contiguous subarray whose sum is at least `k`. Return `-1` if no such subarray exists.",
+    "examples": [
+      { "input": "nums = [2,-1,2], k = 3", "output": "3", "explanation": "The whole array sums to 3." },
+      { "input": "nums = [1,2], k = 4", "output": "-1", "explanation": "No subarray reaches 4." }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 10^5",
+      "-10^5 <= nums[i] <= 10^5",
+      "1 <= k <= 10^9"
+    ],
+    "approaches": [
+      {
+        "name": "Monotonic deque over prefix sums",
+        "idea": "Let `prefix[i]` be the sum of the first `i` elements. A subarray `(j, i]` has sum `prefix[i] - prefix[j] >= k`. Keep a deque of candidate indices with increasing prefix values. For each `i`: from the front, while `prefix[i] - prefix[front] >= k`, record `i - front` and pop the front (it can never give a shorter answer later). From the back, drop indices whose prefix is `>= prefix[i]` (they are dominated: `i` is both later and smaller). Push `i`.",
+        "time": "O(n)",
+        "space": "O(n)",
+        "code": "public int shortestSubarray(int[] nums, int k) {\n    int n = nums.length;\n    long[] prefix = new long[n + 1];\n    for (int i = 0; i < n; i++) prefix[i + 1] = prefix[i] + nums[i];\n    int res = n + 1;\n    Deque<Integer> dq = new ArrayDeque<>();       // prefix indices, prefix values increasing\n    for (int i = 0; i <= n; i++) {\n        while (!dq.isEmpty() && prefix[i] - prefix[dq.peekFirst()] >= k)\n            res = Math.min(res, i - dq.pollFirst());\n        while (!dq.isEmpty() && prefix[dq.peekLast()] >= prefix[i]) dq.pollLast();\n        dq.offerLast(i);\n    }\n    return res <= n ? res : -1;\n}"
+      }
+    ],
+    "insight": "Negatives break the plain sliding window, so work on prefix sums with a deque kept increasing: pop the front greedily once the window qualifies, pop the back to discard dominated (larger, earlier) prefixes."
+  },
+  "niche-advanced__constrained-subsequence-sum": {
+    "title": "Constrained Subsequence Sum",
+    "topic": "Niche / Advanced",
+    "subtopic": "Monotonic Deque",
+    "difficulty": "Hard",
+    "pattern": "DP with sliding-window-maximum deque",
+    "notes": "",
+    "statement": "Return the maximum sum of a non-empty subsequence of `nums` such that for every two consecutive chosen elements at indices `i < j`, the constraint `j - i <= k` holds.",
+    "examples": [
+      { "input": "nums = [10,2,-10,5,20], k = 2", "output": "37", "explanation": "Choose 10, 2, 5, 20." },
+      { "input": "nums = [-1,-2,-3], k = 1", "output": "-1", "explanation": "Pick the single largest element." }
+    ],
+    "constraints": [
+      "1 <= k <= nums.length <= 10^5",
+      "-10^4 <= nums[i] <= 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "DP over a window maximum",
+        "idea": "Let `dp[i]` be the best subsequence sum ending exactly at `i`. Then `dp[i] = nums[i] + max(0, max(dp[i-k..i-1]))` — extend the best qualifying earlier ending, or start fresh if all are negative. The `max` over the last `k` dp values is a sliding-window maximum, maintained with a decreasing deque of indices. Answer is the max dp value.",
+        "time": "O(n)",
+        "space": "O(n)",
+        "code": "public int constrainedSubsetSum(int[] nums, int k) {\n    int n = nums.length;\n    int[] dp = new int[n];\n    Deque<Integer> dq = new ArrayDeque<>();       // indices, dp values decreasing\n    int res = Integer.MIN_VALUE;\n    for (int i = 0; i < n; i++) {\n        while (!dq.isEmpty() && dq.peekFirst() < i - k) dq.pollFirst();\n        int best = dq.isEmpty() ? 0 : Math.max(0, dp[dq.peekFirst()]);\n        dp[i] = nums[i] + best;\n        res = Math.max(res, dp[i]);\n        while (!dq.isEmpty() && dp[dq.peekLast()] <= dp[i]) dq.pollLast();\n        dq.offerLast(i);\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "It is Jump Game VI's recurrence plus a `max(0, ...)` — you may always drop a negative prefix and restart, so clamp the inherited best at zero."
+  },
+  "niche-advanced__jump-game-vi": {
+    "title": "Jump Game VI",
+    "topic": "Niche / Advanced",
+    "subtopic": "Monotonic Deque",
+    "difficulty": "Hard",
+    "pattern": "DP with sliding-window-maximum deque",
+    "notes": "",
+    "statement": "You start at index 0 of `nums` and want to reach the last index. From index `i` you may jump to any index in `[i+1, i+k]` that is within bounds. Your score is the sum of `nums` over all visited indices (including start and end). Return the maximum score.",
+    "examples": [
+      { "input": "nums = [1,-1,-2,4,-7,3], k = 2", "output": "7", "explanation": "Path 0 -> 1 -> 3 -> 5 gives 1 + (-1) + 4 + 3 = 7." },
+      { "input": "nums = [10,-5,-2,4,0,3], k = 3", "output": "17", "explanation": "Path 0 -> 3 -> 5 gives 10 + 4 + 3 = 17." }
+    ],
+    "constraints": [
+      "1 <= nums.length, k <= 10^5",
+      "-10^4 <= nums[i] <= 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "DP over a window maximum",
+        "idea": "Let `dp[i]` be the best score to reach index `i`. Since `i` is reachable from any of `[i-k, i-1]`, `dp[i] = nums[i] + max(dp[i-k..i-1])`. Maintain that window maximum with a decreasing deque of indices, evicting the front once it falls out of range. Answer is `dp[n-1]`.",
+        "time": "O(n)",
+        "space": "O(n)",
+        "code": "public int maxResult(int[] nums, int k) {\n    int n = nums.length;\n    int[] dp = new int[n];\n    dp[0] = nums[0];\n    Deque<Integer> dq = new ArrayDeque<>();       // indices, dp values decreasing\n    dq.offerLast(0);\n    for (int i = 1; i < n; i++) {\n        while (!dq.isEmpty() && dq.peekFirst() < i - k) dq.pollFirst();\n        dp[i] = nums[i] + dp[dq.peekFirst()];\n        while (!dq.isEmpty() && dp[dq.peekLast()] <= dp[i]) dq.pollLast();\n        dq.offerLast(i);\n    }\n    return dp[n - 1];\n}"
+      }
+    ],
+    "insight": "Reaching `i` means extending the best of the previous `k` cells; the sliding-window maximum over `dp` collapses an O(nk) DP to O(n)."
+  },
+  "niche-advanced__largest-rectangle": {
+    "title": "Largest Rectangle",
+    "topic": "Niche / Advanced",
+    "subtopic": "Monotonic Deque",
+    "difficulty": "Hard",
+    "pattern": "Monotonic increasing stack (largest rectangle in histogram)",
+    "notes": "",
+    "statement": "Given `heights` representing the bar heights of a histogram (each bar of width 1), return the area of the largest rectangle that fits entirely within the histogram.",
+    "examples": [
+      { "input": "heights = [2,1,5,6,2,3]", "output": "10", "explanation": "Bars of heights 5 and 6 form a 5x2 rectangle." },
+      { "input": "heights = [2,4]", "output": "4", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= heights.length <= 10^5",
+      "0 <= heights[i] <= 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Monotonic increasing stack",
+        "idea": "Keep a stack of indices with increasing heights. When the current bar is lower than the stack top, that top bar cannot extend further right, so pop it and compute the rectangle it anchors: its height times the width spanning from the element now below it (exclusive left boundary) to the current index. A sentinel height of 0 at the end flushes everything. The maximum over all popped bars is the answer.",
+        "time": "O(n)",
+        "space": "O(n)",
+        "code": "public int largestRectangleArea(int[] heights) {\n    int n = heights.length;\n    Deque<Integer> stack = new ArrayDeque<>();    // indices, heights increasing\n    int maxArea = 0;\n    for (int i = 0; i <= n; i++) {\n        int h = (i == n) ? 0 : heights[i];\n        while (!stack.isEmpty() && heights[stack.peek()] >= h) {\n            int height = heights[stack.pop()];\n            int left = stack.isEmpty() ? -1 : stack.peek();\n            int width = i - left - 1;\n            maxArea = Math.max(maxArea, height * width);\n        }\n        stack.push(i);\n    }\n    return maxArea;\n}"
+      }
+    ],
+    "insight": "For each bar, the widest rectangle of its height reaches until the first shorter bar on each side. A monotonic increasing stack finds both boundaries in one pass: pop on a drop and the new top is the left boundary, the current index is the right."
+  },
+  "niche-advanced__max-value-of-equation": {
+    "title": "Max Value of Equation",
+    "topic": "Niche / Advanced",
+    "subtopic": "Monotonic Deque",
+    "difficulty": "Hard",
+    "pattern": "Deque maximum over a value transform",
+    "notes": "",
+    "statement": "Given `points` sorted by x-coordinate (`points[i] = [xi, yi]`) and an integer `k`, return the maximum value of `yi + yj + |xi - xj|` over all pairs `i < j` with `|xi - xj| <= k`. Such a pair is guaranteed to exist.",
+    "examples": [
+      { "input": "points = [[1,3],[2,0],[5,10],[6,-10]], k = 1", "output": "4", "explanation": "Use points (1,3) and (2,0): 3 + 0 + 1 = 4." },
+      { "input": "points = [[0,0],[3,0],[9,2]], k = 3", "output": "3", "explanation": "" }
+    ],
+    "constraints": [
+      "2 <= points.length <= 10^5",
+      "points sorted strictly increasing by x",
+      "-10^8 <= xi, yi <= 10^8",
+      "0 <= k <= 2 * 10^8"
+    ],
+    "approaches": [
+      {
+        "name": "Monotonic deque of (y - x)",
+        "idea": "Because points are sorted by x, for `j > i` we have `xj >= xi`, so `|xi - xj| = xj - xi` and the objective becomes `(yi - xi) + (yj + xj)`. Sweep left to right; for the current point `j` we want the largest `yi - xi` among earlier points with `xj - xi <= k`. Maintain a deque of `[y-x, x]` with `y-x` decreasing, evicting the front while its `x` is out of range. The front gives the best partner.",
+        "time": "O(n)",
+        "space": "O(n)",
+        "code": "public int findMaxValueOfEquation(int[][] points, int k) {\n    Deque<int[]> dq = new ArrayDeque<>();         // {y - x, x}, first value decreasing\n    int res = Integer.MIN_VALUE;\n    for (int[] p : points) {\n        int x = p[0], y = p[1];\n        while (!dq.isEmpty() && dq.peekFirst()[1] < x - k) dq.pollFirst();\n        if (!dq.isEmpty()) res = Math.max(res, dq.peekFirst()[0] + y + x);\n        while (!dq.isEmpty() && dq.peekLast()[0] <= y - x) dq.pollLast();\n        dq.offerLast(new int[]{y - x, x});\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "Sorted x lets you drop the absolute value: the target splits into a per-point `yj + xj` plus a windowed maximum of `yi - xi`, which is exactly a sliding-window-maximum deque keyed on the x-range constraint."
+  },
+  "niche-advanced__meeting-rooms-ii": {
+    "title": "Meeting Rooms II",
+    "topic": "Niche / Advanced",
+    "subtopic": "Line Sweep",
+    "difficulty": "Medium",
+    "pattern": "Sweep-line of start/end events (max concurrency)",
+    "notes": "",
+    "statement": "Given an array of meeting time intervals `[start, end)`, return the minimum number of conference rooms required so that no two meetings sharing a room overlap.",
+    "examples": [
+      { "input": "intervals = [[0,30],[5,10],[15,20]]", "output": "2", "explanation": "[0,30] overlaps both others, which themselves do not overlap." },
+      { "input": "intervals = [[7,10],[2,4]]", "output": "1", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= intervals.length <= 10^4",
+      "0 <= start < end <= 10^6"
+    ],
+    "approaches": [
+      {
+        "name": "Sort starts and ends, two pointers",
+        "idea": "The answer is the maximum number of meetings running at once. Sort start times and end times separately. Sweep the start times; before opening a room for the next meeting, release every room whose end time is `<= that start` (a meeting ending frees a room for one starting at the same instant). Track the running room count and its maximum.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public int minMeetingRooms(int[][] intervals) {\n    int n = intervals.length;\n    int[] starts = new int[n];\n    int[] ends = new int[n];\n    for (int i = 0; i < n; i++) { starts[i] = intervals[i][0]; ends[i] = intervals[i][1]; }\n    Arrays.sort(starts);\n    Arrays.sort(ends);\n    int rooms = 0, maxRooms = 0, e = 0;\n    for (int s = 0; s < n; s++) {\n        while (e < n && ends[e] <= starts[s]) { rooms--; e++; }\n        rooms++;\n        maxRooms = Math.max(maxRooms, rooms);\n    }\n    return maxRooms;\n}"
+      }
+    ],
+    "insight": "Rooms needed = maximum overlap = peak of the running count as you sweep start (+1) and end (-1) events in time order; a meeting ending at exactly the next start reuses the room."
+  },
+  "niche-advanced__my-calendar-i-ii-iii": {
+    "title": "My Calendar I/II/III",
+    "topic": "Niche / Advanced",
+    "subtopic": "Line Sweep",
+    "difficulty": "Hard",
+    "pattern": "TreeMap of interval boundaries / delta counts",
+    "notes": "",
+    "statement": "A family of booking designs for half-open events `[start, end)`. MyCalendar I: `book` succeeds only if it causes no double booking (no overlap). MyCalendar II: `book` succeeds unless it would cause a triple booking (two overlaps are allowed). MyCalendar III: every `book` succeeds and returns `k`, the maximum number of events overlapping at any single point so far.",
+    "examples": [
+      { "input": "MyCalendarIII: book(10,20)->1, book(50,60)->1, book(10,40)->2, book(5,15)->3, book(5,10)->3, book(25,55)->3", "output": "[1,1,2,3,3,3]", "explanation": "Return the running maximum overlap after each booking." }
+    ],
+    "constraints": [
+      "0 <= start < end <= 10^9",
+      "at most 400 (I/II) / 400 (III) calls to book"
+    ],
+    "approaches": [
+      {
+        "name": "TreeMap boundary / delta sweep",
+        "idea": "I keeps merged non-overlapping intervals in a TreeMap start->end; a booking is rejected if the floor interval extends past `start` or the ceiling interval starts before `end`. II and III use a TreeMap of `+1`/`-1` deltas at boundaries: sweep the accumulated count to find the peak overlap. II tentatively adds the deltas, and if any prefix sum reaches 3 it rolls them back and rejects; III simply returns the peak after adding.",
+        "time": "O(n) per book (n = distinct boundaries)",
+        "space": "O(n)",
+        "code": "class MyCalendar {                                     // I: no double booking\n    private final TreeMap<Integer, Integer> cal = new TreeMap<>(); // start -> end\n    public boolean book(int start, int end) {\n        Integer prev = cal.floorKey(start);\n        Integer next = cal.ceilingKey(start);\n        if (prev != null && cal.get(prev) > start) return false;\n        if (next != null && next < end) return false;\n        cal.put(start, end);\n        return true;\n    }\n}\n\nclass MyCalendarTwo {                                  // II: no triple booking\n    private final TreeMap<Integer, Integer> delta = new TreeMap<>();\n    public boolean book(int start, int end) {\n        delta.merge(start, 1, Integer::sum);\n        delta.merge(end, -1, Integer::sum);\n        int active = 0;\n        for (int v : delta.values()) {\n            active += v;\n            if (active >= 3) {                         // would triple-book: roll back\n                delta.merge(start, -1, Integer::sum);\n                delta.merge(end, 1, Integer::sum);\n                return false;\n            }\n        }\n        return true;\n    }\n}\n\nclass MyCalendarThree {                                // III: max k-booking\n    private final TreeMap<Integer, Integer> delta = new TreeMap<>();\n    public int book(int start, int end) {\n        delta.merge(start, 1, Integer::sum);\n        delta.merge(end, -1, Integer::sum);\n        int active = 0, max = 0;\n        for (int v : delta.values()) { active += v; max = Math.max(max, active); }\n        return max;\n    }\n}"
+      }
+    ],
+    "insight": "Overlap counting is a `+1`/`-1` delta sweep in a TreeMap: the max prefix sum is the peak concurrency. Version II just tries the insertion and rolls it back if the peak would hit 3; a dynamic/lazy segment tree replaces the O(n) sweep if calls grow large."
+  },
+  "niche-advanced__rectangle-area-ii": {
+    "title": "Rectangle Area II",
+    "topic": "Niche / Advanced",
+    "subtopic": "Line Sweep",
+    "difficulty": "Hard",
+    "pattern": "Coordinate compression + vertical sweep of active x-slabs",
+    "notes": "",
+    "statement": "Given axis-aligned rectangles as `[x1, y1, x2, y2]` (bottom-left and top-right corners), return the total area covered by the union of all rectangles, modulo `10^9 + 7`.",
+    "examples": [
+      { "input": "rectangles = [[0,0,2,2],[1,0,2,3],[1,0,3,1]]", "output": "6", "explanation": "The overlapping region is counted once." },
+      { "input": "rectangles = [[0,0,1000000000,1000000000]]", "output": "49", "explanation": "10^18 mod (10^9+7) = 49." }
+    ],
+    "constraints": [
+      "1 <= rectangles.length <= 200",
+      "0 <= x1 < x2 <= 10^9",
+      "0 <= y1 < y2 <= 10^9"
+    ],
+    "approaches": [
+      {
+        "name": "Coordinate-compress x, sweep in y",
+        "idea": "Compress all distinct x-coordinates into slabs `[xs[i], xs[i+1])`. Turn each rectangle into a bottom event (`+1`) and a top event (`-1`), each covering its x-slab range. Sweep events by increasing y: before applying an event, the currently covered width is the total length of slabs whose coverage count is positive; multiply by the y-gap since the previous event and accumulate. Then update the slab counts. Do all arithmetic under the modulus.",
+        "time": "O(n^2)",
+        "space": "O(n)",
+        "code": "public int rectangleArea(int[][] rectangles) {\n    final long MOD = 1_000_000_007L;\n    TreeSet<Integer> xsSet = new TreeSet<>();\n    for (int[] r : rectangles) { xsSet.add(r[0]); xsSet.add(r[2]); }\n    Integer[] xs = xsSet.toArray(new Integer[0]);\n    Map<Integer, Integer> xIdx = new HashMap<>();\n    for (int i = 0; i < xs.length; i++) xIdx.put(xs[i], i);\n\n    // event: {y, delta(+1 bottom / -1 top), xStartIdx, xEndIdx}\n    List<int[]> events = new ArrayList<>();\n    for (int[] r : rectangles) {\n        events.add(new int[]{r[1], 1, xIdx.get(r[0]), xIdx.get(r[2])});\n        events.add(new int[]{r[3], -1, xIdx.get(r[0]), xIdx.get(r[2])});\n    }\n    events.sort((a, b) -> Integer.compare(a[0], b[0]));\n\n    int[] count = new int[xs.length];             // coverage per slab i: [xs[i], xs[i+1])\n    long area = 0;\n    long prevY = events.get(0)[0];\n    for (int[] e : events) {\n        long y = e[0];\n        long width = 0;\n        for (int i = 0; i + 1 < xs.length; i++)\n            if (count[i] > 0) width += xs[i + 1] - xs[i];\n        area = (area + (width % MOD) * ((y - prevY) % MOD)) % MOD;\n        for (int i = e[2]; i < e[3]; i++) count[i] += e[1];\n        prevY = y;\n    }\n    return (int) area;\n}"
+      }
+    ],
+    "insight": "Union area under overlap = sweep one axis while tracking the covered length on the other. Compress x into slabs, keep a coverage count per slab, and sum covered-width times y-gap between consecutive events."
+  },
+  "niche-advanced__employee-free-time": {
+    "title": "Employee Free Time",
+    "topic": "Niche / Advanced",
+    "subtopic": "Line Sweep",
+    "difficulty": "Hard",
+    "pattern": "Merge intervals across employees, report gaps",
+    "notes": "",
+    "statement": "Each employee has a sorted list of non-overlapping busy intervals. Return the finite intervals of positive length during which every employee is free (the common free time).",
+    "examples": [
+      { "input": "schedule = [[[1,2],[5,6]],[[1,3]],[[4,10]]]", "output": "[[3,4]]", "explanation": "Everyone is free only between 3 and 4." },
+      { "input": "schedule = [[[1,3],[6,7]],[[2,4]],[[2,5],[9,12]]]", "output": "[[5,6],[7,9]]", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= total intervals <= 50 (small)",
+      "intervals per employee are non-overlapping and sorted by start"
+    ],
+    "approaches": [
+      {
+        "name": "Flatten, sort, merge, take gaps",
+        "idea": "Common free time is the complement of the union of all busy intervals. Collect every interval into one list, sort by start, and merge overlaps by tracking a running `prevEnd`. Whenever the next interval starts after `prevEnd`, the gap `[prevEnd, start]` is time when nobody is busy.",
+        "time": "O(N log N)",
+        "space": "O(N)",
+        "code": "public List<int[]> employeeFreeTime(int[][][] schedule) {\n    List<int[]> all = new ArrayList<>();\n    for (int[][] emp : schedule) for (int[] iv : emp) all.add(iv);\n    all.sort((a, b) -> a[0] - b[0]);\n\n    List<int[]> free = new ArrayList<>();\n    int prevEnd = all.get(0)[1];\n    for (int i = 1; i < all.size(); i++) {\n        int[] iv = all.get(i);\n        if (iv[0] > prevEnd) free.add(new int[]{prevEnd, iv[0]});   // gap = free time\n        prevEnd = Math.max(prevEnd, iv[1]);\n    }\n    return free;\n}"
+      }
+    ],
+    "insight": "\"Common free time\" is the holes between merged busy blocks: flatten everyone's intervals into one list, merge, and the gaps are the answer. A k-way heap merge exploits the pre-sorted lists but is unnecessary at these sizes."
+  },
+  "niche-advanced__number-of-airplanes-in-the-sky": {
+    "title": "Number of Airplanes in the Sky",
+    "topic": "Niche / Advanced",
+    "subtopic": "Line Sweep",
+    "difficulty": "Hard",
+    "pattern": "Sweep-line of takeoff/landing events (max concurrency)",
+    "notes": "",
+    "statement": "Given flight intervals `[start, end]`, return the maximum number of airplanes that are in the sky at the same time.",
+    "examples": [
+      { "input": "flights = [[1,10],[2,3],[5,8],[4,7]]", "output": "3", "explanation": "At time 5, flights [1,10], [5,8], and [4,7] overlap." }
+    ],
+    "constraints": [
+      "interval endpoints are integers",
+      "on ties, a landing frees the slot before a takeoff (touching intervals do not overlap)"
+    ],
+    "approaches": [
+      {
+        "name": "Split into +1/-1 events, sweep",
+        "idea": "Emit `(time, +1)` at each takeoff and `(time, -1)` at each landing. Sort by time; on ties process landings (`-1`) before takeoffs (`+1`) so a plane landing at time `t` frees the slot for one taking off at `t`. Track the running count and record its maximum.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public int countOfAirplanes(List<int[]> flights) {\n    List<int[]> events = new ArrayList<>();\n    for (int[] f : flights) {\n        events.add(new int[]{f[0], 1});     // takeoff\n        events.add(new int[]{f[1], -1});    // landing\n    }\n    // ties: landing (-1) before takeoff (+1)\n    events.sort((a, b) -> a[0] != b[0] ? a[0] - b[0] : a[1] - b[1]);\n    int cur = 0, max = 0;\n    for (int[] e : events) { cur += e[1]; max = Math.max(max, cur); }\n    return max;\n}"
+      }
+    ],
+    "insight": "Max concurrent intervals = max running sum of `+1`/`-1` boundary events. The tie-break decides whether touching intervals count as overlapping, so process `-1` before `+1`."
+  },
+  "niche-advanced__describe-the-painting": {
+    "title": "Describe the Painting",
+    "topic": "Niche / Advanced",
+    "subtopic": "Line Sweep",
+    "difficulty": "Hard",
+    "pattern": "Sweep-line with color-sum deltas over a number line",
+    "notes": "",
+    "statement": "Given colored segments `[start, end, color]` where overlapping colors are summed, return the painting as a list of pieces `[start, end, mixedSum]`, merging adjacent pieces with equal sum and omitting zero-sum gaps.",
+    "examples": [
+      { "input": "segments = [[1,4,5],[4,7,7],[1,7,9]]", "output": "[[1,4,14],[4,7,16]]", "explanation": "On [1,4] the sum is 5+9=14; on [4,7] it is 7+9=16." }
+    ],
+    "constraints": [
+      "1 <= segments.length <= 2*10^4",
+      "1 <= start < end <= 10^9",
+      "1 <= color <= 10^9"
+    ],
+    "approaches": [
+      {
+        "name": "TreeMap of color-sum deltas",
+        "idea": "Add `+color` at each `start` and `-color` at each `end` into a sorted map. Sweep the boundary points in order, accumulating the running color sum over each span `[prev, cur)`. Emit spans with positive sum, merging a span into the previous piece when they are contiguous and share the same sum.",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "code": "public List<List<Long>> splitPainting(int[][] segments) {\n    TreeMap<Integer, Long> delta = new TreeMap<>();\n    for (int[] s : segments) {\n        delta.merge(s[0],  (long) s[2], Long::sum);\n        delta.merge(s[1], -(long) s[2], Long::sum);\n    }\n    List<List<Long>> res = new ArrayList<>();\n    long sum = 0;\n    Integer prev = null;\n    for (Map.Entry<Integer, Long> e : delta.entrySet()) {\n        int point = e.getKey();\n        if (prev != null && sum > 0) {\n            if (!res.isEmpty() && res.get(res.size() - 1).get(1) == (long) (int) prev\n                    && res.get(res.size() - 1).get(2) == sum)\n                res.get(res.size() - 1).set(1, (long) point);          // merge equal-sum span\n            else\n                res.add(new ArrayList<>(List.of((long) prev, (long) point, sum)));\n        }\n        sum += e.getValue();\n        prev = point;\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "Same delta-sweep as overlap counting, but the delta is the color value (not `+-1`) and you emit the accumulated sum over each span. Skip zero-sum gaps; merge neighbors with identical sums."
+  },
+  "niche-advanced__minimum-interval-to-include-each-query": {
+    "title": "Minimum Interval to Include Each Query",
+    "topic": "Niche / Advanced",
+    "subtopic": "Line Sweep",
+    "difficulty": "Hard",
+    "pattern": "Offline: sort queries + intervals, min-heap by size",
+    "notes": "",
+    "statement": "Given `intervals` (each `[left, right]` inclusive) and an array `queries`, for each query `q` return the size (`right - left + 1`) of the smallest interval that contains `q`, or `-1` if none does. Return an array aligned with `queries`.",
+    "examples": [
+      { "input": "intervals = [[1,4],[2,4],[3,6],[4,4]], queries = [2,3,4,5]", "output": "[3,3,1,4]", "explanation": "" }
+    ],
+    "constraints": [
+      "1 <= intervals.length, queries.length <= 10^5",
+      "1 <= left <= right <= 10^7",
+      "1 <= queries[i] <= 10^7"
+    ],
+    "approaches": [
+      {
+        "name": "Offline sweep with a min-heap by size",
+        "idea": "Sort intervals by start and process queries in increasing value (remembering original indices). For each query, push every interval with `start <= q` into a min-heap keyed by interval size, storing `[size, end]`. Lazily pop heap entries whose `end < q` (they can no longer contain the query). The heap top is then the smallest valid interval.",
+        "time": "O((n+m) log n)",
+        "space": "O(n)",
+        "code": "public int[] minInterval(int[][] intervals, int[] queries) {\n    Arrays.sort(intervals, (a, b) -> a[0] - b[0]);\n    Integer[] order = new Integer[queries.length];\n    for (int i = 0; i < queries.length; i++) order[i] = i;\n    Arrays.sort(order, (a, b) -> queries[a] - queries[b]);\n\n    PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[0] - b[0]); // [size, end]\n    int[] res = new int[queries.length];\n    int i = 0;\n    for (int qi : order) {\n        int q = queries[qi];\n        while (i < intervals.length && intervals[i][0] <= q) {\n            int size = intervals[i][1] - intervals[i][0] + 1;\n            pq.offer(new int[]{size, intervals[i][1]});\n            i++;\n        }\n        while (!pq.isEmpty() && pq.peek()[1] < q) pq.poll();   // end < q => invalid\n        res[qi] = pq.isEmpty() ? -1 : pq.peek()[0];\n    }\n    return res;\n}"
+      }
+    ],
+    "insight": "Process queries in increasing order so intervals only ever become eligible (start <= q) and are added once; lazily discard heap entries whose end has fallen behind the query. Heap keyed by size means the top is the answer."
+  }
+}

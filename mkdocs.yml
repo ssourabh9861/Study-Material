@@ -38,6 +38,9 @@ exclude_docs: |
   README.md
   *.java
   site/**
+  dsa/data/parts/**
+  dsa/data/*.py
+  dsa/data/tracker.csv
 
 plugins:
   - search
@@ -67,6 +70,7 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - DSA Tracker: dsa/index.md
 
   - LLD Problems:
     - Parking Lot: lld-design-prompts/01-parking-lot/01-parking-lot.md

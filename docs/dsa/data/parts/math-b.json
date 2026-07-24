@@ -1,0 +1,308 @@
+{
+  "math-bit-manipulation__sqrt-x": {
+    "title": "Sqrt(x)",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Medium",
+    "pattern": "Binary search on the answer (integer square root)",
+    "notes": "",
+    "statement": "Given a non-negative integer `x`, return the integer square root of `x`, i.e. `floor(sqrt(x))`. The decimal part is truncated and you must not use any built-in exponent/sqrt function.",
+    "examples": [
+      {
+        "input": "x = 8",
+        "output": "2",
+        "explanation": "sqrt(8) = 2.828..., truncated to 2."
+      },
+      {
+        "input": "x = 4",
+        "output": "2",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "0 <= x <= 2^31 - 1"
+    ],
+    "approaches": [
+      {
+        "name": "Binary search on the root",
+        "idea": "Search `mid` in `[1, x/2]` for the largest value whose square does not exceed `x`. `mid*mid` is monotonic, so a value works iff every smaller value works — a classic monotone predicate. Use `long` for the square to avoid `int` overflow when `mid*mid` exceeds `2^31-1`. When the loop ends, `hi` holds `floor(sqrt(x))`.",
+        "time": "O(log x)",
+        "space": "O(1)",
+        "code": "public int mySqrt(int x) {\n    if (x < 2) return x;\n    long lo = 1, hi = x / 2;\n    while (lo <= hi) {\n        long mid = lo + (hi - lo) / 2;\n        long sq = mid * mid;\n        if (sq == x) return (int) mid;\n        else if (sq < x) lo = mid + 1;\n        else hi = mid - 1;\n    }\n    return (int) hi;   // largest mid with mid*mid <= x\n}"
+      }
+    ],
+    "insight": "Monotone predicate `mid*mid <= x` -> binary search; use `long` for the square to dodge overflow, and the answer is `hi` after the loop."
+  },
+  "math-bit-manipulation__excel-column": {
+    "title": "Excel Column",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Medium",
+    "pattern": "Bijective base-26 conversion (no zero digit)",
+    "notes": "",
+    "statement": "Excel labels columns `A, B, ..., Z, AA, AB, ...`. Two conversions are needed: (1) given a column title string, return its 1-based column number; (2) given a column number, return its title. The catch is that this is a **bijective** base-26 system: digits run `1..26` (A..Z) with no zero, so the reverse conversion needs a `--` decrement each step.",
+    "examples": [
+      {
+        "input": "title = \"AB\"",
+        "output": "28",
+        "explanation": "1*26 + 2 = 28."
+      },
+      {
+        "input": "number = 701",
+        "output": "\"ZY\"",
+        "explanation": "26*26 + 25 = 701."
+      }
+    ],
+    "constraints": [
+      "1 <= columnTitle.length <= 7",
+      "columnTitle consists of uppercase English letters",
+      "1 <= columnNumber <= 2^31 - 1"
+    ],
+    "approaches": [
+      {
+        "name": "Title -> number (Horner in base 26)",
+        "idea": "Treat the string as a base-26 number where `A=1..Z=26`. Sweep left to right accumulating `result = result*26 + (c - 'A' + 1)`, exactly like reading a decimal number digit by digit (Horner's rule).",
+        "time": "O(L)",
+        "space": "O(1)",
+        "code": "public int titleToNumber(String columnTitle) {\n    int result = 0;\n    for (char c : columnTitle.toCharArray()) {\n        result = result * 26 + (c - 'A' + 1);\n    }\n    return result;\n}"
+      },
+      {
+        "name": "Number -> title (bijective base-26)",
+        "idea": "Because there is no digit 0, subtract 1 before each `% 26` so the remainder maps to `A..Z` (0..25). Emit the least significant letter, divide by 26, repeat, then reverse. The `columnNumber--` is what converts ordinary base-26 into the offset (bijective) system.",
+        "time": "O(log_26 n)",
+        "space": "O(log_26 n)",
+        "code": "public String convertToTitle(int columnNumber) {\n    StringBuilder sb = new StringBuilder();\n    while (columnNumber > 0) {\n        columnNumber--;                       // shift to 0-based digit\n        sb.append((char) ('A' + columnNumber % 26));\n        columnNumber /= 26;\n    }\n    return sb.reverse().toString();\n}"
+      }
+    ],
+    "insight": "It is base-26 with no zero: decoding is plain Horner, but encoding needs a `--` before each `%26`/`/26` step."
+  },
+  "math-bit-manipulation__count-primes": {
+    "title": "Count Primes",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Medium",
+    "pattern": "Sieve of Eratosthenes",
+    "notes": "",
+    "statement": "Given an integer `n`, return the number of prime numbers strictly less than `n`.",
+    "examples": [
+      {
+        "input": "n = 10",
+        "output": "4",
+        "explanation": "Primes below 10 are 2, 3, 5, 7."
+      },
+      {
+        "input": "n = 0",
+        "output": "0",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "0 <= n <= 5 * 10^6"
+    ],
+    "approaches": [
+      {
+        "name": "Sieve of Eratosthenes",
+        "idea": "Mark composites: for each prime `i`, cross out its multiples. Start crossing from `i*i` (smaller multiples were already marked by smaller primes) and only iterate `i` up to `sqrt(n)` implicitly by testing `!composite[i]`. Count the entries never marked. Use a `long` for `i*i` to avoid overflow near the upper bound.",
+        "time": "O(n log log n)",
+        "space": "O(n)",
+        "code": "public int countPrimes(int n) {\n    if (n < 3) return 0;\n    boolean[] composite = new boolean[n];   // composite[k] == true means k is not prime\n    int count = 0;\n    for (int i = 2; i < n; i++) {\n        if (!composite[i]) {\n            count++;\n            for (long j = (long) i * i; j < n; j += i) {\n                composite[(int) j] = true;\n            }\n        }\n    }\n    return count;\n}"
+      }
+    ],
+    "insight": "Sieve, and start marking multiples at `i*i` (not `2*i`) — everything below is already handled."
+  },
+  "math-bit-manipulation__fraction-to-recurring-decimal": {
+    "title": "Fraction to Recurring Decimal",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Hard",
+    "pattern": "Long division + remainder memoization to detect the cycle",
+    "notes": "",
+    "statement": "Given `numerator` and `denominator` of a fraction, return the fraction as a string. If the fractional part is repeating, wrap the repeating block in parentheses. Handle the sign and integer overflow (`INT_MIN` numerator/denominator).",
+    "examples": [
+      {
+        "input": "numerator = 4, denominator = 333",
+        "output": "\"0.(012)\"",
+        "explanation": "4/333 = 0.012012..."
+      },
+      {
+        "input": "numerator = 1, denominator = 2",
+        "output": "\"0.5\"",
+        "explanation": ""
+      },
+      {
+        "input": "numerator = 2, denominator = 3",
+        "output": "\"0.(6)\"",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "-2^31 <= numerator, denominator <= 2^31 - 1",
+      "denominator != 0"
+    ],
+    "approaches": [
+      {
+        "name": "Simulate long division, memoize remainders",
+        "idea": "Emit the integer part, then perform long division on the fractional part. A repeating decimal appears exactly when a remainder repeats, so store each remainder's output position in a map; when a remainder recurs, insert `(` at its stored position and append `)`. Cast to `long` and take absolute values first so the sign logic (XOR of the two signs) and `INT_MIN` are handled without overflow.",
+        "time": "O(d) where d is the number of distinct remainders (< |denominator|)",
+        "space": "O(d)",
+        "code": "public String fractionToDecimal(int numerator, int denominator) {\n    if (numerator == 0) return \"0\";\n    StringBuilder sb = new StringBuilder();\n    if ((numerator < 0) ^ (denominator < 0)) sb.append('-');\n    long num = Math.abs((long) numerator);\n    long den = Math.abs((long) denominator);\n    sb.append(num / den);\n    long rem = num % den;\n    if (rem == 0) return sb.toString();\n    sb.append('.');\n    Map<Long, Integer> seen = new HashMap<>();   // remainder -> index in sb\n    while (rem != 0) {\n        if (seen.containsKey(rem)) {\n            int start = seen.get(rem);\n            sb.insert(start, '(');\n            sb.append(')');\n            break;\n        }\n        seen.put(rem, sb.length());\n        rem *= 10;\n        sb.append(rem / den);\n        rem %= den;\n    }\n    return sb.toString();\n}"
+      }
+    ],
+    "insight": "A repeating fraction == a repeating remainder; map remainder -> position and wrap in parentheses when it recurs. Do arithmetic in `long` after `abs` to survive `INT_MIN`."
+  },
+  "math-bit-manipulation__basic-calculator-i-ii-iii": {
+    "title": "Basic Calculator I/II/III",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Hard",
+    "pattern": "Stack for precedence + recursion for parentheses",
+    "notes": "",
+    "statement": "Implement a calculator that evaluates a string expression. The general form (Calculator III) supports non-negative integers and the operators `+`, `-`, `*`, `/` with normal precedence and arbitrary parentheses; division truncates toward zero. Calculator I is the special case with only `+`, `-`, and parentheses; Calculator II has `+`, `-`, `*`, `/` but no parentheses. The single solution below handles all three.",
+    "examples": [
+      {
+        "input": "s = \"1 + 1\"",
+        "output": "2",
+        "explanation": "Calculator I."
+      },
+      {
+        "input": "s = \" 3+5 / 2 \"",
+        "output": "5",
+        "explanation": "Calculator II: 3 + 2 = 5 (integer division)."
+      },
+      {
+        "input": "s = \"2*(5+5*2)/3+(6/2+8)\"",
+        "output": "21",
+        "explanation": "Calculator III with nesting."
+      }
+    ],
+    "constraints": [
+      "1 <= s.length <= 3 * 10^5",
+      "s consists of digits, '+', '-', '*', '/', '(', ')', and spaces",
+      "s is a valid expression; integer values fit in a signed 32-bit range"
+    ],
+    "approaches": [
+      {
+        "name": "Recursive descent on '(' with an operator/operand stack",
+        "idea": "Scan left to right building the current number. On seeing `(`, recurse to evaluate the sub-expression and use its value as the current number. When the next token is an operator (or the string/parenthesis ends), flush the pending number using the *previous* operator: push for `+`, push negated for `-`, and for `*`/`/` pop the top and combine — this defers low-precedence ops on the stack while resolving high-precedence ones immediately. The answer is the sum of the stack. A shared index (`int[] i`) lets the recursion consume characters across calls.",
+        "time": "O(n)",
+        "space": "O(n)",
+        "code": "public int calculate(String s) {\n    return helper(s, new int[]{0});\n}\nprivate int helper(String s, int[] i) {\n    Deque<Integer> stack = new ArrayDeque<>();\n    long num = 0;\n    char op = '+';   // operator preceding the current number\n    while (i[0] < s.length()) {\n        char c = s.charAt(i[0]++);\n        if (Character.isDigit(c)) {\n            num = num * 10 + (c - '0');\n        } else if (c == '(') {\n            num = helper(s, i);   // value of the parenthesised block\n        }\n        boolean isOperator = (c != ' ' && !Character.isDigit(c));\n        if (isOperator || i[0] == s.length()) {\n            switch (op) {\n                case '+': stack.push((int) num); break;\n                case '-': stack.push((int) -num); break;\n                case '*': stack.push(stack.pop() * (int) num); break;\n                case '/': stack.push(stack.pop() / (int) num); break;\n            }\n            op = c;\n            num = 0;\n        }\n        if (c == ')') break;   // finished this nested expression\n    }\n    int sum = 0;\n    for (int v : stack) sum += v;\n    return sum;\n}"
+      }
+    ],
+    "insight": "Push +/- terms onto a stack but resolve */ immediately against the top; recurse on `(` sharing one index. Final answer = sum of the stack."
+  },
+  "math-bit-manipulation__max-points-on-a-line": {
+    "title": "Max Points on a Line",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Hard",
+    "pattern": "Fix a point, group the rest by normalized slope (gcd)",
+    "notes": "",
+    "statement": "Given `n` distinct points on the 2D plane, return the maximum number of points that lie on the same straight line.",
+    "examples": [
+      {
+        "input": "points = [[1,1],[2,2],[3,3]]",
+        "output": "3",
+        "explanation": ""
+      },
+      {
+        "input": "points = [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]",
+        "output": "4",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "1 <= points.length <= 300",
+      "points[i].length == 2",
+      "-10^4 <= xi, yi <= 10^4",
+      "All points are distinct"
+    ],
+    "approaches": [
+      {
+        "name": "Anchor point + slope counting with reduced fractions",
+        "idea": "For each anchor `i`, every other point defines a slope `(dy, dx)`. Points share a line through `i` iff they share the same slope, so count slopes in a map and take the max. To use an exact (float-free) key, reduce `(dy, dx)` by their gcd and normalize the sign (make `dx > 0`, or `dx == 0 => dy > 0`) so `(1,2)` and `(-1,-2)` collapse to one key. Answer for the anchor is `bestSlopeCount + 1` (the anchor itself).",
+        "time": "O(n^2)",
+        "space": "O(n)",
+        "code": "public int maxPoints(int[][] points) {\n    int n = points.length;\n    if (n <= 2) return n;\n    int max = 1;\n    for (int i = 0; i < n; i++) {\n        Map<Long, Integer> slopes = new HashMap<>();\n        int localMax = 0;\n        for (int j = i + 1; j < n; j++) {\n            int dx = points[j][0] - points[i][0];\n            int dy = points[j][1] - points[i][1];\n            int g = gcd(dx, dy);\n            dx /= g; dy /= g;\n            if (dx < 0 || (dx == 0 && dy < 0)) { dx = -dx; dy = -dy; }\n            long key = ((long) dx << 20) | (dy & 0xFFFFF);\n            int cnt = slopes.merge(key, 1, Integer::sum);\n            localMax = Math.max(localMax, cnt);\n        }\n        max = Math.max(max, localMax + 1);\n    }\n    return max;\n}\nprivate int gcd(int a, int b) {\n    return b == 0 ? a : gcd(b, a % b);\n}"
+      }
+    ],
+    "insight": "Fix each point and bucket the others by gcd-reduced, sign-normalized slope; the biggest bucket + 1 is the line through that anchor."
+  },
+  "math-bit-manipulation__super-pow": {
+    "title": "Super Pow",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Hard",
+    "pattern": "Modular exponentiation, digit by digit (Horner mod)",
+    "notes": "",
+    "statement": "Compute `a^b mod 1337`, where `a` is a positive integer and `b` is an extremely large positive integer given as an array of its decimal digits (most significant first).",
+    "examples": [
+      {
+        "input": "a = 2, b = [3]",
+        "output": "8",
+        "explanation": "2^3 = 8."
+      },
+      {
+        "input": "a = 2, b = [1,0]",
+        "output": "1024",
+        "explanation": "2^10 = 1024."
+      },
+      {
+        "input": "a = 2147483647, b = [2,0,0]",
+        "output": "1198",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "1 <= a <= 2^31 - 1",
+      "1 <= b.length <= 2000",
+      "0 <= b[i] <= 9",
+      "b has no leading zeros except the number 0 itself"
+    ],
+    "approaches": [
+      {
+        "name": "Horner over digits with modular power",
+        "idea": "Use `a^(10*prefix + d) = (a^prefix)^10 * a^d`. Fold the digits left to right (Horner's rule) keeping the running result mod 1337: at each digit set `result = powMod(result, 10) * powMod(a, d)`. Since exponents are single digits, `powMod` just multiplies at most 10 times, all under the modulus, so no big-integer arithmetic is needed.",
+        "time": "O(L) with a small constant (<= 10 mults per digit)",
+        "space": "O(1)",
+        "code": "private static final int MOD = 1337;\npublic int superPow(int a, int[] b) {\n    a %= MOD;\n    int result = 1;\n    for (int digit : b) {\n        result = powMod(result, 10) * powMod(a, digit) % MOD;\n    }\n    return result;\n}\nprivate int powMod(int base, int exp) {\n    base %= MOD;\n    int res = 1;\n    for (int i = 0; i < exp; i++) res = res * base % MOD;\n    return res;\n}"
+      }
+    ],
+    "insight": "a^(10k+d) = (a^k)^10 * a^d — Horner-fold the digit array while reducing mod 1337 each step."
+  },
+  "math-bit-manipulation__nth-magical-number": {
+    "title": "Nth Magical Number",
+    "topic": "Math & Bit Manipulation",
+    "subtopic": "Math & Bit Manipulation",
+    "difficulty": "Hard",
+    "pattern": "Binary search on the answer + inclusion-exclusion count via LCM",
+    "notes": "",
+    "statement": "A positive integer is *magical* if it is divisible by `a` or by `b`. Return the `n`-th magical number, modulo `10^9 + 7`.",
+    "examples": [
+      {
+        "input": "n = 1, a = 2, b = 3",
+        "output": "2",
+        "explanation": "The magical numbers are 2, 3, 4, 6, ..."
+      },
+      {
+        "input": "n = 4, a = 2, b = 3",
+        "output": "6",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "1 <= n <= 10^9",
+      "2 <= a, b <= 4 * 10^4"
+    ],
+    "approaches": [
+      {
+        "name": "Binary search on value, count multiples with LCM",
+        "idea": "The count of magical numbers `<= x` is `x/a + x/b - x/lcm(a,b)` by inclusion-exclusion, and this count is non-decreasing in `x` — a monotone predicate. Binary search the smallest `x` whose count reaches `n`. Bound the high end by `min(a,b) * n` (at most that many are needed) and use `long` throughout to avoid overflow; take the result mod 1e9+7 only at the very end.",
+        "time": "O(log(min(a,b) * n))",
+        "space": "O(1)",
+        "code": "public int nthMagicalNumber(int n, int a, int b) {\n    final int MOD = 1_000_000_007;\n    long lcm = (long) a / gcd(a, b) * b;\n    long lo = 1, hi = (long) Math.min(a, b) * n;\n    while (lo < hi) {\n        long mid = lo + (hi - lo) / 2;\n        long count = mid / a + mid / b - mid / lcm;\n        if (count < n) lo = mid + 1;\n        else hi = mid;\n    }\n    return (int) (lo % MOD);\n}\nprivate int gcd(int x, int y) {\n    return y == 0 ? x : gcd(y, x % y);\n}"
+      }
+    ],
+    "insight": "Count(<= x) = x/a + x/b - x/lcm is monotone -> binary search the answer; reduce mod only at the end."
+  }
+}

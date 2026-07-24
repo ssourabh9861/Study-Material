@@ -1,0 +1,635 @@
+{
+"math-bit-manipulation__single-number-ii-iii": {
+"title": "Single Number II / III",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Hard",
+"pattern": "Bit counting / XOR partitioning",
+"notes": "",
+"statement": "**II:** every element appears **three times** except one (which appears once) — find that single element. **III:** every element appears twice except **two** singletons — find both of them, in any order.",
+"examples": [
+{
+"input": "II: nums = [2,2,3,2]",
+"output": "3",
+"explanation": "3 appears once; 2 appears three times."
+},
+{
+"input": "III: nums = [1,2,1,3,2,5]",
+"output": "[3,5]",
+"explanation": "3 and 5 each appear once; the rest appear twice."
+}
+],
+"constraints": [
+"II: 1 <= nums.length <= 3*10^4, each value appears three times except one that appears once",
+"III: exactly two elements appear once, all others appear exactly twice"
+],
+"approaches": [
+{
+"name": "II — two-state ones/twos machine",
+"idea": "For each bit position, the number of set bits across all numbers is a multiple of 3 plus the single number's bit. The `ones/twos` bitmask pair tracks which bits have been seen once vs twice and clears them once a bit is seen a third time, so after the loop `ones` holds exactly the unique number.",
+"time": "O(n)",
+"space": "O(1)",
+"code": "public int singleNumberII(int[] nums) {\n    int ones = 0, twos = 0;\n    for (int x : nums) {\n        ones = (ones ^ x) & ~twos;\n        twos = (twos ^ x) & ~ones;\n    }\n    return ones;\n}"
+},
+{
+"name": "III — XOR all, split by a differing bit",
+"idea": "XOR of everything equals `a ^ b`, the XOR of the two singletons (all paired values cancel). Any set bit in it differs between `a` and `b`; take the lowest set bit via `x & (-x)` and partition all numbers into two groups by that bit. XOR within each group isolates one singleton.",
+"time": "O(n)",
+"space": "O(1)",
+"code": "public int[] singleNumberIII(int[] nums) {\n    int xorAll = 0;\n    for (int x : nums) xorAll ^= x;\n    int diff = xorAll & (-xorAll); // lowest set bit\n    int a = 0, b = 0;\n    for (int x : nums) {\n        if ((x & diff) != 0) a ^= x;\n        else b ^= x;\n    }\n    return new int[]{a, b};\n}"
+}
+],
+"insight": "II: \"appears 3x\" ⇒ per-bit counts mod 3 via the ones/twos state machine that clears at 3. III: XOR gives a^b, and any set bit there separates the two singletons into independent XOR groups; x & (-x) isolates the lowest set bit."
+},
+"math-bit-manipulation__maximum-xor-of-two-numbers": {
+"title": "Maximum XOR of Two Numbers",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Medium",
+"pattern": "Greedy bit-by-bit with prefix set (or bitwise trie)",
+"notes": "",
+"statement": "Given an integer array `nums`, return the maximum result of `nums[i] XOR nums[j]` over all pairs `i, j`.",
+"examples": [
+{
+"input": "nums = [3,10,5,25,2,8]",
+"output": "28",
+"explanation": "5 XOR 25 = 28 is the maximum."
+},
+{
+"input": "nums = [0]",
+"output": "0",
+"explanation": "Only one element; XOR with itself is 0."
+}
+],
+"constraints": [
+"1 <= nums.length <= 2*10^5",
+"0 <= nums[i] <= 2^31 - 1"
+],
+"approaches": [
+{
+"name": "Greedy from the highest bit using a prefix set",
+"idea": "Build the answer one bit at a time from the most significant bit down. At each step assume the next bit of the answer can be 1: collect all number prefixes under the current mask into a set, and check whether two prefixes exist whose XOR equals the candidate (using `a ^ b == c` iff `a ^ c == b`). If such a pair exists, keep that bit set.",
+"time": "O(32 n)",
+"space": "O(n)",
+"code": "public int findMaximumXOR(int[] nums) {\n    int max = 0, mask = 0;\n    for (int i = 31; i >= 0; i--) {\n        mask |= (1 << i);\n        java.util.Set<Integer> prefixes = new java.util.HashSet<>();\n        for (int x : nums) prefixes.add(x & mask);\n        int candidate = max | (1 << i);\n        for (int p : prefixes) {\n            if (prefixes.contains(candidate ^ p)) {\n                max = candidate;\n                break;\n            }\n        }\n    }\n    return max;\n}"
+}
+],
+"insight": "Maximize XOR greedily from the top bit: for each bit, test whether some pair of masked prefixes can realize a 1 there, using a^b=c ⟺ a^c=b to probe a HashSet in O(1)."
+},
+"math-bit-manipulation__sum-of-two-integers": {
+"title": "Sum of Two Integers",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Medium",
+"pattern": "XOR sum + carry propagation",
+"notes": "",
+"statement": "Compute the sum of two integers `a` and `b` **without using the operators `+` and `-`**.",
+"examples": [
+{
+"input": "a = 1, b = 2",
+"output": "3",
+"explanation": ""
+},
+{
+"input": "a = 2, b = 3",
+"output": "5",
+"explanation": ""
+}
+],
+"constraints": [
+"-1000 <= a, b <= 1000"
+],
+"approaches": [
+{
+"name": "XOR for sum-without-carry, AND<<1 for carry",
+"idea": "`a ^ b` adds the bits ignoring carry, while `(a & b) << 1` is the carry that must still be added. Repeat, feeding the carry back in, until the carry becomes zero. Java's two's-complement `int` handles negative values and overflow wraparound automatically.",
+"time": "O(1)",
+"space": "O(1)",
+"code": "public int getSum(int a, int b) {\n    while (b != 0) {\n        int carry = (a & b) << 1;\n        a = a ^ b;\n        b = carry;\n    }\n    return a;\n}"
+}
+],
+"insight": "Addition = XOR (sum without carry) plus (AND << 1) (the carry), looped until no carry remains."
+},
+"math-bit-manipulation__counting-bits": {
+"title": "Counting Bits",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Medium",
+"pattern": "DP on bits (i >> 1 relation)",
+"notes": "",
+"statement": "Given an integer `n`, return an array `ans` of length `n + 1` where `ans[i]` is the number of set bits (1s) in the binary representation of `i`.",
+"examples": [
+{
+"input": "n = 2",
+"output": "[0,1,1]",
+"explanation": "0->0, 1->1, 2(10)->1."
+},
+{
+"input": "n = 5",
+"output": "[0,1,1,2,1,2]",
+"explanation": ""
+}
+],
+"constraints": [
+"0 <= n <= 10^5"
+],
+"approaches": [
+{
+"name": "DP using i >> 1",
+"idea": "The number of set bits in `i` equals the set bits in `i >> 1` (dropping the lowest bit) plus the lowest bit itself (`i & 1`). Since `i >> 1 < i`, the value is already computed, giving a single O(n) pass.",
+"time": "O(n)",
+"space": "O(1) extra (output aside)",
+"code": "public int[] countBits(int n) {\n    int[] dp = new int[n + 1];\n    for (int i = 1; i <= n; i++) {\n        dp[i] = dp[i >> 1] + (i & 1);\n    }\n    return dp;\n}"
+}
+],
+"insight": "popcount(i) = popcount(i >> 1) + (i & 1): reuse the answer for the number with its lowest bit removed."
+},
+"math-bit-manipulation__subsets-via-bitmask": {
+"title": "Subsets via bitmask",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Medium",
+"pattern": "Enumerate all 2^n masks",
+"notes": "",
+"statement": "Given an array `nums` of distinct integers, return all possible subsets (the power set). The solution must not contain duplicate subsets.",
+"examples": [
+{
+"input": "nums = [1,2,3]",
+"output": "[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]",
+"explanation": "All 2^3 = 8 subsets."
+},
+{
+"input": "nums = [0]",
+"output": "[[],[0]]",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= nums.length <= 10",
+"-10 <= nums[i] <= 10",
+"All elements of nums are unique"
+],
+"approaches": [
+{
+"name": "Iterate every bitmask from 0 to 2^n - 1",
+"idea": "Each subset corresponds to an n-bit mask: bit `i` set means `nums[i]` is included. Loop over all `2^n` masks and, for each, collect the elements whose bit is set. This enumerates the power set directly with no recursion.",
+"time": "O(n * 2^n)",
+"space": "O(n * 2^n) output",
+"code": "public java.util.List<java.util.List<Integer>> subsets(int[] nums) {\n    int n = nums.length;\n    java.util.List<java.util.List<Integer>> res = new java.util.ArrayList<>();\n    for (int mask = 0; mask < (1 << n); mask++) {\n        java.util.List<Integer> sub = new java.util.ArrayList<>();\n        for (int i = 0; i < n; i++) {\n            if ((mask & (1 << i)) != 0) sub.add(nums[i]);\n        }\n        res.add(sub);\n    }\n    return res;\n}"
+}
+],
+"insight": "A subset of an n-element set is exactly an n-bit mask; loop 0..2^n-1 and include nums[i] whenever bit i is set."
+},
+"math-bit-manipulation__bitwise-and-of-range": {
+"title": "Bitwise AND of Range",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Medium",
+"pattern": "Common binary prefix of the range endpoints",
+"notes": "",
+"statement": "Given two integers `left` and `right` (with `left <= right`), return the bitwise AND of all numbers in the inclusive range `[left, right]`.",
+"examples": [
+{
+"input": "left = 5, right = 7",
+"output": "4",
+"explanation": "5 & 6 & 7 = 4."
+},
+{
+"input": "left = 0, right = 0",
+"output": "0",
+"explanation": ""
+}
+],
+"constraints": [
+"0 <= left <= right <= 2^31 - 1"
+],
+"approaches": [
+{
+"name": "Shift until endpoints share a common prefix",
+"idea": "AND over a range is 1 in a bit only if that bit is 1 in every number, which happens exactly on the common high-order prefix of `left` and `right`; all lower bits vary within the range and get zeroed. Right-shift both until they are equal (that shared prefix), counting the shifts, then shift back.",
+"time": "O(log right)",
+"space": "O(1)",
+"code": "public int rangeBitwiseAnd(int left, int right) {\n    int shift = 0;\n    while (left < right) {\n        left >>= 1;\n        right >>= 1;\n        shift++;\n    }\n    return left << shift;\n}"
+}
+],
+"insight": "The AND of a range is the common binary prefix of its endpoints, with all lower (varying) bits cleared."
+},
+"math-bit-manipulation__minimum-xor-sum-beautiful-arrangement": {
+"title": "Minimum XOR Sum / Beautiful Arrangement",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Hard",
+"pattern": "Bitmask DP over assignments/permutations",
+"notes": "",
+"statement": "**Minimum XOR Sum:** given equal-length arrays `nums1` and `nums2`, rearrange `nums2` to minimize `sum(nums1[i] XOR nums2[i])`; return that minimum. **Beautiful Arrangement:** count permutations `perm` of `1..n` such that for every 1-indexed position `i`, either `perm[i] % i == 0` or `i % perm[i] == 0`.",
+"examples": [
+{
+"input": "nums1 = [1,2], nums2 = [2,3]",
+"output": "2",
+"explanation": "Pair 2↔2 (0) and 1↔3 (2): total 2."
+},
+{
+"input": "n = 2 (Beautiful Arrangement)",
+"output": "2",
+"explanation": "[1,2] and [2,1] both qualify."
+}
+],
+"constraints": [
+"Min XOR Sum: 1 <= n <= 14, 0 <= nums1[i], nums2[i] <= 10^7",
+"Beautiful Arrangement: 1 <= n <= 15"
+],
+"approaches": [
+{
+"name": "Min XOR Sum — bitmask DP over used nums2 indices",
+"idea": "`dp[mask]` = minimum XOR sum after assigning the first `popcount(mask)` entries of `nums1`, where `mask` marks which `nums2` indices are used. The next `nums1` index is `Integer.bitCount(mask)`; try pairing it with each still-free `nums2[j]`, transitioning to `mask | (1<<j)`. Answer is `dp[(1<<n)-1]`.",
+"time": "O(n * 2^n)",
+"space": "O(2^n)",
+"code": "public int minimumXORSum(int[] nums1, int[] nums2) {\n    int n = nums1.length;\n    int[] dp = new int[1 << n];\n    java.util.Arrays.fill(dp, Integer.MAX_VALUE);\n    dp[0] = 0;\n    for (int mask = 0; mask < (1 << n); mask++) {\n        if (dp[mask] == Integer.MAX_VALUE) continue;\n        int i = Integer.bitCount(mask); // index into nums1\n        for (int j = 0; j < n; j++) {\n            if ((mask & (1 << j)) == 0) {\n                int next = mask | (1 << j);\n                dp[next] = Math.min(dp[next], dp[mask] + (nums1[i] ^ nums2[j]));\n            }\n        }\n    }\n    return dp[(1 << n) - 1];\n}"
+},
+{
+"name": "Beautiful Arrangement — bitmask DP counting permutations",
+"idea": "`dp[mask]` = number of ways to fill the first `popcount(mask)` positions using exactly the numbers in `mask`. The next position is `pos = popcount(mask) + 1`; for each unused number `num` that is divisibility-compatible with `pos`, add `dp[mask]` into `dp[mask | (1<<(num-1))]`. Answer is `dp[(1<<n)-1]`.",
+"time": "O(n * 2^n)",
+"space": "O(2^n)",
+"code": "public int countArrangement(int n) {\n    int[] dp = new int[1 << n];\n    dp[0] = 1;\n    for (int mask = 0; mask < (1 << n); mask++) {\n        if (dp[mask] == 0) continue;\n        int pos = Integer.bitCount(mask) + 1; // 1-indexed position to fill\n        for (int num = 1; num <= n; num++) {\n            if ((mask & (1 << (num - 1))) == 0 && (num % pos == 0 || pos % num == 0)) {\n                dp[mask | (1 << (num - 1))] += dp[mask];\n            }\n        }\n    }\n    return dp[(1 << n) - 1];\n}"
+}
+],
+"insight": "Both are assignment problems over 1..n: let dp[mask] describe having placed popcount(mask) items; the next slot index is popcount(mask), and you extend by any unused element — O(n·2^n) beats O(n!) permutation search."
+},
+"math-bit-manipulation__power-of-two-power-of-three-power-of-four": {
+"title": "Power of Two / Power of Three / Power of Four",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Medium",
+"pattern": "Bit tricks and divisibility by the largest power",
+"notes": "",
+"statement": "Determine whether a given integer `n` is a power of two, a power of three, or a power of four respectively (i.e. `n == b^x` for some integer `x >= 0`).",
+"examples": [
+{
+"input": "n = 16",
+"output": "isPowerOfTwo=true, isPowerOfThree=false, isPowerOfFour=true",
+"explanation": "16 = 2^4 = 4^2."
+},
+{
+"input": "n = 27",
+"output": "isPowerOfThree=true, isPowerOfTwo=false",
+"explanation": "27 = 3^3."
+}
+],
+"constraints": [
+"-2^31 <= n <= 2^31 - 1"
+],
+"approaches": [
+{
+"name": "Bit trick (2 & 4) and largest-power divisibility (3)",
+"idea": "A power of two has exactly one set bit: `n > 0 && (n & (n-1)) == 0`. A power of four is additionally a power of two whose single set bit lies on an even position, tested with mask `0x55555555`. For power of three there is no bit pattern, so use that `1162261467 = 3^19` is the largest power of three fitting in an `int`; `n` is a power of three iff it is positive and divides it evenly.",
+"time": "O(1)",
+"space": "O(1)",
+"code": "public boolean isPowerOfTwo(int n) {\n    return n > 0 && (n & (n - 1)) == 0;\n}\n\npublic boolean isPowerOfThree(int n) {\n    // 1162261467 = 3^19, the largest power of 3 that fits in an int\n    return n > 0 && 1162261467 % n == 0;\n}\n\npublic boolean isPowerOfFour(int n) {\n    // power of two, and its single set bit sits at an even position\n    return n > 0 && (n & (n - 1)) == 0 && (n & 0x55555555) != 0;\n}"
+}
+],
+"insight": "Power of two ⇒ (n & (n-1))==0; power of four ⇒ that plus the bit in mask 0x55555555; power of three ⇒ divides 3^19 (1162261467), the max power of 3 in an int."
+},
+"math-bit-manipulation__pow-x-n": {
+"title": "Pow(x,n)",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Medium",
+"pattern": "Fast exponentiation (binary exponentiation)",
+"notes": "",
+"statement": "Implement `pow(x, n)`, which computes `x` raised to the power `n` (i.e. `x^n`).",
+"examples": [
+{
+"input": "x = 2.00000, n = 10",
+"output": "1024.00000",
+"explanation": ""
+},
+{
+"input": "x = 2.00000, n = -2",
+"output": "0.25000",
+"explanation": "2^-2 = 1/4 = 0.25."
+}
+],
+"constraints": [
+"-100.0 < x < 100.0",
+"-2^31 <= n <= 2^31 - 1",
+"-10^4 <= x^n <= 10^4"
+],
+"approaches": [
+{
+"name": "Binary exponentiation",
+"idea": "Square the base while halving the exponent: whenever the current low bit of the exponent is 1, multiply it into the result. Promote `n` to a `long` before negating so that `Integer.MIN_VALUE` does not overflow when handling negative exponents (a negative `n` means the reciprocal `1/x`).",
+"time": "O(log n)",
+"space": "O(1)",
+"code": "public double myPow(double x, int n) {\n    long N = n;\n    if (N < 0) {\n        x = 1 / x;\n        N = -N;\n    }\n    double result = 1.0;\n    while (N > 0) {\n        if ((N & 1) == 1) result *= x;\n        x *= x;\n        N >>= 1;\n    }\n    return result;\n}"
+}
+],
+"insight": "Binary exponentiation: multiply in x^(2^k) whenever bit k of n is set, O(log n); widen n to long before negating to survive Integer.MIN_VALUE."
+},
+"math-bit-manipulation__sqrt-x": {
+"title": "Sqrt(x)",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Medium",
+"pattern": "Binary search on the answer (integer square root)",
+"notes": "",
+"statement": "Given a non-negative integer `x`, return the integer square root of `x`, i.e. `floor(sqrt(x))`. The decimal part is truncated and you must not use any built-in exponent/sqrt function.",
+"examples": [
+{
+"input": "x = 8",
+"output": "2",
+"explanation": "sqrt(8) = 2.828..., truncated to 2."
+},
+{
+"input": "x = 4",
+"output": "2",
+"explanation": ""
+}
+],
+"constraints": [
+"0 <= x <= 2^31 - 1"
+],
+"approaches": [
+{
+"name": "Binary search on the root",
+"idea": "Search `mid` in `[1, x/2]` for the largest value whose square does not exceed `x`. `mid*mid` is monotonic, so a value works iff every smaller value works — a classic monotone predicate. Use `long` for the square to avoid `int` overflow when `mid*mid` exceeds `2^31-1`. When the loop ends, `hi` holds `floor(sqrt(x))`.",
+"time": "O(log x)",
+"space": "O(1)",
+"code": "public int mySqrt(int x) {\n    if (x < 2) return x;\n    long lo = 1, hi = x / 2;\n    while (lo <= hi) {\n        long mid = lo + (hi - lo) / 2;\n        long sq = mid * mid;\n        if (sq == x) return (int) mid;\n        else if (sq < x) lo = mid + 1;\n        else hi = mid - 1;\n    }\n    return (int) hi;   // largest mid with mid*mid <= x\n}"
+}
+],
+"insight": "Monotone predicate `mid*mid <= x` -> binary search; use `long` for the square to dodge overflow, and the answer is `hi` after the loop."
+},
+"math-bit-manipulation__excel-column": {
+"title": "Excel Column",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Medium",
+"pattern": "Bijective base-26 conversion (no zero digit)",
+"notes": "",
+"statement": "Excel labels columns `A, B, ..., Z, AA, AB, ...`. Two conversions are needed: (1) given a column title string, return its 1-based column number; (2) given a column number, return its title. The catch is that this is a **bijective** base-26 system: digits run `1..26` (A..Z) with no zero, so the reverse conversion needs a `--` decrement each step.",
+"examples": [
+{
+"input": "title = \"AB\"",
+"output": "28",
+"explanation": "1*26 + 2 = 28."
+},
+{
+"input": "number = 701",
+"output": "\"ZY\"",
+"explanation": "26*26 + 25 = 701."
+}
+],
+"constraints": [
+"1 <= columnTitle.length <= 7",
+"columnTitle consists of uppercase English letters",
+"1 <= columnNumber <= 2^31 - 1"
+],
+"approaches": [
+{
+"name": "Title -> number (Horner in base 26)",
+"idea": "Treat the string as a base-26 number where `A=1..Z=26`. Sweep left to right accumulating `result = result*26 + (c - 'A' + 1)`, exactly like reading a decimal number digit by digit (Horner's rule).",
+"time": "O(L)",
+"space": "O(1)",
+"code": "public int titleToNumber(String columnTitle) {\n    int result = 0;\n    for (char c : columnTitle.toCharArray()) {\n        result = result * 26 + (c - 'A' + 1);\n    }\n    return result;\n}"
+},
+{
+"name": "Number -> title (bijective base-26)",
+"idea": "Because there is no digit 0, subtract 1 before each `% 26` so the remainder maps to `A..Z` (0..25). Emit the least significant letter, divide by 26, repeat, then reverse. The `columnNumber--` is what converts ordinary base-26 into the offset (bijective) system.",
+"time": "O(log_26 n)",
+"space": "O(log_26 n)",
+"code": "public String convertToTitle(int columnNumber) {\n    StringBuilder sb = new StringBuilder();\n    while (columnNumber > 0) {\n        columnNumber--;                       // shift to 0-based digit\n        sb.append((char) ('A' + columnNumber % 26));\n        columnNumber /= 26;\n    }\n    return sb.reverse().toString();\n}"
+}
+],
+"insight": "It is base-26 with no zero: decoding is plain Horner, but encoding needs a `--` before each `%26`/`/26` step."
+},
+"math-bit-manipulation__count-primes": {
+"title": "Count Primes",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Medium",
+"pattern": "Sieve of Eratosthenes",
+"notes": "",
+"statement": "Given an integer `n`, return the number of prime numbers strictly less than `n`.",
+"examples": [
+{
+"input": "n = 10",
+"output": "4",
+"explanation": "Primes below 10 are 2, 3, 5, 7."
+},
+{
+"input": "n = 0",
+"output": "0",
+"explanation": ""
+}
+],
+"constraints": [
+"0 <= n <= 5 * 10^6"
+],
+"approaches": [
+{
+"name": "Sieve of Eratosthenes",
+"idea": "Mark composites: for each prime `i`, cross out its multiples. Start crossing from `i*i` (smaller multiples were already marked by smaller primes) and only iterate `i` up to `sqrt(n)` implicitly by testing `!composite[i]`. Count the entries never marked. Use a `long` for `i*i` to avoid overflow near the upper bound.",
+"time": "O(n log log n)",
+"space": "O(n)",
+"code": "public int countPrimes(int n) {\n    if (n < 3) return 0;\n    boolean[] composite = new boolean[n];   // composite[k] == true means k is not prime\n    int count = 0;\n    for (int i = 2; i < n; i++) {\n        if (!composite[i]) {\n            count++;\n            for (long j = (long) i * i; j < n; j += i) {\n                composite[(int) j] = true;\n            }\n        }\n    }\n    return count;\n}"
+}
+],
+"insight": "Sieve, and start marking multiples at `i*i` (not `2*i`) — everything below is already handled."
+},
+"math-bit-manipulation__fraction-to-recurring-decimal": {
+"title": "Fraction to Recurring Decimal",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Hard",
+"pattern": "Long division + remainder memoization to detect the cycle",
+"notes": "",
+"statement": "Given `numerator` and `denominator` of a fraction, return the fraction as a string. If the fractional part is repeating, wrap the repeating block in parentheses. Handle the sign and integer overflow (`INT_MIN` numerator/denominator).",
+"examples": [
+{
+"input": "numerator = 4, denominator = 333",
+"output": "\"0.(012)\"",
+"explanation": "4/333 = 0.012012..."
+},
+{
+"input": "numerator = 1, denominator = 2",
+"output": "\"0.5\"",
+"explanation": ""
+},
+{
+"input": "numerator = 2, denominator = 3",
+"output": "\"0.(6)\"",
+"explanation": ""
+}
+],
+"constraints": [
+"-2^31 <= numerator, denominator <= 2^31 - 1",
+"denominator != 0"
+],
+"approaches": [
+{
+"name": "Simulate long division, memoize remainders",
+"idea": "Emit the integer part, then perform long division on the fractional part. A repeating decimal appears exactly when a remainder repeats, so store each remainder's output position in a map; when a remainder recurs, insert `(` at its stored position and append `)`. Cast to `long` and take absolute values first so the sign logic (XOR of the two signs) and `INT_MIN` are handled without overflow.",
+"time": "O(d) where d is the number of distinct remainders (< |denominator|)",
+"space": "O(d)",
+"code": "public String fractionToDecimal(int numerator, int denominator) {\n    if (numerator == 0) return \"0\";\n    StringBuilder sb = new StringBuilder();\n    if ((numerator < 0) ^ (denominator < 0)) sb.append('-');\n    long num = Math.abs((long) numerator);\n    long den = Math.abs((long) denominator);\n    sb.append(num / den);\n    long rem = num % den;\n    if (rem == 0) return sb.toString();\n    sb.append('.');\n    Map<Long, Integer> seen = new HashMap<>();   // remainder -> index in sb\n    while (rem != 0) {\n        if (seen.containsKey(rem)) {\n            int start = seen.get(rem);\n            sb.insert(start, '(');\n            sb.append(')');\n            break;\n        }\n        seen.put(rem, sb.length());\n        rem *= 10;\n        sb.append(rem / den);\n        rem %= den;\n    }\n    return sb.toString();\n}"
+}
+],
+"insight": "A repeating fraction == a repeating remainder; map remainder -> position and wrap in parentheses when it recurs. Do arithmetic in `long` after `abs` to survive `INT_MIN`."
+},
+"math-bit-manipulation__basic-calculator-i-ii-iii": {
+"title": "Basic Calculator I/II/III",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Hard",
+"pattern": "Stack for precedence + recursion for parentheses",
+"notes": "",
+"statement": "Implement a calculator that evaluates a string expression. The general form (Calculator III) supports non-negative integers and the operators `+`, `-`, `*`, `/` with normal precedence and arbitrary parentheses; division truncates toward zero. Calculator I is the special case with only `+`, `-`, and parentheses; Calculator II has `+`, `-`, `*`, `/` but no parentheses. The single solution below handles all three.",
+"examples": [
+{
+"input": "s = \"1 + 1\"",
+"output": "2",
+"explanation": "Calculator I."
+},
+{
+"input": "s = \" 3+5 / 2 \"",
+"output": "5",
+"explanation": "Calculator II: 3 + 2 = 5 (integer division)."
+},
+{
+"input": "s = \"2*(5+5*2)/3+(6/2+8)\"",
+"output": "21",
+"explanation": "Calculator III with nesting."
+}
+],
+"constraints": [
+"1 <= s.length <= 3 * 10^5",
+"s consists of digits, '+', '-', '*', '/', '(', ')', and spaces",
+"s is a valid expression; integer values fit in a signed 32-bit range"
+],
+"approaches": [
+{
+"name": "Recursive descent on '(' with an operator/operand stack",
+"idea": "Scan left to right building the current number. On seeing `(`, recurse to evaluate the sub-expression and use its value as the current number. When the next token is an operator (or the string/parenthesis ends), flush the pending number using the *previous* operator: push for `+`, push negated for `-`, and for `*`/`/` pop the top and combine — this defers low-precedence ops on the stack while resolving high-precedence ones immediately. The answer is the sum of the stack. A shared index (`int[] i`) lets the recursion consume characters across calls.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public int calculate(String s) {\n    return helper(s, new int[]{0});\n}\nprivate int helper(String s, int[] i) {\n    Deque<Integer> stack = new ArrayDeque<>();\n    long num = 0;\n    char op = '+';   // operator preceding the current number\n    while (i[0] < s.length()) {\n        char c = s.charAt(i[0]++);\n        if (Character.isDigit(c)) {\n            num = num * 10 + (c - '0');\n        } else if (c == '(') {\n            num = helper(s, i);   // value of the parenthesised block\n        }\n        boolean isOperator = (c != ' ' && !Character.isDigit(c));\n        if (isOperator || i[0] == s.length()) {\n            switch (op) {\n                case '+': stack.push((int) num); break;\n                case '-': stack.push((int) -num); break;\n                case '*': stack.push(stack.pop() * (int) num); break;\n                case '/': stack.push(stack.pop() / (int) num); break;\n            }\n            op = c;\n            num = 0;\n        }\n        if (c == ')') break;   // finished this nested expression\n    }\n    int sum = 0;\n    for (int v : stack) sum += v;\n    return sum;\n}"
+}
+],
+"insight": "Push +/- terms onto a stack but resolve */ immediately against the top; recurse on `(` sharing one index. Final answer = sum of the stack."
+},
+"math-bit-manipulation__max-points-on-a-line": {
+"title": "Max Points on a Line",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Hard",
+"pattern": "Fix a point, group the rest by normalized slope (gcd)",
+"notes": "",
+"statement": "Given `n` distinct points on the 2D plane, return the maximum number of points that lie on the same straight line.",
+"examples": [
+{
+"input": "points = [[1,1],[2,2],[3,3]]",
+"output": "3",
+"explanation": ""
+},
+{
+"input": "points = [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]",
+"output": "4",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= points.length <= 300",
+"points[i].length == 2",
+"-10^4 <= xi, yi <= 10^4",
+"All points are distinct"
+],
+"approaches": [
+{
+"name": "Anchor point + slope counting with reduced fractions",
+"idea": "For each anchor `i`, every other point defines a slope `(dy, dx)`. Points share a line through `i` iff they share the same slope, so count slopes in a map and take the max. To use an exact (float-free) key, reduce `(dy, dx)` by their gcd and normalize the sign (make `dx > 0`, or `dx == 0 => dy > 0`) so `(1,2)` and `(-1,-2)` collapse to one key. Answer for the anchor is `bestSlopeCount + 1` (the anchor itself).",
+"time": "O(n^2)",
+"space": "O(n)",
+"code": "public int maxPoints(int[][] points) {\n    int n = points.length;\n    if (n <= 2) return n;\n    int max = 1;\n    for (int i = 0; i < n; i++) {\n        Map<Long, Integer> slopes = new HashMap<>();\n        int localMax = 0;\n        for (int j = i + 1; j < n; j++) {\n            int dx = points[j][0] - points[i][0];\n            int dy = points[j][1] - points[i][1];\n            int g = gcd(dx, dy);\n            dx /= g; dy /= g;\n            if (dx < 0 || (dx == 0 && dy < 0)) { dx = -dx; dy = -dy; }\n            long key = ((long) dx << 20) | (dy & 0xFFFFF);\n            int cnt = slopes.merge(key, 1, Integer::sum);\n            localMax = Math.max(localMax, cnt);\n        }\n        max = Math.max(max, localMax + 1);\n    }\n    return max;\n}\nprivate int gcd(int a, int b) {\n    return b == 0 ? a : gcd(b, a % b);\n}"
+}
+],
+"insight": "Fix each point and bucket the others by gcd-reduced, sign-normalized slope; the biggest bucket + 1 is the line through that anchor."
+},
+"math-bit-manipulation__super-pow": {
+"title": "Super Pow",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Hard",
+"pattern": "Modular exponentiation, digit by digit (Horner mod)",
+"notes": "",
+"statement": "Compute `a^b mod 1337`, where `a` is a positive integer and `b` is an extremely large positive integer given as an array of its decimal digits (most significant first).",
+"examples": [
+{
+"input": "a = 2, b = [3]",
+"output": "8",
+"explanation": "2^3 = 8."
+},
+{
+"input": "a = 2, b = [1,0]",
+"output": "1024",
+"explanation": "2^10 = 1024."
+},
+{
+"input": "a = 2147483647, b = [2,0,0]",
+"output": "1198",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= a <= 2^31 - 1",
+"1 <= b.length <= 2000",
+"0 <= b[i] <= 9",
+"b has no leading zeros except the number 0 itself"
+],
+"approaches": [
+{
+"name": "Horner over digits with modular power",
+"idea": "Use `a^(10*prefix + d) = (a^prefix)^10 * a^d`. Fold the digits left to right (Horner's rule) keeping the running result mod 1337: at each digit set `result = powMod(result, 10) * powMod(a, d)`. Since exponents are single digits, `powMod` just multiplies at most 10 times, all under the modulus, so no big-integer arithmetic is needed.",
+"time": "O(L) with a small constant (<= 10 mults per digit)",
+"space": "O(1)",
+"code": "private static final int MOD = 1337;\npublic int superPow(int a, int[] b) {\n    a %= MOD;\n    int result = 1;\n    for (int digit : b) {\n        result = powMod(result, 10) * powMod(a, digit) % MOD;\n    }\n    return result;\n}\nprivate int powMod(int base, int exp) {\n    base %= MOD;\n    int res = 1;\n    for (int i = 0; i < exp; i++) res = res * base % MOD;\n    return res;\n}"
+}
+],
+"insight": "a^(10k+d) = (a^k)^10 * a^d — Horner-fold the digit array while reducing mod 1337 each step."
+},
+"math-bit-manipulation__nth-magical-number": {
+"title": "Nth Magical Number",
+"topic": "Math & Bit Manipulation",
+"subtopic": "Math & Bit Manipulation",
+"difficulty": "Hard",
+"pattern": "Binary search on the answer + inclusion-exclusion count via LCM",
+"notes": "",
+"statement": "A positive integer is *magical* if it is divisible by `a` or by `b`. Return the `n`-th magical number, modulo `10^9 + 7`.",
+"examples": [
+{
+"input": "n = 1, a = 2, b = 3",
+"output": "2",
+"explanation": "The magical numbers are 2, 3, 4, 6, ..."
+},
+{
+"input": "n = 4, a = 2, b = 3",
+"output": "6",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= n <= 10^9",
+"2 <= a, b <= 4 * 10^4"
+],
+"approaches": [
+{
+"name": "Binary search on value, count multiples with LCM",
+"idea": "The count of magical numbers `<= x` is `x/a + x/b - x/lcm(a,b)` by inclusion-exclusion, and this count is non-decreasing in `x` — a monotone predicate. Binary search the smallest `x` whose count reaches `n`. Bound the high end by `min(a,b) * n` (at most that many are needed) and use `long` throughout to avoid overflow; take the result mod 1e9+7 only at the very end.",
+"time": "O(log(min(a,b) * n))",
+"space": "O(1)",
+"code": "public int nthMagicalNumber(int n, int a, int b) {\n    final int MOD = 1_000_000_007;\n    long lcm = (long) a / gcd(a, b) * b;\n    long lo = 1, hi = (long) Math.min(a, b) * n;\n    while (lo < hi) {\n        long mid = lo + (hi - lo) / 2;\n        long count = mid / a + mid / b - mid / lcm;\n        if (count < n) lo = mid + 1;\n        else hi = mid;\n    }\n    return (int) (lo % MOD);\n}\nprivate int gcd(int x, int y) {\n    return y == 0 ? x : gcd(y, x % y);\n}"
+}
+],
+"insight": "Count(<= x) = x/a + x/b - x/lcm is monotone -> binary search the answer; reduce mod only at the end."
+}
+}

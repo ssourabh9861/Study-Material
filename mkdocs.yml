@@ -32,6 +32,13 @@ theme:
     - content.code.copy
     - content.code.annotate
 
+extra_css:
+  - assets/stylesheets/custom.css
+
+extra_javascript:
+  - path: assets/javascripts/custom.js
+    defer: true
+
 exclude_docs: |
   PROMPT.md
   _*.md

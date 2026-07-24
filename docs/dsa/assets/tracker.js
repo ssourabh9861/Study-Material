@@ -73,7 +73,11 @@
   }
 
   // ---------- data loading ----------
-  function fetchJSON(url) { return fetch(url, { cache: "no-cache" }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }); }
+  var VER = (window.DSA_ASSET_VER || "0");
+  function fetchJSON(url) {
+    var u = url + (url.indexOf("?") < 0 ? "?" : "&") + "v=" + VER;
+    return fetch(u, { cache: "no-cache" }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+  }
 
   function loadTopic(topicSlug) {
     if (state.contentCache[topicSlug]) return Promise.resolve(state.contentCache[topicSlug]);

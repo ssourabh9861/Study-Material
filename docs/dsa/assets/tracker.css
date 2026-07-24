@@ -40,8 +40,14 @@
 .dsa-btn:hover { border-color: var(--md-primary-fg-color); }
 .dsa-btn.primary { background: var(--md-primary-fg-color); color: #fff; border-color: transparent; }
 .dsa-sync-time { font-size: .72rem; color: var(--muted); margin-left: auto; }
-.dsa-toggle { display: inline-flex; align-items: center; gap: .4rem; font-size: .8rem; cursor: pointer; }
-.dsa-toggle input { accent-color: var(--md-primary-fg-color); }
+/* segmented Solved / Unsolved / All control */
+.dsa-seg { display: inline-flex; border: 1px solid var(--line); border-radius: .55rem; overflow: hidden; background: var(--card-bg); }
+.dsa-seg button { appearance: none; border: 0; background: transparent; cursor: pointer;
+  padding: .42rem .8rem; font-size: .8rem; font-weight: 600; color: var(--muted);
+  border-left: 1px solid var(--line); transition: .15s; }
+.dsa-seg button:first-child { border-left: 0; }
+.dsa-seg button:hover { color: var(--md-default-fg-color); background: color-mix(in srgb, var(--md-primary-fg-color) 7%, transparent); }
+.dsa-seg button.active { background: var(--md-primary-fg-color); color: #fff; }
 .dsa-spin { animation: dsa-spin 0.8s linear infinite; }
 @keyframes dsa-spin { to { transform: rotate(360deg); } }
 
@@ -50,19 +56,20 @@
   margin-bottom: 1.4rem; padding: 1.1rem 1.2rem; border: 1px solid var(--line); border-radius: .9rem;
   background: var(--card-bg); }
 @media (max-width: 640px) { .dsa-dash { grid-template-columns: 1fr; justify-items: center; } }
-.dsa-ring { position: relative; width: 128px; height: 128px; }
-.dsa-ring svg { transform: rotate(-90deg); }
+.dsa-ring { position: relative; width: 118px; height: 118px; flex: none; }
+.dsa-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; display: block; }
 .dsa-ring .track { stroke: var(--line); }
 .dsa-ring .prog { stroke: var(--md-primary-fg-color); stroke-linecap: round; transition: stroke-dashoffset .6s ease; }
 .dsa-ring .label { position: absolute; inset: 0; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; }
-.dsa-ring .label b { font-size: 1.7rem; line-height: 1; }
-.dsa-ring .label span { font-size: .72rem; color: var(--muted); }
-.dsa-diffbars { display: flex; flex-direction: column; gap: .6rem; width: 100%; }
-.dsa-diffbar { display: grid; grid-template-columns: 78px 1fr 62px; gap: .6rem; align-items: center; font-size: .8rem; }
-.dsa-diffbar .name { font-weight: 600; }
-.dsa-diffbar .count { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
-.dsa-bar { height: 9px; border-radius: 6px; background: var(--line); overflow: hidden; }
+  align-items: center; justify-content: center; line-height: 1; }
+.dsa-ring .label b { font-size: 1.55rem; font-weight: 800; letter-spacing: -.02em; }
+.dsa-ring .label span { font-size: .7rem; color: var(--muted); margin-top: .15rem; font-variant-numeric: tabular-nums; }
+.dsa-diffbars { display: flex; flex-direction: column; gap: .7rem; width: 100%; }
+.dsa-diffbar { display: grid; grid-template-columns: 84px 1fr auto; gap: .75rem; align-items: center; font-size: .82rem; }
+.dsa-diffbar .name { font-weight: 700; white-space: nowrap; }
+.dsa-diffbar .count { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums;
+  white-space: nowrap; min-width: 62px; }
+.dsa-bar { height: 8px; border-radius: 6px; background: var(--line); overflow: hidden; }
 .dsa-bar > i { display: block; height: 100%; border-radius: 6px; transition: width .6s ease; }
 
 /* ---------- topic sections ---------- */
@@ -136,3 +143,18 @@
 
 .dsa-empty { padding: 2rem 1rem; text-align: center; color: var(--muted); }
 .dsa-pending { font-style: italic; color: var(--muted); font-size: .85rem; padding: .5rem 0; }
+
+/* ---------- polish ---------- */
+#dsa-app { -webkit-font-smoothing: antialiased; }
+.dsa-dash { gap: 1.6rem; }
+.dsa-topic { transition: box-shadow .15s, border-color .15s; }
+.dsa-topic.open { box-shadow: 0 3px 14px rgba(0,0,0,.05); }
+.dsa-topic-title { font-size: 1rem; letter-spacing: -.01em; }
+.dsa-card { transition: border-color .15s, box-shadow .15s; }
+.dsa-card.solved { border-left: 3px solid var(--solved); }
+.dsa-card.open { box-shadow: 0 3px 14px rgba(0,0,0,.05); }
+.dsa-card .ptitle { font-size: .9rem; letter-spacing: -.01em; }
+.dsa-card-body h4 { font-weight: 800; }
+.dsa-card-body p, .dsa-constraints { line-height: 1.55; }
+/* trim MkDocs' oversized h1 on the tracker page */
+.md-typeset h1:first-of-type { font-size: 1.9rem; font-weight: 800; letter-spacing: -.02em; color: var(--md-default-fg-color); margin-bottom: 1rem; }

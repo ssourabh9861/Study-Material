@@ -10,8 +10,7 @@
 
   var LS_LIVE = "dsa_solved_live";
   var LS_TIME = "dsa_solved_synced_at";
-  var LS_REVEAL = "dsa_revealed_topics";
-  var LS_SHOWUN = "dsa_show_unsolved";
+  var LS_VIEW = "dsa_view";
   var LS_OPEN = "dsa_open_topics";
 
   var state = {
@@ -19,10 +18,9 @@
     solved: {},                 // id -> true (merged best-known)
     contentCache: {},           // topicSlug -> {id: entry}
     lc: {},                     // id -> LeetCode url
-    revealedTopics: loadSet(LS_REVEAL),
     openTopics: loadSet(LS_OPEN),
-    showUnsolved: localStorage.getItem(LS_SHOWUN) === "1",
-    search: "", difficulty: "all", status: "all",
+    search: "", difficulty: "all",
+    view: localStorage.getItem(LS_VIEW) || "solved",   // solved | unsolved | all
     root: null,
   };
 
@@ -131,10 +129,9 @@
   function visible(m) {
     if (!passesFilter(m)) return false;
     var solved = isSolved(m.id);
-    if (state.status === "solved") return solved;
-    if (state.status === "unsolved") return !solved;
-    if (solved) return true;
-    return state.showUnsolved || state.revealedTopics.has(m.topicSlug) || !!state.search;
+    if (state.view === "solved") return solved;
+    if (state.view === "unsolved") return !solved;
+    return true; // "all"
   }
 
   function renderAll() {
@@ -173,8 +170,9 @@
   }
 
   function renderToolbarState() {
-    var t = document.getElementById("dsa-showun");
-    if (t) t.checked = state.showUnsolved;
+    state.root.querySelectorAll(".dsa-seg [data-view]").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-view") === state.view);
+    });
   }
 
   function renderTopics() {
@@ -194,26 +192,22 @@
       var all = T.order.reduce(function (a, s) { return a.concat(T.subs[s]); }, []);
       var solvedCnt = all.filter(function (m) { return isSolved(m.id); }).length;
       var vis = all.filter(visible);
-      // hide whole topic if a filter is active and nothing matches
-      var filtering = state.search || state.difficulty !== "all" || state.status !== "all";
-      if (filtering && vis.length === 0) return;
-      anyVisible = anyVisible || vis.length > 0 || !filtering;
+      // hide whole topic when nothing matches the current view/filters
+      if (vis.length === 0) return;
+      anyVisible = true;
 
-      var open = state.openTopics.has(T.slug) || filtering;
+      var searching = !!(state.search || state.difficulty !== "all");
+      var open = state.openTopics.has(T.slug) || searching;
       var w = all.length ? (solvedCnt / all.length * 100) : 0;
-      var unsolvedN = all.length - solvedCnt;
-      var showUnBtn = unsolvedN > 0 && state.status === "all" && !state.showUnsolved
-        ? '<button class="dsa-btn" data-reveal="' + T.slug + '" style="padding:.25rem .6rem;font-size:.72rem">' +
-          (state.revealedTopics.has(T.slug) ? "hide unsolved" : "show " + unsolvedN + " unsolved") + "</button>"
-        : "";
+      var pct = Math.round(w);
 
       var sec = el('<section class="dsa-topic' + (open ? " open" : "") + '" data-topic="' + T.slug + '"></section>');
       sec.appendChild(el(
         '<div class="dsa-topic-head" data-toggle="' + T.slug + '">' +
         '<span class="chev">▶</span>' +
         '<span class="dsa-topic-title">' + esc(T.name) + "</span>" +
-        '<span class="dsa-topic-meta">' + showUnBtn +
-        '<span class="dsa-bar" style="width:90px"><i style="width:' + w.toFixed(1) + '%;background:var(--solved)"></i></span>' +
+        '<span class="dsa-topic-meta">' +
+        '<span class="dsa-bar"><i style="width:' + w.toFixed(1) + '%;background:var(--solved)"></i></span>' +
         '<span class="frac">' + solvedCnt + " / " + all.length + "</span></span></div>"));
 
       var body = el('<div class="dsa-topic-body"></div>');
@@ -327,13 +321,12 @@
   // ---------- events ----------
   function onClick(e) {
     var t = e.target;
-    // reveal per-topic unsolved
-    var rev = t.closest("[data-reveal]");
-    if (rev) {
-      e.stopPropagation();
-      var ts = rev.getAttribute("data-reveal");
-      if (state.revealedTopics.has(ts)) state.revealedTopics.delete(ts); else state.revealedTopics.add(ts);
-      saveSet(LS_REVEAL, state.revealedTopics);
+    // segmented view control
+    var seg = t.closest("[data-view]");
+    if (seg) {
+      state.view = seg.getAttribute("data-view");
+      localStorage.setItem(LS_VIEW, state.view);
+      renderToolbarState();
       renderTopics();
       return;
     }
@@ -376,10 +369,6 @@
   function bindToolbar() {
     document.getElementById("dsa-search").addEventListener("input", debounce(function (e) { state.search = e.target.value.trim().toLowerCase(); renderTopics(); }, 180));
     document.getElementById("dsa-diff").addEventListener("change", function (e) { state.difficulty = e.target.value; renderTopics(); });
-    document.getElementById("dsa-status").addEventListener("change", function (e) { state.status = e.target.value; renderTopics(); });
-    document.getElementById("dsa-showun").addEventListener("change", function (e) {
-      state.showUnsolved = e.target.checked; localStorage.setItem(LS_SHOWUN, state.showUnsolved ? "1" : "0"); renderTopics();
-    });
     document.getElementById("dsa-sync").addEventListener("click", function () { syncLive(true); });
     state.root.addEventListener("click", onClick);
   }
@@ -394,8 +383,11 @@
       '<div class="dsa-toolbar">' +
       '<input id="dsa-search" type="search" placeholder="Search problems…" />' +
       '<select id="dsa-diff"><option value="all">All difficulty</option><option>Medium</option><option>Hard</option><option>Very Hard</option></select>' +
-      '<select id="dsa-status"><option value="all">Solved (default)</option><option value="solved">Only solved</option><option value="unsolved">Only unsolved</option></select>' +
-      '<label class="dsa-toggle"><input type="checkbox" id="dsa-showun"/> show unsolved</label>' +
+      '<div class="dsa-seg" role="tablist">' +
+        '<button data-view="solved">Solved</button>' +
+        '<button data-view="unsolved">Unsolved</button>' +
+        '<button data-view="all">All</button>' +
+      "</div>" +
       '<button class="dsa-btn primary" id="dsa-sync"><span id="dsa-sync-icon">⟳</span> Sync</button>' +
       '<span class="dsa-sync-time" id="dsa-sync-time"></span>' +
       "</div>" +

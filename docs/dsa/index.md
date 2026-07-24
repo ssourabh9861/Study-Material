@@ -7,7 +7,7 @@ hide:
 
 <div id="dsa-app">Loading…</div>
 
-<link rel="stylesheet" href="assets/tracker.css?v=4">
+<link rel="stylesheet" href="assets/tracker.css?v=5">
 
 <script>
   // Live sync source. After publishing the tracker "Tracker" tab to the web as CSV,
@@ -16,6 +16,6 @@ hide:
   // Cache-busting version for the tracker data fetches. BUMP THIS whenever
   // tracker.js/tracker.css or any docs/dsa/data/*.json changes, so browsers
   // (which cache the unhashed assets aggressively) reload the new version.
-  window.DSA_ASSET_VER = "4";
+  window.DSA_ASSET_VER = "5";
 </script>
-<script src="assets/tracker.js?v=4"></script>
+<script src="assets/tracker.js?v=5"></script>

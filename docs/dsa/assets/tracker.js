@@ -245,6 +245,9 @@
   function renderDetail(bodyEl, entry) {
     if (!entry) { bodyEl.innerHTML = '<div class="dsa-pending">Reference content not generated yet for this problem.</div>'; return; }
     var h = "";
+    var lcTerm = (entry.title || "").replace(/[\/()]/g, " ").replace(/\s+/g, " ").trim();
+    h += '<a class="dsa-lc" href="https://leetcode.com/problemset/?search=' + encodeURIComponent(lcTerm) +
+         '" target="_blank" rel="noopener">View on LeetCode ↗</a>';
     if (entry.pattern) h += '<p class="dsa-cmplx"><b>Pattern:</b> ' + inlineMd(entry.pattern) + "</p>";
     h += "<h4>Problem</h4><p>" + inlineMd(entry.statement || "") + "</p>";
     if (entry.examples && entry.examples.length) {

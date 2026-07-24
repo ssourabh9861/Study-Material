@@ -130,5 +130,9 @@
 .dsa-approach { display: none; }
 .dsa-approach.active { display: block; }
 
+.dsa-lc { float: right; font-size: .74rem; font-weight: 700; padding: .28rem .6rem; margin-left: .5rem;
+  border-radius: .4rem; text-decoration: none; color: var(--md-primary-fg-color); border: 1px solid var(--line); }
+.dsa-lc:hover { border-color: var(--md-primary-fg-color); background: color-mix(in srgb, var(--md-primary-fg-color) 8%, transparent); }
+
 .dsa-empty { padding: 2rem 1rem; text-align: center; color: var(--muted); }
 .dsa-pending { font-style: italic; color: var(--muted); font-size: .85rem; padding: .5rem 0; }

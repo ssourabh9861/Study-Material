@@ -31,6 +31,8 @@ theme:
     - search.share
     - content.code.copy
     - content.code.annotate
+    - toc.follow
+    - navigation.tracking
 
 extra_css:
   - assets/stylesheets/custom.css

@@ -1,0 +1,1371 @@
+{
+"niche-advanced__partition-array-into-two-arrays-to-minimize-sum-difference": {
+"title": "Partition Array Into Two Arrays to Minimize Sum Difference",
+"topic": "Niche / Advanced",
+"subtopic": "Meet in the Middle",
+"difficulty": "Hard",
+"pattern": "Meet in the middle: subset sums by count + binary search",
+"notes": "",
+"statement": "You are given an array `nums` of `2n` integers. Partition it into two arrays of length `n` each to minimize the absolute difference of their sums. Return that minimum possible absolute difference.",
+"examples": [
+{
+"input": "nums = [3,9,7,3]",
+"output": "2",
+"explanation": "One optimal partition is [3,9] and [7,3] with sums 12 and 10; difference 2."
+},
+{
+"input": "nums = [-36,36]",
+"output": "72",
+"explanation": "The only partition is [-36] and [36]; difference 72."
+}
+],
+"constraints": [
+"1 <= n <= 15",
+"nums.length == 2 * n",
+"-10^7 <= nums[i] <= 10^7"
+],
+"approaches": [
+{
+"name": "Meet in the middle by subset size",
+"idea": "Split the `2n` elements into two halves of `n`. If one part of the final partition takes `k` elements from the left half, it must take `n-k` from the right. Enumerate all subset sums of each half grouped by how many elements they use (`2^n` each). For every left subset of size `k` with sum `ls`, the total sum of that part is `ls + rs` where `rs` comes from a right subset of size `n-k`; we want `ls + rs` as close to `total/2` as possible, i.e. minimize `|total - 2*(ls+rs)|`. Sort each right bucket and binary-search the best `rs`.",
+"time": "O(2^n * n)",
+"space": "O(2^n)",
+"code": "public int minimumDifference(int[] nums) {\n    int n = nums.length / 2;\n    int[] left = Arrays.copyOfRange(nums, 0, n);\n    int[] right = Arrays.copyOfRange(nums, n, 2 * n);\n    long total = 0;\n    for (int x : nums) total += x;\n\n    List<List<Integer>> leftSums = subsetSumsByCount(left);\n    List<List<Integer>> rightSums = subsetSumsByCount(right);\n    for (List<Integer> bucket : rightSums) Collections.sort(bucket);\n\n    long best = Long.MAX_VALUE;\n    for (int k = 0; k <= n; k++) {\n        List<Integer> rs = rightSums.get(n - k);\n        for (int ls : leftSums.get(k)) {\n            long t = total - 2L * ls;   // want rs closest to t/2 -> minimize |t - 2*rs|\n            best = Math.min(best, minAbs(rs, t));\n        }\n    }\n    return (int) best;\n}\n\nprivate long minAbs(List<Integer> sorted, long t) {\n    int lo = 0, hi = sorted.size();\n    while (lo < hi) {                    // first index with 2*val >= t\n        int mid = (lo + hi) >>> 1;\n        if (2L * sorted.get(mid) >= t) hi = mid; else lo = mid + 1;\n    }\n    long best = Long.MAX_VALUE;\n    if (lo < sorted.size()) best = Math.min(best, Math.abs(t - 2L * sorted.get(lo)));\n    if (lo > 0)             best = Math.min(best, Math.abs(t - 2L * sorted.get(lo - 1)));\n    return best;\n}\n\nprivate List<List<Integer>> subsetSumsByCount(int[] a) {\n    int n = a.length;\n    List<List<Integer>> res = new ArrayList<>();\n    for (int i = 0; i <= n; i++) res.add(new ArrayList<>());\n    for (int mask = 0; mask < (1 << n); mask++) {\n        int cnt = Integer.bitCount(mask), sum = 0;\n        for (int i = 0; i < n; i++) if ((mask & (1 << i)) != 0) sum += a[i];\n        res.get(cnt).add(sum);\n    }\n    return res;\n}"
+}
+],
+"insight": "Fix how many elements come from each half (`k` and `n-k`); then it is a classic two-sided subset-sum where you binary-search one half for the value that lands the running total nearest `total/2`."
+},
+"niche-advanced__closest-subsequence-sum": {
+"title": "Closest Subsequence Sum",
+"topic": "Niche / Advanced",
+"subtopic": "Meet in the Middle",
+"difficulty": "Hard",
+"pattern": "Meet in the middle: enumerate half subset sums + binary search",
+"notes": "",
+"statement": "Given an array `nums` and an integer `goal`, choose any subsequence (possibly empty) and let `sum` be its sum. Return the minimum possible value of `|sum - goal|`.",
+"examples": [
+{
+"input": "nums = [5,-7,3,5], goal = 6",
+"output": "0",
+"explanation": "The whole array sums to 6, which equals the goal."
+},
+{
+"input": "nums = [7,-9,15,-2], goal = -5",
+"output": "1",
+"explanation": "Subsequence [-9,-2] sums to -11 ... choose [-9,15,-2] = 4? Closest achievable is -4 (from [-9,15,-2] variations); |-4-(-5)|=1."
+}
+],
+"constraints": [
+"1 <= nums.length <= 40",
+"-10^7 <= nums[i] <= 10^7",
+"-10^9 <= goal <= 10^9"
+],
+"approaches": [
+{
+"name": "Meet in the middle",
+"idea": "`n` up to 40 is too large for `2^n` but fine for `2^(n/2)`. Split into two halves and enumerate every subset sum of each half (built incrementally from the lowest set bit). Sort the second half's sums. For each sum `x` from the first half, the best complement is the value in the second half nearest `goal - x`; binary-search it (check the candidate at the boundary and the one just below).",
+"time": "O(2^(n/2) * n/2)",
+"space": "O(2^(n/2))",
+"code": "public int minAbsDifference(int[] nums, int goal) {\n    int n = nums.length;\n    int[] sa = allSubsetSums(Arrays.copyOfRange(nums, 0, n / 2));\n    int[] sb = allSubsetSums(Arrays.copyOfRange(nums, n / 2, n));\n    Arrays.sort(sb);\n\n    int best = Integer.MAX_VALUE;\n    for (int x : sa) {\n        int t = goal - x;                         // want sb closest to t\n        int lo = 0, hi = sb.length;\n        while (lo < hi) { int mid = (lo + hi) >>> 1; if (sb[mid] >= t) hi = mid; else lo = mid + 1; }\n        if (lo < sb.length) best = Math.min(best, Math.abs(x + sb[lo] - goal));\n        if (lo > 0)         best = Math.min(best, Math.abs(x + sb[lo - 1] - goal));\n    }\n    return best;\n}\n\nprivate int[] allSubsetSums(int[] a) {\n    int n = a.length;\n    int[] res = new int[1 << n];\n    for (int mask = 1; mask < (1 << n); mask++) {\n        int lsb = Integer.numberOfTrailingZeros(mask);\n        res[mask] = res[mask & (mask - 1)] + a[lsb];   // reuse subset without lowest bit\n    }\n    return res;\n}"
+}
+],
+"insight": "40 elements => split in half, precompute all 2^20 subset sums of each side, sort one, and binary-search the complement nearest `goal - x`."
+},
+"niche-advanced__subset-sum": {
+"title": "Subset Sum",
+"topic": "Niche / Advanced",
+"subtopic": "Meet in the Middle",
+"difficulty": "Very Hard",
+"pattern": "Meet in the middle: half subset sums + hashed/binary-search lookup",
+"notes": "",
+"statement": "Given an array `nums` and a `target`, decide whether some subset of `nums` sums exactly to `target`. When `n` is large (up to ~40) but values may be huge, a value-based DP is infeasible, so use meet in the middle.",
+"examples": [
+{
+"input": "nums = [3,34,4,12,5,2], target = 9",
+"output": "true",
+"explanation": "Subset [4,5] (or [3,4,2]) sums to 9."
+},
+{
+"input": "nums = [3,34,4,12,5,2], target = 30",
+"output": "false",
+"explanation": "No subset sums to 30."
+}
+],
+"constraints": [
+"1 <= nums.length <= 40",
+"values and target may exceed the range that makes O(n*target) DP practical"
+],
+"approaches": [
+{
+"name": "Meet in the middle",
+"idea": "Split into two halves and enumerate all `2^(n/2)` subset sums of each. Sort the right half's sums. For every left sum `x`, we need a right sum equal to `target - x`; binary-search for it. This is `O(2^(n/2) * (n/2 + log))` instead of the intractable `2^n`. If values fit in a small range, a Fenwick/DP over sums is the alternative, but MITM handles large values.",
+"time": "O(2^(n/2) * (n/2 + log))",
+"space": "O(2^(n/2))",
+"code": "public boolean subsetSum(int[] nums, long target) {\n    int n = nums.length;\n    long[] left = allSubsetSums(Arrays.copyOfRange(nums, 0, n / 2));\n    long[] right = allSubsetSums(Arrays.copyOfRange(nums, n / 2, n));\n    Arrays.sort(right);\n    for (long x : left) {\n        long need = target - x;\n        int lo = 0, hi = right.length - 1;\n        while (lo <= hi) {\n            int mid = (lo + hi) >>> 1;\n            if (right[mid] == need) return true;\n            else if (right[mid] < need) lo = mid + 1;\n            else hi = mid - 1;\n        }\n    }\n    return false;\n}\n\nprivate long[] allSubsetSums(int[] a) {\n    int n = a.length;\n    long[] res = new long[1 << n];\n    for (int mask = 1; mask < (1 << n); mask++) {\n        int lsb = Integer.numberOfTrailingZeros(mask);\n        res[mask] = res[mask & (mask - 1)] + a[lsb];\n    }\n    return res;\n}"
+}
+],
+"insight": "When `2^n` is too big but values are unbounded, split in half: any target sum is (left subset sum) + (right subset sum), so enumerate one side and binary-search the complement in the other."
+},
+"niche-advanced__split-array-with-same-average": {
+"title": "Split Array With Same Average",
+"topic": "Niche / Advanced",
+"subtopic": "Meet in the Middle",
+"difficulty": "Very Hard",
+"pattern": "Meet in the middle on transformed values (subset summing to 0)",
+"notes": "",
+"statement": "Given integer array `nums`, decide whether it can be split into two non-empty disjoint parts `A` and `B` (covering all elements) such that `average(A) == average(B)`.",
+"examples": [
+{
+"input": "nums = [1,2,3,4,5,6,7,8]",
+"output": "true",
+"explanation": "[1,4,5,8] and [2,3,6,7] both average 4.5."
+},
+{
+"input": "nums = [3,1]",
+"output": "false",
+"explanation": "The only split has averages 3 and 1."
+}
+],
+"constraints": [
+"1 <= nums.length <= 30",
+"0 <= nums[i] <= 10^4"
+],
+"approaches": [
+{
+"name": "Meet in the middle (subset of size k summing to 0)",
+"idea": "If subset `A` of size `k` shares the array's average, then `sum(A) = total*k/n`. Transform each value to `b[i] = nums[i]*n - total`; now we need a subset of size `k` with `sum(b)=0`. Since the whole array's `b` sums to 0, a valid proper subset always has a version of size `1..n/2` (it or its complement), so search only those sizes. Split `b` into two halves, hash every left subset by `(sum, size)`, then for each right subset look for a matching left subset whose combined size lands in `[1, n/2]` and whose sums cancel.",
+"time": "O(2^(n/2) * n)",
+"space": "O(2^(n/2))",
+"code": "public boolean splitArraySameAverage(int[] nums) {\n    int n = nums.length;\n    if (n == 1) return false;\n    int total = 0;\n    for (int x : nums) total += x;\n\n    int[] b = new int[n];\n    for (int i = 0; i < n; i++) b[i] = nums[i] * n - total;   // need proper subset with sum(b)=0\n\n    int half = n / 2, limit = n / 2;   // restrict subset size to [1, n/2]\n    Set<Long> left = new HashSet<>();\n    for (int mask = 0; mask < (1 << half); mask++) {\n        int s = 0, cnt = 0;\n        for (int i = 0; i < half; i++) if ((mask & (1 << i)) != 0) { s += b[i]; cnt++; }\n        left.add(encode(s, cnt));\n    }\n\n    int rn = n - half;\n    for (int mask = 0; mask < (1 << rn); mask++) {\n        int s = 0, cnt = 0;\n        for (int i = 0; i < rn; i++) if ((mask & (1 << i)) != 0) { s += b[half + i]; cnt++; }\n        for (int k = 1; k <= limit; k++) {          // total subset size\n            int need = k - cnt;\n            if (need < 0) break;\n            if (need > half) continue;\n            if (left.contains(encode(-s, need))) return true;\n        }\n    }\n    return false;\n}\n\nprivate long encode(int sum, int size) { return ((long) sum) * 64 + size; }"
+}
+],
+"insight": "`average(A)=average(whole)` becomes 'subset with sum 0' after `b[i]=nums[i]*n-total`; restricting the searched subset size to `1..n/2` guarantees the split is non-empty and proper, and meet-in-the-middle keeps it under `2^(n/2)`."
+},
+"niche-advanced__count-of-smaller-numbers-after-self": {
+"title": "Count of Smaller Numbers After Self",
+"topic": "Niche / Advanced",
+"subtopic": "Segment Tree / BIT",
+"difficulty": "Hard",
+"pattern": "Fenwick (BIT) over compressed ranks, scan right to left",
+"notes": "",
+"statement": "Given an integer array `nums`, return an array `counts` where `counts[i]` is the number of elements to the right of `nums[i]` that are strictly smaller than `nums[i]`.",
+"examples": [
+{
+"input": "nums = [5,2,6,1]",
+"output": "[2,1,1,0]",
+"explanation": "Right of 5: {2,1}; right of 2: {1}; right of 6: {1}; right of 1: {}."
+}
+],
+"constraints": [
+"1 <= nums.length <= 10^5",
+"-10^4 <= nums[i] <= 10^4"
+],
+"approaches": [
+{
+"name": "Fenwick tree over value ranks",
+"idea": "Coordinate-compress the values to ranks `1..m`. Scan from right to left; before inserting `nums[i]`, query the Fenwick prefix sum over ranks strictly below `nums[i]` -- that counts already-seen (i.e. to the right) elements that are smaller. Then insert `nums[i]`.",
+"time": "O(n log n)",
+"space": "O(n)",
+"code": "public List<Integer> countSmaller(int[] nums) {\n    int n = nums.length;\n    int[] sorted = nums.clone();\n    Arrays.sort(sorted);\n    int m = 0;\n    int[] uniq = new int[n];\n    for (int i = 0; i < n; i++) if (i == 0 || sorted[i] != sorted[i - 1]) uniq[m++] = sorted[i];\n\n    BIT bit = new BIT(m);\n    Integer[] res = new Integer[n];\n    for (int i = n - 1; i >= 0; i--) {\n        int rank = lowerBound(uniq, m, nums[i]) + 1;   // 1-based rank\n        res[i] = bit.query(rank - 1);                  // ranks strictly below -> smaller values\n        bit.update(rank, 1);\n    }\n    return Arrays.asList(res);\n}\n\nstatic int lowerBound(int[] a, int len, int key) {\n    int lo = 0, hi = len;\n    while (lo < hi) { int mid = (lo + hi) >>> 1; if (a[mid] < key) lo = mid + 1; else hi = mid; }\n    return lo;\n}\n\n    static class BIT {\n        int[] tree; int n;\n        BIT(int n) { this.n = n; tree = new int[n + 1]; }\n        void update(int i, int delta) { for (; i <= n; i += i & (-i)) tree[i] += delta; }\n        int query(int i) { int s = 0; for (; i > 0; i -= i & (-i)) s += tree[i]; return s; }\n    }"
+}
+],
+"insight": "Sweep right-to-left inserting into a Fenwick tree keyed by value rank; the prefix sum below the current rank is exactly 'smaller elements already to the right'."
+},
+"niche-advanced__range-sum-query-mutable": {
+"title": "Range Sum Query - Mutable",
+"topic": "Niche / Advanced",
+"subtopic": "Segment Tree / BIT",
+"difficulty": "Medium",
+"pattern": "Fenwick (BIT) for point update + prefix-sum range query",
+"notes": "",
+"statement": "Design a data structure `NumArray` over an integer array supporting `update(index, val)` (set `nums[index] = val`) and `sumRange(left, right)` (sum of `nums[left..right]` inclusive), both efficient under many interleaved calls.",
+"examples": [
+{
+"input": "NumArray([1,3,5]); sumRange(0,2); update(1,2); sumRange(0,2)",
+"output": "9, then 8",
+"explanation": "Initial sum 1+3+5=9; after nums[1]=2, sum 1+2+5=8."
+}
+],
+"constraints": [
+"1 <= nums.length <= 3 * 10^4",
+"-100 <= nums[i], val <= 100",
+"0 <= index < nums.length, 0 <= left <= right < nums.length",
+"up to 3 * 10^4 calls to update and sumRange"
+],
+"approaches": [
+{
+"name": "Fenwick tree (Binary Indexed Tree)",
+"idea": "A Fenwick tree gives `O(log n)` point updates and prefix sums. `update` applies the delta `val - nums[index]`; `sumRange(l, r)` is `prefix(r+1) - prefix(l)`.",
+"time": "O(log n) per update and query",
+"space": "O(n)",
+"code": "class NumArray {\n    private final int[] tree;\n    private final int[] nums;\n    private final int n;\n\n    public NumArray(int[] nums) {\n        this.n = nums.length;\n        this.nums = new int[n];\n        this.tree = new int[n + 1];\n        for (int i = 0; i < n; i++) update(i, nums[i]);\n    }\n\n    public void update(int index, int val) {\n        int delta = val - nums[index];\n        nums[index] = val;\n        for (int i = index + 1; i <= n; i += i & (-i)) tree[i] += delta;\n    }\n\n    public int sumRange(int left, int right) {\n        return prefix(right + 1) - prefix(left);\n    }\n\n    private int prefix(int i) {\n        int s = 0;\n        for (; i > 0; i -= i & (-i)) s += tree[i];\n        return s;\n    }\n}"
+}
+],
+"insight": "Point-update + prefix-sum is the textbook Fenwick tree; range sum = difference of two prefix sums, and update pushes only the delta up the `i += i & -i` chain."
+},
+"niche-advanced__reverse-pairs": {
+"title": "Reverse Pairs",
+"topic": "Niche / Advanced",
+"subtopic": "Segment Tree / BIT",
+"difficulty": "Hard",
+"pattern": "Fenwick over compressed values, count suffix greater",
+"notes": "",
+"statement": "Given an integer array `nums`, return the number of *reverse pairs*: pairs `(i, j)` with `i < j` and `nums[i] > 2 * nums[j]`.",
+"examples": [
+{
+"input": "nums = [1,3,2,3,1]",
+"output": "2",
+"explanation": "Pairs (1,4): 3>2*1 and (3,4): 3>2*1."
+},
+{
+"input": "nums = [2,4,3,5,1]",
+"output": "3",
+"explanation": "(1,4):4>2*1, (2,4):3>2*1, (3,4):5>2*1."
+}
+],
+"constraints": [
+"1 <= nums.length <= 5 * 10^4",
+"-2^31 <= nums[i] <= 2^31 - 1"
+],
+"approaches": [
+{
+"name": "Fenwick tree over compressed values",
+"idea": "Compress the distinct values to ranks. Scan left to right; before inserting `nums[j]`, count how many already-inserted values (these are the `i < j`) are strictly greater than `2*nums[j]`. That equals `inserted - (# inserted <= 2*nums[j])`, where the second term is a Fenwick prefix sum up to the rank boundary of `2*nums[j]`. Use `long` for `2*nums[j]` to avoid overflow.",
+"time": "O(n log n)",
+"space": "O(n)",
+"code": "public int reversePairs(int[] nums) {\n    int n = nums.length;\n    long[] vals = new long[n];\n    for (int i = 0; i < n; i++) vals[i] = nums[i];\n    long[] sorted = Arrays.stream(vals).distinct().sorted().toArray();\n    int m = sorted.length;\n\n    BIT bit = new BIT(m);\n    int count = 0, inserted = 0;\n    for (int j = 0; j < n; j++) {\n        long target = 2L * nums[j];\n        int le = upperBound(sorted, target);      // # values <= target => ranks 1..le\n        count += inserted - bit.query(le);        // inserted values strictly greater\n        int rank = lowerBound(sorted, nums[j]) + 1;\n        bit.update(rank, 1);\n        inserted++;\n    }\n    return count;\n}\n\n    static int lowerBound(long[] a, long key) {\n        int lo = 0, hi = a.length;\n        while (lo < hi) { int m = (lo + hi) >>> 1; if (a[m] < key) lo = m + 1; else hi = m; }\n        return lo;\n    }\n\n    static int upperBound(long[] a, long key) {\n        int lo = 0, hi = a.length;\n        while (lo < hi) { int m = (lo + hi) >>> 1; if (a[m] <= key) lo = m + 1; else hi = m; }\n        return lo;\n    }\n\n    static class BIT {\n        int[] tree; int n;\n        BIT(int n) { this.n = n; tree = new int[n + 1]; }\n        void update(int i, int delta) { for (; i <= n; i += i & (-i)) tree[i] += delta; }\n        int query(int i) { int s = 0; for (; i > 0; i -= i & (-i)) s += tree[i]; return s; }\n    }"
+}
+],
+"insight": "Insert values into a Fenwick tree left-to-right; for each new `nums[j]` the reverse pairs it closes = (# already inserted) minus (# inserted <= 2*nums[j]). Merge sort is the classic alternative."
+},
+"niche-advanced__count-of-range-sum": {
+"title": "Count of Range Sum",
+"topic": "Niche / Advanced",
+"subtopic": "Segment Tree / BIT",
+"difficulty": "Hard",
+"pattern": "Prefix sums + Fenwick over compressed values",
+"notes": "",
+"statement": "Given an integer array `nums` and integers `lower` and `upper`, return the number of range sums that lie in `[lower, upper]` inclusive. A range sum `S(i, j)` is the sum of `nums[i..j]` for `i <= j`.",
+"examples": [
+{
+"input": "nums = [-2,5,-1], lower = -2, upper = 2",
+"output": "3",
+"explanation": "The qualifying ranges are [0,0]=-2, [2,2]=-1, [0,2]=2."
+},
+{
+"input": "nums = [0], lower = 0, upper = 0",
+"output": "1",
+"explanation": "Only range [0,0]=0."
+}
+],
+"constraints": [
+"1 <= nums.length <= 10^5",
+"-2^31 <= nums[i] <= 2^31 - 1",
+"-10^5 <= lower <= upper <= 10^5"
+],
+"approaches": [
+{
+"name": "Prefix sums + Fenwick tree",
+"idea": "Let `P[0..n]` be prefix sums. A range sum equals `P[j] - P[i]` with `i < j`, and it lies in `[lower, upper]` iff `P[i]` lies in `[P[j]-upper, P[j]-lower]`. Compress all prefix sums; insert them into a Fenwick tree as `i` grows, and for each `j` count previously inserted `P[i]` inside the window via two binary-searched rank bounds.",
+"time": "O(n log n)",
+"space": "O(n)",
+"code": "public int countRangeSum(int[] nums, int lower, int upper) {\n    int n = nums.length;\n    long[] pre = new long[n + 1];\n    for (int i = 0; i < n; i++) pre[i + 1] = pre[i] + nums[i];\n\n    long[] sorted = Arrays.stream(pre).distinct().sorted().toArray();\n    int m = sorted.length;\n    BIT bit = new BIT(m);\n\n    int count = 0;\n    bit.update(lowerBound(sorted, pre[0]) + 1, 1);   // insert P[0]\n    for (int j = 1; j <= n; j++) {\n        long lo = pre[j] - upper, hi = pre[j] - lower;\n        int l = lowerBound(sorted, lo);              // first index with value >= lo\n        int r = upperBound(sorted, hi);              // first index with value > hi\n        count += bit.query(r) - bit.query(l);        // ranks (l+1..r) => values in [lo,hi]\n        bit.update(lowerBound(sorted, pre[j]) + 1, 1);\n    }\n    return count;\n}\n\n    static int lowerBound(long[] a, long key) {\n        int lo = 0, hi = a.length;\n        while (lo < hi) { int m = (lo + hi) >>> 1; if (a[m] < key) lo = m + 1; else hi = m; }\n        return lo;\n    }\n\n    static int upperBound(long[] a, long key) {\n        int lo = 0, hi = a.length;\n        while (lo < hi) { int m = (lo + hi) >>> 1; if (a[m] <= key) lo = m + 1; else hi = m; }\n        return lo;\n    }\n\n    static class BIT {\n        int[] tree; int n;\n        BIT(int n) { this.n = n; tree = new int[n + 1]; }\n        void update(int i, int delta) { for (; i <= n; i += i & (-i)) tree[i] += delta; }\n        int query(int i) { int s = 0; for (; i > 0; i -= i & (-i)) s += tree[i]; return s; }\n    }"
+}
+],
+"insight": "Turn 'range sum in [lower,upper]' into 'earlier prefix sum in [P[j]-upper, P[j]-lower]', then count with a Fenwick tree over compressed prefix sums as you sweep."
+},
+"niche-advanced__the-skyline-problem": {
+"title": "The Skyline Problem",
+"topic": "Niche / Advanced",
+"subtopic": "Segment Tree / BIT",
+"difficulty": "Hard",
+"pattern": "Sweep line + max-structure (TreeMap multiset of active heights)",
+"notes": "",
+"statement": "Buildings are given as `[left, right, height]`. Return the skyline as a list of key points `[x, height]` -- the left endpoint of each horizontal segment -- sorted by `x`. The last point has height `0`, and no two consecutive segments have equal height.",
+"examples": [
+{
+"input": "buildings = [[2,9,10],[3,7,15],[5,12,12],[15,20,10],[19,24,8]]",
+"output": "[[2,10],[3,15],[7,12],[12,0],[15,10],[20,8],[24,0]]",
+"explanation": "Key points where the tallest active building height changes."
+}
+],
+"constraints": [
+"1 <= buildings.length <= 10^4",
+"0 <= left < right <= 2^31 - 1",
+"1 <= height <= 2^31 - 1"
+],
+"approaches": [
+{
+"name": "Sweep line with a max-heap / TreeMap multiset of active heights",
+"idea": "Create events at each building's left (enter, encoded as negative height) and right (leave, positive height). Sort by `x`; on ties process starts before ends and taller starts first (the negative encoding handles both). Maintain a multiset of currently-active heights (TreeMap `height -> count`, seeded with ground `0`). After each event the current max active height is the skyline height there; emit a key point whenever that max changes.",
+"time": "O(n log n)",
+"space": "O(n)",
+"code": "public List<List<Integer>> getSkyline(int[][] buildings) {\n    List<int[]> events = new ArrayList<>();\n    for (int[] b : buildings) {\n        events.add(new int[]{b[0], -b[2]});   // start: negative height\n        events.add(new int[]{b[1],  b[2]});   // end:   positive height\n    }\n    // sort by x; ties: start (neg) before end (pos); among starts, higher first (more negative first)\n    events.sort((a, c) -> a[0] != c[0] ? Integer.compare(a[0], c[0]) : Integer.compare(a[1], c[1]));\n\n    List<List<Integer>> res = new ArrayList<>();\n    TreeMap<Integer, Integer> active = new TreeMap<>();   // height -> count\n    active.put(0, 1);                                     // ground\n    int prevMax = 0;\n    for (int[] e : events) {\n        int h = e[1];\n        if (h < 0) active.merge(-h, 1, Integer::sum);     // start\n        else {                                            // end\n            int c = active.get(h);\n            if (c == 1) active.remove(h); else active.put(h, c - 1);\n        }\n        int curMax = active.lastKey();\n        if (curMax != prevMax) {\n            res.add(Arrays.asList(e[0], curMax));\n            prevMax = curMax;\n        }\n    }\n    return res;\n}"
+}
+],
+"insight": "Turn buildings into start/end events, sweep left to right, and let a max-structure (TreeMap as a multiset) give the tallest active building; emit a point only when that max changes. The negative-height encoding of starts is the whole tie-break trick."
+},
+"niche-advanced__falling-squares": {
+"title": "Falling Squares",
+"topic": "Niche / Advanced",
+"subtopic": "Segment Tree / BIT",
+"difficulty": "Hard",
+"pattern": "Coordinate compression + segment tree with range-assign lazy + range-max",
+"notes": "",
+"statement": "Squares drop one at a time onto a number line. `positions[i] = [left, sideLength]` describes a square occupying `[left, left+sideLength)`. A square rests on the tallest surface currently under any part of its base. After each drop, record the height of the tallest stack so far; return the list of these heights.",
+"examples": [
+{
+"input": "positions = [[1,2],[2,3],[6,1]]",
+"output": "[2,5,5]",
+"explanation": "First square height 2; second lands on the first (overlap) reaching 2+3=5; third is isolated, height 1, running max stays 5."
+},
+{
+"input": "positions = [[100,100],[200,100]]",
+"output": "[100,100]",
+"explanation": "The two squares do not overlap; each has height 100."
+}
+],
+"constraints": [
+"1 <= positions.length <= 1000",
+"1 <= left, sideLength <= 10^8"
+],
+"approaches": [
+{
+"name": "Segment tree with lazy range assignment",
+"idea": "Coordinate-compress the interval endpoints (`left` and `left+side`), letting segment-tree leaves represent the gaps between consecutive coordinates so touching squares don't wrongly overlap. For each square, query the max height over its compressed range, set the new height to `max + side`, then range-assign that height over the range. Track the running global maximum.",
+"time": "O(n log n)",
+"space": "O(n)",
+"code": "public List<Integer> fallingSquares(int[][] positions) {\n    TreeSet<Integer> set = new TreeSet<>();\n    for (int[] p : positions) { set.add(p[0]); set.add(p[0] + p[1]); }\n    Map<Integer, Integer> idx = new HashMap<>();\n    int c = 0;\n    for (int x : set) idx.put(x, c++);\n    int leaves = Math.max(1, c - 1);           // gaps between coordinates\n    SegTree seg = new SegTree(leaves);\n\n    List<Integer> res = new ArrayList<>();\n    int best = 0;\n    for (int[] p : positions) {\n        int l = idx.get(p[0]);\n        int r = idx.get(p[0] + p[1]) - 1;      // inclusive gap range\n        int cur = seg.queryMax(l, r);\n        int h = cur + p[1];\n        seg.assign(l, r, h);\n        best = Math.max(best, h);\n        res.add(best);\n    }\n    return res;\n}\n\nstatic class SegTree {\n    int n;\n    int[] max, lazy;                            // lazy==0 means 'no pending assign' (heights are >0)\n    SegTree(int n) { this.n = n; max = new int[4 * n]; lazy = new int[4 * n]; }\n\n    void assign(int l, int r, int val) { assign(1, 0, n - 1, l, r, val); }\n    void assign(int node, int lo, int hi, int l, int r, int val) {\n        if (r < lo || hi < l) return;\n        if (l <= lo && hi <= r) { max[node] = val; lazy[node] = val; return; }\n        push(node);\n        int mid = (lo + hi) >>> 1;\n        assign(2 * node, lo, mid, l, r, val);\n        assign(2 * node + 1, mid + 1, hi, l, r, val);\n        max[node] = Math.max(max[2 * node], max[2 * node + 1]);\n    }\n\n    int queryMax(int l, int r) { return queryMax(1, 0, n - 1, l, r); }\n    int queryMax(int node, int lo, int hi, int l, int r) {\n        if (r < lo || hi < l) return 0;\n        if (l <= lo && hi <= r) return max[node];\n        push(node);\n        int mid = (lo + hi) >>> 1;\n        return Math.max(queryMax(2 * node, lo, mid, l, r), queryMax(2 * node + 1, mid + 1, hi, l, r));\n    }\n\n    private void push(int node) {\n        if (lazy[node] != 0) {\n            int v = lazy[node];\n            max[2 * node] = v;     lazy[2 * node] = v;\n            max[2 * node + 1] = v; lazy[2 * node + 1] = v;\n            lazy[node] = 0;\n        }\n    }\n}"
+}
+],
+"insight": "Compress endpoints to gap-leaves (so adjacency isn't overlap), then it's a range-assign + range-max segment tree: query the base under the square, stack `+side`, and paint that height back over the range."
+},
+"niche-advanced__range-module": {
+"title": "Range Module",
+"topic": "Niche / Advanced",
+"subtopic": "Segment Tree / BIT",
+"difficulty": "Hard",
+"pattern": "TreeMap of disjoint merged intervals (start -> end)",
+"notes": "Redo",
+"statement": "Design a data structure over ranges of integers supporting `addRange(left, right)` (track every real number in `[left, right)`), `queryRange(left, right)` (is every number in `[left, right)` currently tracked?), and `removeRange(left, right)` (stop tracking every number in `[left, right)`).",
+"examples": [
+{
+"input": "addRange(10,20); removeRange(14,16); queryRange(10,14); queryRange(13,15); queryRange(16,17)",
+"output": "true, false, true",
+"explanation": "[10,14) fully tracked; [13,15) not (14..16 removed); [16,17) tracked."
+}
+],
+"constraints": [
+"1 <= left < right <= 10^9",
+"at most 10^4 calls to addRange, queryRange, and removeRange"
+],
+"approaches": [
+{
+"name": "TreeMap of disjoint intervals keyed by start",
+"idea": "Store non-overlapping intervals as `start -> end` in a TreeMap. On `add`, absorb any interval touching or overlapping `[left,right)` by extending the bounds via `floorKey`/`floorEntry`, clear the covered keys, and insert the merged interval. On `remove`, rebuild the left and right boundary fragments then clear the covered middle. On `query`, the interval at `floorKey(left)` must cover `right`.",
+"time": "O(log n) amortized per operation",
+"space": "O(n)",
+"code": "class RangeModule {\n    private final TreeMap<Integer, Integer> map = new TreeMap<>();   // start -> end\n\n    public void addRange(int left, int right) {\n        Integer s = map.floorKey(left);\n        if (s != null && map.get(s) >= left) left = s;                 // merge left neighbor\n        Map.Entry<Integer, Integer> e = map.floorEntry(right);\n        if (e != null && e.getValue() > right) right = e.getValue();   // merge right neighbor\n        map.subMap(left, true, right, true).clear();                   // absorb covered intervals\n        map.put(left, right);\n    }\n\n    public boolean queryRange(int left, int right) {\n        Integer s = map.floorKey(left);\n        return s != null && map.get(s) >= right;\n    }\n\n    public void removeRange(int left, int right) {\n        Map.Entry<Integer, Integer> hi = map.lowerEntry(right);\n        Map.Entry<Integer, Integer> lo = map.lowerEntry(left);\n        if (hi != null && hi.getValue() > right) map.put(right, hi.getValue());   // right tail\n        if (lo != null && lo.getValue() > left)  map.put(lo.getKey(), left);      // left head\n        map.subMap(left, true, right, false).clear();\n    }\n}"
+}
+],
+"insight": "Keep disjoint merged intervals in a TreeMap keyed by start; `floorKey`/`floorEntry` find the interval covering a point. Add merges neighbors, remove splits the two boundary intervals and clears the middle -- the split/merge edge cases are the tricky part (redo)."
+},
+"niche-advanced__my-calendar-iii": {
+"title": "My Calendar III",
+"topic": "Niche / Advanced",
+"subtopic": "Segment Tree / BIT",
+"difficulty": "Hard",
+"pattern": "Sweep-line difference map (or dynamic segment tree with lazy range-add) -- max overlap",
+"notes": "Most efficient way is segment tree",
+"statement": "Implement `MyCalendarThree` supporting `book(start, end)` for a half-open event `[start, end)`. After each booking return `k`, the maximum number of events that overlap at any single point in time (the largest `k`-booking so far).",
+"examples": [
+{
+"input": "book(10,20); book(50,60); book(10,40); book(5,15); book(5,10); book(25,55)",
+"output": "1, 1, 2, 3, 3, 3",
+"explanation": "Running maximum overlap after each booking."
+}
+],
+"constraints": [
+"0 <= start < end <= 10^9",
+"at most 400 calls to book"
+],
+"approaches": [
+{
+"name": "TreeMap difference array",
+"idea": "Keep a sorted map of boundary deltas: `+1` at each `start`, `-1` at each `end`. After each booking, sweep the map accumulating a running sum and track the running maximum -- that maximum is the largest overlap. Simple `O(n)` per booking, which passes for 400 calls.",
+"time": "O(n) per book (n = distinct endpoints)",
+"space": "O(n)",
+"code": "class MyCalendarThree {\n    private final TreeMap<Integer, Integer> delta = new TreeMap<>();\n\n    public int book(int start, int end) {\n        delta.merge(start, 1, Integer::sum);\n        delta.merge(end, -1, Integer::sum);\n        int running = 0, max = 0;\n        for (int d : delta.values()) {\n            running += d;\n            max = Math.max(max, running);\n        }\n        return max;\n    }\n}"
+},
+{
+"name": "Dynamic segment tree with lazy range-add",
+"idea": "The efficient version (per the tracker note): build a dynamic segment tree over `[0, 10^9]` creating nodes lazily. Each `book(start, end)` is a range `+1` on `[start, end-1]` with lazy propagation, and the answer is the global maximum stored at the root -- `O(log range)` per booking.",
+"time": "O(log range) per book",
+"space": "O(n log range)",
+"code": "class MyCalendarThree {\n    private static final int MAX = 1_000_000_000;\n    private final Node root = new Node();\n\n    public int book(int start, int end) {\n        update(root, 0, MAX, start, end - 1, 1);\n        return root.max;\n    }\n\n    private void update(Node node, int lo, int hi, int l, int r, int val) {\n        if (r < lo || hi < l) return;\n        if (l <= lo && hi <= r) { node.max += val; node.lazy += val; return; }\n        pushDown(node);\n        int mid = lo + (hi - lo) / 2;\n        update(node.left, lo, mid, l, r, val);\n        update(node.right, mid + 1, hi, l, r, val);\n        node.max = Math.max(node.left.max, node.right.max);\n    }\n\n    private void pushDown(Node node) {\n        if (node.left == null) node.left = new Node();\n        if (node.right == null) node.right = new Node();\n        if (node.lazy != 0) {\n            node.left.max += node.lazy;  node.left.lazy += node.lazy;\n            node.right.max += node.lazy; node.right.lazy += node.lazy;\n            node.lazy = 0;\n        }\n    }\n\n    private static class Node {\n        Node left, right;\n        int max, lazy;\n    }\n}"
+}
+],
+"insight": "Max concurrent intervals = max prefix sum of `+1`/`-1` boundary deltas. TreeMap sweep is O(n) per query and passes; the dynamic segment tree with lazy range-add is the O(log n) 'most efficient' version the note refers to."
+},
+"niche-advanced__longest-increasing-subsequence-ii": {
+"title": "Longest Increasing Subsequence II",
+"topic": "Niche / Advanced",
+"subtopic": "Segment Tree / BIT",
+"difficulty": "Very Hard",
+"pattern": "DP over values with segment tree range-max query + point update",
+"notes": "",
+"statement": "Given an integer array `nums` and an integer `k`, find the length of the longest strictly increasing subsequence such that the difference between adjacent chosen elements is at most `k` (i.e. consecutive elements differ by at most `k`).",
+"examples": [
+{
+"input": "nums = [4,2,1,4,3,4,5,8,15], k = 3",
+"output": "5",
+"explanation": "One longest such subsequence is [1,3,4,5,8]."
+},
+{
+"input": "nums = [7,4,5,1,8,12,4,7], k = 5",
+"output": "4",
+"explanation": "One longest such subsequence is [4,5,8,12]."
+}
+],
+"constraints": [
+"1 <= nums.length <= 10^5",
+"1 <= nums[i], k <= 10^5"
+],
+"approaches": [
+{
+"name": "Segment tree over values (range-max DP)",
+"idea": "Let `dp[v]` be the length of the best qualifying subsequence ending with value `v`. Processing `nums` left to right, `dp[x] = 1 + max(dp[v])` over `v` in `[x-k, x-1]`. A segment tree indexed by value supports that range-max query and the point update `dp[x] = max(dp[x], value)` in `O(log V)`.",
+"time": "O(n log V), V = max value",
+"space": "O(V)",
+"code": "public int lengthOfLIS(int[] nums, int k) {\n    int max = 0;\n    for (int x : nums) max = Math.max(max, x);\n    SegTree seg = new SegTree(max);      // values 1..max\n    int ans = 0;\n    for (int x : nums) {\n        int lo = Math.max(1, x - k);\n        int best = seg.query(lo, x - 1); // best dp for values in [x-k, x-1]\n        int cur = best + 1;\n        ans = Math.max(ans, cur);\n        seg.update(x, cur);\n    }\n    return ans;\n}\n\nstatic class SegTree {\n    int n;\n    int[] tree;\n    SegTree(int size) { n = size; tree = new int[4 * n]; }\n\n    void update(int pos, int val) { update(1, 1, n, pos, val); }\n    void update(int node, int lo, int hi, int pos, int val) {\n        if (lo == hi) { tree[node] = Math.max(tree[node], val); return; }\n        int mid = (lo + hi) >>> 1;\n        if (pos <= mid) update(2 * node, lo, mid, pos, val);\n        else            update(2 * node + 1, mid + 1, hi, pos, val);\n        tree[node] = Math.max(tree[2 * node], tree[2 * node + 1]);\n    }\n\n    int query(int l, int r) { if (l > r) return 0; return query(1, 1, n, l, r); }\n    int query(int node, int lo, int hi, int l, int r) {\n        if (r < lo || hi < l) return 0;\n        if (l <= lo && hi <= r) return tree[node];\n        int mid = (lo + hi) >>> 1;\n        return Math.max(query(2 * node, lo, mid, l, r), query(2 * node + 1, mid + 1, hi, l, r));\n    }\n}"
+}
+],
+"insight": "Index the DP by value, not position: `dp[x] = 1 + max(dp[x-k .. x-1])`, and a range-max segment tree over the value axis turns each transition into an O(log V) query + point update."
+},
+"niche-advanced__sliding-window-maximum": {
+"title": "Sliding Window Maximum",
+"topic": "Niche / Advanced",
+"subtopic": "Monotonic Deque",
+"difficulty": "Hard",
+"pattern": "Monotonic decreasing deque of indices",
+"notes": "",
+"statement": "Return the maximum of every contiguous window of size `k` as it slides from left to right across `nums`.",
+"examples": [
+{
+"input": "nums = [1,3,-1,-3,5,3,6,7], k = 3",
+"output": "[3,3,5,5,6,7]",
+"explanation": "Each window's maximum, in order."
+}
+],
+"constraints": [
+"1 <= n <= 10^5",
+"1 <= k <= n",
+"-10^4 <= nums[i] <= 10^4"
+],
+"approaches": [
+{
+"name": "Deque of indices, decreasing values",
+"idea": "Maintain indices whose values are in decreasing order. For each `i`, pop from the back while the back's value `<= nums[i]` (a smaller value behind a larger one can never be the max again), push `i`, then pop the front if it has slid outside the window (`<= i-k`). The front index always holds the current window's max.",
+"time": "O(n)",
+"space": "O(k)",
+"code": "public int[] maxSlidingWindow(int[] nums, int k) {\n    int n = nums.length;\n    int[] res = new int[n - k + 1];\n    Deque<Integer> dq = new ArrayDeque<>();       // indices, values decreasing\n    for (int i = 0; i < n; i++) {\n        while (!dq.isEmpty() && nums[dq.peekLast()] <= nums[i]) dq.pollLast();\n        dq.offerLast(i);\n        if (dq.peekFirst() <= i - k) dq.pollFirst();\n        if (i >= k - 1) res[i - k + 1] = nums[dq.peekFirst()];\n    }\n    return res;\n}"
+}
+],
+"insight": "Store indices, keep values monotonically decreasing. A smaller value behind a larger one is useless, so pop it. Front = max; evict it when it slides out of the window."
+},
+"niche-advanced__shortest-subarray-with-sum-at-least-k": {
+"title": "Shortest Subarray with Sum at Least K",
+"topic": "Niche / Advanced",
+"subtopic": "Monotonic Deque",
+"difficulty": "Hard",
+"pattern": "Prefix sums + monotonic increasing deque",
+"notes": "",
+"statement": "Given an integer array `nums` (which may contain negatives) and an integer `k`, return the length of the shortest non-empty contiguous subarray whose sum is at least `k`. Return `-1` if no such subarray exists.",
+"examples": [
+{
+"input": "nums = [2,-1,2], k = 3",
+"output": "3",
+"explanation": "The whole array sums to 3."
+},
+{
+"input": "nums = [1,2], k = 4",
+"output": "-1",
+"explanation": "No subarray reaches 4."
+}
+],
+"constraints": [
+"1 <= nums.length <= 10^5",
+"-10^5 <= nums[i] <= 10^5",
+"1 <= k <= 10^9"
+],
+"approaches": [
+{
+"name": "Monotonic deque over prefix sums",
+"idea": "Let `prefix[i]` be the sum of the first `i` elements. A subarray `(j, i]` has sum `prefix[i] - prefix[j] >= k`. Keep a deque of candidate indices with increasing prefix values. For each `i`: from the front, while `prefix[i] - prefix[front] >= k`, record `i - front` and pop the front (it can never give a shorter answer later). From the back, drop indices whose prefix is `>= prefix[i]` (they are dominated: `i` is both later and smaller). Push `i`.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public int shortestSubarray(int[] nums, int k) {\n    int n = nums.length;\n    long[] prefix = new long[n + 1];\n    for (int i = 0; i < n; i++) prefix[i + 1] = prefix[i] + nums[i];\n    int res = n + 1;\n    Deque<Integer> dq = new ArrayDeque<>();       // prefix indices, prefix values increasing\n    for (int i = 0; i <= n; i++) {\n        while (!dq.isEmpty() && prefix[i] - prefix[dq.peekFirst()] >= k)\n            res = Math.min(res, i - dq.pollFirst());\n        while (!dq.isEmpty() && prefix[dq.peekLast()] >= prefix[i]) dq.pollLast();\n        dq.offerLast(i);\n    }\n    return res <= n ? res : -1;\n}"
+}
+],
+"insight": "Negatives break the plain sliding window, so work on prefix sums with a deque kept increasing: pop the front greedily once the window qualifies, pop the back to discard dominated (larger, earlier) prefixes."
+},
+"niche-advanced__constrained-subsequence-sum": {
+"title": "Constrained Subsequence Sum",
+"topic": "Niche / Advanced",
+"subtopic": "Monotonic Deque",
+"difficulty": "Hard",
+"pattern": "DP with sliding-window-maximum deque",
+"notes": "",
+"statement": "Return the maximum sum of a non-empty subsequence of `nums` such that for every two consecutive chosen elements at indices `i < j`, the constraint `j - i <= k` holds.",
+"examples": [
+{
+"input": "nums = [10,2,-10,5,20], k = 2",
+"output": "37",
+"explanation": "Choose 10, 2, 5, 20."
+},
+{
+"input": "nums = [-1,-2,-3], k = 1",
+"output": "-1",
+"explanation": "Pick the single largest element."
+}
+],
+"constraints": [
+"1 <= k <= nums.length <= 10^5",
+"-10^4 <= nums[i] <= 10^4"
+],
+"approaches": [
+{
+"name": "DP over a window maximum",
+"idea": "Let `dp[i]` be the best subsequence sum ending exactly at `i`. Then `dp[i] = nums[i] + max(0, max(dp[i-k..i-1]))` — extend the best qualifying earlier ending, or start fresh if all are negative. The `max` over the last `k` dp values is a sliding-window maximum, maintained with a decreasing deque of indices. Answer is the max dp value.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public int constrainedSubsetSum(int[] nums, int k) {\n    int n = nums.length;\n    int[] dp = new int[n];\n    Deque<Integer> dq = new ArrayDeque<>();       // indices, dp values decreasing\n    int res = Integer.MIN_VALUE;\n    for (int i = 0; i < n; i++) {\n        while (!dq.isEmpty() && dq.peekFirst() < i - k) dq.pollFirst();\n        int best = dq.isEmpty() ? 0 : Math.max(0, dp[dq.peekFirst()]);\n        dp[i] = nums[i] + best;\n        res = Math.max(res, dp[i]);\n        while (!dq.isEmpty() && dp[dq.peekLast()] <= dp[i]) dq.pollLast();\n        dq.offerLast(i);\n    }\n    return res;\n}"
+}
+],
+"insight": "It is Jump Game VI's recurrence plus a `max(0, ...)` — you may always drop a negative prefix and restart, so clamp the inherited best at zero."
+},
+"niche-advanced__jump-game-vi": {
+"title": "Jump Game VI",
+"topic": "Niche / Advanced",
+"subtopic": "Monotonic Deque",
+"difficulty": "Hard",
+"pattern": "DP with sliding-window-maximum deque",
+"notes": "",
+"statement": "You start at index 0 of `nums` and want to reach the last index. From index `i` you may jump to any index in `[i+1, i+k]` that is within bounds. Your score is the sum of `nums` over all visited indices (including start and end). Return the maximum score.",
+"examples": [
+{
+"input": "nums = [1,-1,-2,4,-7,3], k = 2",
+"output": "7",
+"explanation": "Path 0 -> 1 -> 3 -> 5 gives 1 + (-1) + 4 + 3 = 7."
+},
+{
+"input": "nums = [10,-5,-2,4,0,3], k = 3",
+"output": "17",
+"explanation": "Path 0 -> 3 -> 5 gives 10 + 4 + 3 = 17."
+}
+],
+"constraints": [
+"1 <= nums.length, k <= 10^5",
+"-10^4 <= nums[i] <= 10^4"
+],
+"approaches": [
+{
+"name": "DP over a window maximum",
+"idea": "Let `dp[i]` be the best score to reach index `i`. Since `i` is reachable from any of `[i-k, i-1]`, `dp[i] = nums[i] + max(dp[i-k..i-1])`. Maintain that window maximum with a decreasing deque of indices, evicting the front once it falls out of range. Answer is `dp[n-1]`.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public int maxResult(int[] nums, int k) {\n    int n = nums.length;\n    int[] dp = new int[n];\n    dp[0] = nums[0];\n    Deque<Integer> dq = new ArrayDeque<>();       // indices, dp values decreasing\n    dq.offerLast(0);\n    for (int i = 1; i < n; i++) {\n        while (!dq.isEmpty() && dq.peekFirst() < i - k) dq.pollFirst();\n        dp[i] = nums[i] + dp[dq.peekFirst()];\n        while (!dq.isEmpty() && dp[dq.peekLast()] <= dp[i]) dq.pollLast();\n        dq.offerLast(i);\n    }\n    return dp[n - 1];\n}"
+}
+],
+"insight": "Reaching `i` means extending the best of the previous `k` cells; the sliding-window maximum over `dp` collapses an O(nk) DP to O(n)."
+},
+"niche-advanced__largest-rectangle": {
+"title": "Largest Rectangle",
+"topic": "Niche / Advanced",
+"subtopic": "Monotonic Deque",
+"difficulty": "Hard",
+"pattern": "Monotonic increasing stack (largest rectangle in histogram)",
+"notes": "",
+"statement": "Given `heights` representing the bar heights of a histogram (each bar of width 1), return the area of the largest rectangle that fits entirely within the histogram.",
+"examples": [
+{
+"input": "heights = [2,1,5,6,2,3]",
+"output": "10",
+"explanation": "Bars of heights 5 and 6 form a 5x2 rectangle."
+},
+{
+"input": "heights = [2,4]",
+"output": "4",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= heights.length <= 10^5",
+"0 <= heights[i] <= 10^4"
+],
+"approaches": [
+{
+"name": "Monotonic increasing stack",
+"idea": "Keep a stack of indices with increasing heights. When the current bar is lower than the stack top, that top bar cannot extend further right, so pop it and compute the rectangle it anchors: its height times the width spanning from the element now below it (exclusive left boundary) to the current index. A sentinel height of 0 at the end flushes everything. The maximum over all popped bars is the answer.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public int largestRectangleArea(int[] heights) {\n    int n = heights.length;\n    Deque<Integer> stack = new ArrayDeque<>();    // indices, heights increasing\n    int maxArea = 0;\n    for (int i = 0; i <= n; i++) {\n        int h = (i == n) ? 0 : heights[i];\n        while (!stack.isEmpty() && heights[stack.peek()] >= h) {\n            int height = heights[stack.pop()];\n            int left = stack.isEmpty() ? -1 : stack.peek();\n            int width = i - left - 1;\n            maxArea = Math.max(maxArea, height * width);\n        }\n        stack.push(i);\n    }\n    return maxArea;\n}"
+}
+],
+"insight": "For each bar, the widest rectangle of its height reaches until the first shorter bar on each side. A monotonic increasing stack finds both boundaries in one pass: pop on a drop and the new top is the left boundary, the current index is the right."
+},
+"niche-advanced__max-value-of-equation": {
+"title": "Max Value of Equation",
+"topic": "Niche / Advanced",
+"subtopic": "Monotonic Deque",
+"difficulty": "Hard",
+"pattern": "Deque maximum over a value transform",
+"notes": "",
+"statement": "Given `points` sorted by x-coordinate (`points[i] = [xi, yi]`) and an integer `k`, return the maximum value of `yi + yj + |xi - xj|` over all pairs `i < j` with `|xi - xj| <= k`. Such a pair is guaranteed to exist.",
+"examples": [
+{
+"input": "points = [[1,3],[2,0],[5,10],[6,-10]], k = 1",
+"output": "4",
+"explanation": "Use points (1,3) and (2,0): 3 + 0 + 1 = 4."
+},
+{
+"input": "points = [[0,0],[3,0],[9,2]], k = 3",
+"output": "3",
+"explanation": ""
+}
+],
+"constraints": [
+"2 <= points.length <= 10^5",
+"points sorted strictly increasing by x",
+"-10^8 <= xi, yi <= 10^8",
+"0 <= k <= 2 * 10^8"
+],
+"approaches": [
+{
+"name": "Monotonic deque of (y - x)",
+"idea": "Because points are sorted by x, for `j > i` we have `xj >= xi`, so `|xi - xj| = xj - xi` and the objective becomes `(yi - xi) + (yj + xj)`. Sweep left to right; for the current point `j` we want the largest `yi - xi` among earlier points with `xj - xi <= k`. Maintain a deque of `[y-x, x]` with `y-x` decreasing, evicting the front while its `x` is out of range. The front gives the best partner.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public int findMaxValueOfEquation(int[][] points, int k) {\n    Deque<int[]> dq = new ArrayDeque<>();         // {y - x, x}, first value decreasing\n    int res = Integer.MIN_VALUE;\n    for (int[] p : points) {\n        int x = p[0], y = p[1];\n        while (!dq.isEmpty() && dq.peekFirst()[1] < x - k) dq.pollFirst();\n        if (!dq.isEmpty()) res = Math.max(res, dq.peekFirst()[0] + y + x);\n        while (!dq.isEmpty() && dq.peekLast()[0] <= y - x) dq.pollLast();\n        dq.offerLast(new int[]{y - x, x});\n    }\n    return res;\n}"
+}
+],
+"insight": "Sorted x lets you drop the absolute value: the target splits into a per-point `yj + xj` plus a windowed maximum of `yi - xi`, which is exactly a sliding-window-maximum deque keyed on the x-range constraint."
+},
+"niche-advanced__meeting-rooms-ii": {
+"title": "Meeting Rooms II",
+"topic": "Niche / Advanced",
+"subtopic": "Line Sweep",
+"difficulty": "Medium",
+"pattern": "Sweep-line of start/end events (max concurrency)",
+"notes": "",
+"statement": "Given an array of meeting time intervals `[start, end)`, return the minimum number of conference rooms required so that no two meetings sharing a room overlap.",
+"examples": [
+{
+"input": "intervals = [[0,30],[5,10],[15,20]]",
+"output": "2",
+"explanation": "[0,30] overlaps both others, which themselves do not overlap."
+},
+{
+"input": "intervals = [[7,10],[2,4]]",
+"output": "1",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= intervals.length <= 10^4",
+"0 <= start < end <= 10^6"
+],
+"approaches": [
+{
+"name": "Sort starts and ends, two pointers",
+"idea": "The answer is the maximum number of meetings running at once. Sort start times and end times separately. Sweep the start times; before opening a room for the next meeting, release every room whose end time is `<= that start` (a meeting ending frees a room for one starting at the same instant). Track the running room count and its maximum.",
+"time": "O(n log n)",
+"space": "O(n)",
+"code": "public int minMeetingRooms(int[][] intervals) {\n    int n = intervals.length;\n    int[] starts = new int[n];\n    int[] ends = new int[n];\n    for (int i = 0; i < n; i++) { starts[i] = intervals[i][0]; ends[i] = intervals[i][1]; }\n    Arrays.sort(starts);\n    Arrays.sort(ends);\n    int rooms = 0, maxRooms = 0, e = 0;\n    for (int s = 0; s < n; s++) {\n        while (e < n && ends[e] <= starts[s]) { rooms--; e++; }\n        rooms++;\n        maxRooms = Math.max(maxRooms, rooms);\n    }\n    return maxRooms;\n}"
+}
+],
+"insight": "Rooms needed = maximum overlap = peak of the running count as you sweep start (+1) and end (-1) events in time order; a meeting ending at exactly the next start reuses the room."
+},
+"niche-advanced__my-calendar-i-ii-iii": {
+"title": "My Calendar I/II/III",
+"topic": "Niche / Advanced",
+"subtopic": "Line Sweep",
+"difficulty": "Hard",
+"pattern": "TreeMap of interval boundaries / delta counts",
+"notes": "",
+"statement": "A family of booking designs for half-open events `[start, end)`. MyCalendar I: `book` succeeds only if it causes no double booking (no overlap). MyCalendar II: `book` succeeds unless it would cause a triple booking (two overlaps are allowed). MyCalendar III: every `book` succeeds and returns `k`, the maximum number of events overlapping at any single point so far.",
+"examples": [
+{
+"input": "MyCalendarIII: book(10,20)->1, book(50,60)->1, book(10,40)->2, book(5,15)->3, book(5,10)->3, book(25,55)->3",
+"output": "[1,1,2,3,3,3]",
+"explanation": "Return the running maximum overlap after each booking."
+}
+],
+"constraints": [
+"0 <= start < end <= 10^9",
+"at most 400 (I/II) / 400 (III) calls to book"
+],
+"approaches": [
+{
+"name": "TreeMap boundary / delta sweep",
+"idea": "I keeps merged non-overlapping intervals in a TreeMap start->end; a booking is rejected if the floor interval extends past `start` or the ceiling interval starts before `end`. II and III use a TreeMap of `+1`/`-1` deltas at boundaries: sweep the accumulated count to find the peak overlap. II tentatively adds the deltas, and if any prefix sum reaches 3 it rolls them back and rejects; III simply returns the peak after adding.",
+"time": "O(n) per book (n = distinct boundaries)",
+"space": "O(n)",
+"code": "class MyCalendar {                                     // I: no double booking\n    private final TreeMap<Integer, Integer> cal = new TreeMap<>(); // start -> end\n    public boolean book(int start, int end) {\n        Integer prev = cal.floorKey(start);\n        Integer next = cal.ceilingKey(start);\n        if (prev != null && cal.get(prev) > start) return false;\n        if (next != null && next < end) return false;\n        cal.put(start, end);\n        return true;\n    }\n}\n\nclass MyCalendarTwo {                                  // II: no triple booking\n    private final TreeMap<Integer, Integer> delta = new TreeMap<>();\n    public boolean book(int start, int end) {\n        delta.merge(start, 1, Integer::sum);\n        delta.merge(end, -1, Integer::sum);\n        int active = 0;\n        for (int v : delta.values()) {\n            active += v;\n            if (active >= 3) {                         // would triple-book: roll back\n                delta.merge(start, -1, Integer::sum);\n                delta.merge(end, 1, Integer::sum);\n                return false;\n            }\n        }\n        return true;\n    }\n}\n\nclass MyCalendarThree {                                // III: max k-booking\n    private final TreeMap<Integer, Integer> delta = new TreeMap<>();\n    public int book(int start, int end) {\n        delta.merge(start, 1, Integer::sum);\n        delta.merge(end, -1, Integer::sum);\n        int active = 0, max = 0;\n        for (int v : delta.values()) { active += v; max = Math.max(max, active); }\n        return max;\n    }\n}"
+}
+],
+"insight": "Overlap counting is a `+1`/`-1` delta sweep in a TreeMap: the max prefix sum is the peak concurrency. Version II just tries the insertion and rolls it back if the peak would hit 3; a dynamic/lazy segment tree replaces the O(n) sweep if calls grow large."
+},
+"niche-advanced__rectangle-area-ii": {
+"title": "Rectangle Area II",
+"topic": "Niche / Advanced",
+"subtopic": "Line Sweep",
+"difficulty": "Hard",
+"pattern": "Coordinate compression + vertical sweep of active x-slabs",
+"notes": "",
+"statement": "Given axis-aligned rectangles as `[x1, y1, x2, y2]` (bottom-left and top-right corners), return the total area covered by the union of all rectangles, modulo `10^9 + 7`.",
+"examples": [
+{
+"input": "rectangles = [[0,0,2,2],[1,0,2,3],[1,0,3,1]]",
+"output": "6",
+"explanation": "The overlapping region is counted once."
+},
+{
+"input": "rectangles = [[0,0,1000000000,1000000000]]",
+"output": "49",
+"explanation": "10^18 mod (10^9+7) = 49."
+}
+],
+"constraints": [
+"1 <= rectangles.length <= 200",
+"0 <= x1 < x2 <= 10^9",
+"0 <= y1 < y2 <= 10^9"
+],
+"approaches": [
+{
+"name": "Coordinate-compress x, sweep in y",
+"idea": "Compress all distinct x-coordinates into slabs `[xs[i], xs[i+1])`. Turn each rectangle into a bottom event (`+1`) and a top event (`-1`), each covering its x-slab range. Sweep events by increasing y: before applying an event, the currently covered width is the total length of slabs whose coverage count is positive; multiply by the y-gap since the previous event and accumulate. Then update the slab counts. Do all arithmetic under the modulus.",
+"time": "O(n^2)",
+"space": "O(n)",
+"code": "public int rectangleArea(int[][] rectangles) {\n    final long MOD = 1_000_000_007L;\n    TreeSet<Integer> xsSet = new TreeSet<>();\n    for (int[] r : rectangles) { xsSet.add(r[0]); xsSet.add(r[2]); }\n    Integer[] xs = xsSet.toArray(new Integer[0]);\n    Map<Integer, Integer> xIdx = new HashMap<>();\n    for (int i = 0; i < xs.length; i++) xIdx.put(xs[i], i);\n\n    // event: {y, delta(+1 bottom / -1 top), xStartIdx, xEndIdx}\n    List<int[]> events = new ArrayList<>();\n    for (int[] r : rectangles) {\n        events.add(new int[]{r[1], 1, xIdx.get(r[0]), xIdx.get(r[2])});\n        events.add(new int[]{r[3], -1, xIdx.get(r[0]), xIdx.get(r[2])});\n    }\n    events.sort((a, b) -> Integer.compare(a[0], b[0]));\n\n    int[] count = new int[xs.length];             // coverage per slab i: [xs[i], xs[i+1])\n    long area = 0;\n    long prevY = events.get(0)[0];\n    for (int[] e : events) {\n        long y = e[0];\n        long width = 0;\n        for (int i = 0; i + 1 < xs.length; i++)\n            if (count[i] > 0) width += xs[i + 1] - xs[i];\n        area = (area + (width % MOD) * ((y - prevY) % MOD)) % MOD;\n        for (int i = e[2]; i < e[3]; i++) count[i] += e[1];\n        prevY = y;\n    }\n    return (int) area;\n}"
+}
+],
+"insight": "Union area under overlap = sweep one axis while tracking the covered length on the other. Compress x into slabs, keep a coverage count per slab, and sum covered-width times y-gap between consecutive events."
+},
+"niche-advanced__employee-free-time": {
+"title": "Employee Free Time",
+"topic": "Niche / Advanced",
+"subtopic": "Line Sweep",
+"difficulty": "Hard",
+"pattern": "Merge intervals across employees, report gaps",
+"notes": "",
+"statement": "Each employee has a sorted list of non-overlapping busy intervals. Return the finite intervals of positive length during which every employee is free (the common free time).",
+"examples": [
+{
+"input": "schedule = [[[1,2],[5,6]],[[1,3]],[[4,10]]]",
+"output": "[[3,4]]",
+"explanation": "Everyone is free only between 3 and 4."
+},
+{
+"input": "schedule = [[[1,3],[6,7]],[[2,4]],[[2,5],[9,12]]]",
+"output": "[[5,6],[7,9]]",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= total intervals <= 50 (small)",
+"intervals per employee are non-overlapping and sorted by start"
+],
+"approaches": [
+{
+"name": "Flatten, sort, merge, take gaps",
+"idea": "Common free time is the complement of the union of all busy intervals. Collect every interval into one list, sort by start, and merge overlaps by tracking a running `prevEnd`. Whenever the next interval starts after `prevEnd`, the gap `[prevEnd, start]` is time when nobody is busy.",
+"time": "O(N log N)",
+"space": "O(N)",
+"code": "public List<int[]> employeeFreeTime(int[][][] schedule) {\n    List<int[]> all = new ArrayList<>();\n    for (int[][] emp : schedule) for (int[] iv : emp) all.add(iv);\n    all.sort((a, b) -> a[0] - b[0]);\n\n    List<int[]> free = new ArrayList<>();\n    int prevEnd = all.get(0)[1];\n    for (int i = 1; i < all.size(); i++) {\n        int[] iv = all.get(i);\n        if (iv[0] > prevEnd) free.add(new int[]{prevEnd, iv[0]});   // gap = free time\n        prevEnd = Math.max(prevEnd, iv[1]);\n    }\n    return free;\n}"
+}
+],
+"insight": "\"Common free time\" is the holes between merged busy blocks: flatten everyone's intervals into one list, merge, and the gaps are the answer. A k-way heap merge exploits the pre-sorted lists but is unnecessary at these sizes."
+},
+"niche-advanced__number-of-airplanes-in-the-sky": {
+"title": "Number of Airplanes in the Sky",
+"topic": "Niche / Advanced",
+"subtopic": "Line Sweep",
+"difficulty": "Hard",
+"pattern": "Sweep-line of takeoff/landing events (max concurrency)",
+"notes": "",
+"statement": "Given flight intervals `[start, end]`, return the maximum number of airplanes that are in the sky at the same time.",
+"examples": [
+{
+"input": "flights = [[1,10],[2,3],[5,8],[4,7]]",
+"output": "3",
+"explanation": "At time 5, flights [1,10], [5,8], and [4,7] overlap."
+}
+],
+"constraints": [
+"interval endpoints are integers",
+"on ties, a landing frees the slot before a takeoff (touching intervals do not overlap)"
+],
+"approaches": [
+{
+"name": "Split into +1/-1 events, sweep",
+"idea": "Emit `(time, +1)` at each takeoff and `(time, -1)` at each landing. Sort by time; on ties process landings (`-1`) before takeoffs (`+1`) so a plane landing at time `t` frees the slot for one taking off at `t`. Track the running count and record its maximum.",
+"time": "O(n log n)",
+"space": "O(n)",
+"code": "public int countOfAirplanes(List<int[]> flights) {\n    List<int[]> events = new ArrayList<>();\n    for (int[] f : flights) {\n        events.add(new int[]{f[0], 1});     // takeoff\n        events.add(new int[]{f[1], -1});    // landing\n    }\n    // ties: landing (-1) before takeoff (+1)\n    events.sort((a, b) -> a[0] != b[0] ? a[0] - b[0] : a[1] - b[1]);\n    int cur = 0, max = 0;\n    for (int[] e : events) { cur += e[1]; max = Math.max(max, cur); }\n    return max;\n}"
+}
+],
+"insight": "Max concurrent intervals = max running sum of `+1`/`-1` boundary events. The tie-break decides whether touching intervals count as overlapping, so process `-1` before `+1`."
+},
+"niche-advanced__describe-the-painting": {
+"title": "Describe the Painting",
+"topic": "Niche / Advanced",
+"subtopic": "Line Sweep",
+"difficulty": "Hard",
+"pattern": "Sweep-line with color-sum deltas over a number line",
+"notes": "",
+"statement": "Given colored segments `[start, end, color]` where overlapping colors are summed, return the painting as a list of pieces `[start, end, mixedSum]`, merging adjacent pieces with equal sum and omitting zero-sum gaps.",
+"examples": [
+{
+"input": "segments = [[1,4,5],[4,7,7],[1,7,9]]",
+"output": "[[1,4,14],[4,7,16]]",
+"explanation": "On [1,4] the sum is 5+9=14; on [4,7] it is 7+9=16."
+}
+],
+"constraints": [
+"1 <= segments.length <= 2*10^4",
+"1 <= start < end <= 10^9",
+"1 <= color <= 10^9"
+],
+"approaches": [
+{
+"name": "TreeMap of color-sum deltas",
+"idea": "Add `+color` at each `start` and `-color` at each `end` into a sorted map. Sweep the boundary points in order, accumulating the running color sum over each span `[prev, cur)`. Emit spans with positive sum, merging a span into the previous piece when they are contiguous and share the same sum.",
+"time": "O(n log n)",
+"space": "O(n)",
+"code": "public List<List<Long>> splitPainting(int[][] segments) {\n    TreeMap<Integer, Long> delta = new TreeMap<>();\n    for (int[] s : segments) {\n        delta.merge(s[0],  (long) s[2], Long::sum);\n        delta.merge(s[1], -(long) s[2], Long::sum);\n    }\n    List<List<Long>> res = new ArrayList<>();\n    long sum = 0;\n    Integer prev = null;\n    for (Map.Entry<Integer, Long> e : delta.entrySet()) {\n        int point = e.getKey();\n        if (prev != null && sum > 0) {\n            if (!res.isEmpty() && res.get(res.size() - 1).get(1) == (long) (int) prev\n                    && res.get(res.size() - 1).get(2) == sum)\n                res.get(res.size() - 1).set(1, (long) point);          // merge equal-sum span\n            else\n                res.add(new ArrayList<>(List.of((long) prev, (long) point, sum)));\n        }\n        sum += e.getValue();\n        prev = point;\n    }\n    return res;\n}"
+}
+],
+"insight": "Same delta-sweep as overlap counting, but the delta is the color value (not `+-1`) and you emit the accumulated sum over each span. Skip zero-sum gaps; merge neighbors with identical sums."
+},
+"niche-advanced__minimum-interval-to-include-each-query": {
+"title": "Minimum Interval to Include Each Query",
+"topic": "Niche / Advanced",
+"subtopic": "Line Sweep",
+"difficulty": "Hard",
+"pattern": "Offline: sort queries + intervals, min-heap by size",
+"notes": "",
+"statement": "Given `intervals` (each `[left, right]` inclusive) and an array `queries`, for each query `q` return the size (`right - left + 1`) of the smallest interval that contains `q`, or `-1` if none does. Return an array aligned with `queries`.",
+"examples": [
+{
+"input": "intervals = [[1,4],[2,4],[3,6],[4,4]], queries = [2,3,4,5]",
+"output": "[3,3,1,4]",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= intervals.length, queries.length <= 10^5",
+"1 <= left <= right <= 10^7",
+"1 <= queries[i] <= 10^7"
+],
+"approaches": [
+{
+"name": "Offline sweep with a min-heap by size",
+"idea": "Sort intervals by start and process queries in increasing value (remembering original indices). For each query, push every interval with `start <= q` into a min-heap keyed by interval size, storing `[size, end]`. Lazily pop heap entries whose `end < q` (they can no longer contain the query). The heap top is then the smallest valid interval.",
+"time": "O((n+m) log n)",
+"space": "O(n)",
+"code": "public int[] minInterval(int[][] intervals, int[] queries) {\n    Arrays.sort(intervals, (a, b) -> a[0] - b[0]);\n    Integer[] order = new Integer[queries.length];\n    for (int i = 0; i < queries.length; i++) order[i] = i;\n    Arrays.sort(order, (a, b) -> queries[a] - queries[b]);\n\n    PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[0] - b[0]); // [size, end]\n    int[] res = new int[queries.length];\n    int i = 0;\n    for (int qi : order) {\n        int q = queries[qi];\n        while (i < intervals.length && intervals[i][0] <= q) {\n            int size = intervals[i][1] - intervals[i][0] + 1;\n            pq.offer(new int[]{size, intervals[i][1]});\n            i++;\n        }\n        while (!pq.isEmpty() && pq.peek()[1] < q) pq.poll();   // end < q => invalid\n        res[qi] = pq.isEmpty() ? -1 : pq.peek()[0];\n    }\n    return res;\n}"
+}
+],
+"insight": "Process queries in increasing order so intervals only ever become eligible (start <= q) and are added once; lazily discard heap entries whose end has fallen behind the query. Heap keyed by size means the top is the answer."
+},
+"niche-advanced__implement-strstr": {
+"title": "Implement strStr()",
+"topic": "Niche / Advanced",
+"subtopic": "String Matching (KMP/Z/RK)",
+"difficulty": "Medium",
+"pattern": "KMP pattern matching with LPS (failure) array",
+"notes": "",
+"statement": "Return the index of the first occurrence of `needle` in `haystack`, or `-1` if it is not part of `haystack`.",
+"examples": [
+{
+"input": "haystack = \"sadbutsad\", needle = \"sad\"",
+"output": "0",
+"explanation": "\"sad\" occurs at index 0 and 6; the first is 0."
+},
+{
+"input": "haystack = \"leetcode\", needle = \"leeto\"",
+"output": "-1",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= haystack.length, needle.length <= 10^4",
+"haystack and needle consist of only lowercase English characters."
+],
+"approaches": [
+{
+"name": "KMP (failure function)",
+"idea": "Build the longest-proper-prefix-that-is-also-suffix (LPS) array of `needle`, then scan `haystack` once. On a mismatch we fall back to `lps[j-1]` instead of re-scanning, so no character of the text is examined more than a constant number of times. This gives linear time regardless of how many partial matches occur.",
+"time": "O(n + m)",
+"space": "O(m)",
+"code": "public int strStr(String haystack, String needle) {\n    int n = haystack.length(), m = needle.length();\n    if (m == 0) return 0;\n    int[] lps = buildLps(needle);\n    for (int i = 0, j = 0; i < n; ) {\n        if (haystack.charAt(i) == needle.charAt(j)) {\n            i++; j++;\n            if (j == m) return i - m;\n        } else if (j > 0) {\n            j = lps[j - 1];\n        } else {\n            i++;\n        }\n    }\n    return -1;\n}\n\nprivate int[] buildLps(String p) {\n    int m = p.length();\n    int[] lps = new int[m];\n    for (int i = 1, len = 0; i < m; ) {\n        if (p.charAt(i) == p.charAt(len)) {\n            lps[i++] = ++len;\n        } else if (len > 0) {\n            len = lps[len - 1];\n        } else {\n            lps[i++] = 0;\n        }\n    }\n    return lps;\n}"
+}
+],
+"insight": "The LPS array lets you skip re-matching the prefix you already know matches, turning naive O(nm) into O(n+m)."
+},
+"niche-advanced__shortest-palindrome": {
+"title": "Shortest Palindrome",
+"topic": "Niche / Advanced",
+"subtopic": "String Matching (KMP/Z/RK)",
+"difficulty": "Hard",
+"pattern": "KMP failure on s + '#' + reverse(s) to find longest palindromic prefix",
+"notes": "",
+"statement": "You are given a string `s`. You can convert `s` to a palindrome by adding characters in front of it. Return the shortest palindrome you can find by performing this transformation.",
+"examples": [
+{
+"input": "s = \"aacecaaa\"",
+"output": "\"aaacecaaa\"",
+"explanation": ""
+},
+{
+"input": "s = \"abcd\"",
+"output": "\"dcbabcd\"",
+"explanation": ""
+}
+],
+"constraints": [
+"0 <= s.length <= 5 * 10^4",
+"s consists of lowercase English letters only."
+],
+"approaches": [
+{
+"name": "KMP on s + '#' + reverse(s)",
+"idea": "The answer prepends the reverse of the non-palindromic suffix of `s`, so we need the longest prefix of `s` that is itself a palindrome. Concatenate `s + '#' + reverse(s)` and compute the LPS array; the final LPS value `k` is the length of the longest prefix of `s` equal to a suffix of `reverse(s)`, i.e. the longest palindromic prefix. The `#` separator prevents the match from overrunning `s`. Prepend `reverse(s.substring(k))`.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public String shortestPalindrome(String s) {\n    int n = s.length();\n    if (n == 0) return s;\n    String rev = new StringBuilder(s).reverse().toString();\n    String combined = s + \"#\" + rev;\n    int L = combined.length();\n    int[] lps = new int[L];\n    for (int i = 1, len = 0; i < L; ) {\n        if (combined.charAt(i) == combined.charAt(len)) {\n            lps[i++] = ++len;\n        } else if (len > 0) {\n            len = lps[len - 1];\n        } else {\n            lps[i++] = 0;\n        }\n    }\n    int k = lps[L - 1];               // longest palindromic prefix length\n    return rev.substring(0, n - k) + s;\n}"
+}
+],
+"insight": "Longest palindromic prefix = LPS of s + '#' + reverse(s); prepend the reverse of whatever is left over."
+},
+"niche-advanced__repeated-substring-pattern": {
+"title": "Repeated Substring Pattern",
+"topic": "Niche / Advanced",
+"subtopic": "String Matching (KMP/Z/RK)",
+"difficulty": "Medium",
+"pattern": "KMP failure array: n % (n - lps[n-1]) == 0",
+"notes": "",
+"statement": "Given a string `s`, check if it can be constructed by taking a substring of it and appending multiple copies of the substring together.",
+"examples": [
+{
+"input": "s = \"abab\"",
+"output": "true",
+"explanation": "\"ab\" repeated twice."
+},
+{
+"input": "s = \"aba\"",
+"output": "false",
+"explanation": ""
+},
+{
+"input": "s = \"abcabcabcabc\"",
+"output": "true",
+"explanation": "\"abc\" repeated four times."
+}
+],
+"constraints": [
+"1 <= s.length <= 10^4",
+"s consists of lowercase English letters."
+],
+"approaches": [
+{
+"name": "KMP failure length divisibility",
+"idea": "Let `k = lps[n-1]` be the longest proper prefix that is also a suffix. Then `n - k` is the length of the smallest repeating unit candidate. The string is a repetition iff `k > 0` and `n` is divisible by `n - k` — the period `n - k` tiles the whole string exactly.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public boolean repeatedSubstringPattern(String s) {\n    int n = s.length();\n    int[] lps = new int[n];\n    for (int i = 1, len = 0; i < n; ) {\n        if (s.charAt(i) == s.charAt(len)) {\n            lps[i++] = ++len;\n        } else if (len > 0) {\n            len = lps[len - 1];\n        } else {\n            lps[i++] = 0;\n        }\n    }\n    int k = lps[n - 1];\n    return k > 0 && n % (n - k) == 0;\n}"
+}
+],
+"insight": "The shortest period is n - lps[n-1]; the string repeats iff that period divides n."
+},
+"niche-advanced__longest-happy-prefix": {
+"title": "Longest Happy Prefix",
+"topic": "Niche / Advanced",
+"subtopic": "String Matching (KMP/Z/RK)",
+"difficulty": "Hard",
+"pattern": "KMP LPS array; answer is the last LPS value",
+"notes": "",
+"statement": "A string is called a happy prefix if it is a non-empty prefix which is also a suffix (excluding the string itself). Given a string `s`, return the longest happy prefix of `s`. Return an empty string if no such prefix exists.",
+"examples": [
+{
+"input": "s = \"level\"",
+"output": "\"l\"",
+"explanation": "\"l\" is the longest prefix that is also a suffix."
+},
+{
+"input": "s = \"ababab\"",
+"output": "\"abab\"",
+"explanation": "\"abab\" is the longest happy prefix."
+}
+],
+"constraints": [
+"1 <= s.length <= 10^5",
+"s contains only lowercase English letters."
+],
+"approaches": [
+{
+"name": "KMP failure function",
+"idea": "The longest happy prefix is exactly the definition of the last entry of the KMP LPS array: the longest proper prefix of `s` that is also a suffix. Build the LPS array in linear time and take the substring of that length.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public String longestPrefix(String s) {\n    int n = s.length();\n    int[] lps = new int[n];\n    for (int i = 1, len = 0; i < n; ) {\n        if (s.charAt(i) == s.charAt(len)) {\n            lps[i++] = ++len;\n        } else if (len > 0) {\n            len = lps[len - 1];\n        } else {\n            lps[i++] = 0;\n        }\n    }\n    return s.substring(0, lps[n - 1]);\n}"
+}
+],
+"insight": "This is literally the KMP failure value of the whole string: lps[n-1]."
+},
+"niche-advanced__find-all-anagrams": {
+"title": "Find All Anagrams",
+"topic": "Niche / Advanced",
+"subtopic": "String Matching (KMP/Z/RK)",
+"difficulty": "Medium",
+"pattern": "Fixed-size sliding window with 26-letter frequency counts",
+"notes": "",
+"statement": "Given two strings `s` and `p`, return an array of all the start indices of `p`'s anagrams in `s`. You may return the answer in any order.",
+"examples": [
+{
+"input": "s = \"cbaebabacd\", p = \"abc\"",
+"output": "[0,6]",
+"explanation": "Substrings \"cba\" (index 0) and \"bac\" (index 6) are anagrams of \"abc\"."
+},
+{
+"input": "s = \"abab\", p = \"ab\"",
+"output": "[0,1,2]",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= s.length, p.length <= 3 * 10^4",
+"s and p consist of lowercase English letters."
+],
+"approaches": [
+{
+"name": "Sliding window of frequency counts",
+"idea": "An anagram is a permutation, so any window of length `|p|` whose letter-frequency vector equals that of `p` is a match. Slide a window of fixed size `|p|` across `s`, adding the entering char and removing the exiting char in O(1), and compare the two 26-length count arrays at each valid position.",
+"time": "O(n)",
+"space": "O(1)",
+"code": "public List<Integer> findAnagrams(String s, String p) {\n    List<Integer> res = new ArrayList<>();\n    int n = s.length(), m = p.length();\n    if (n < m) return res;\n    int[] need = new int[26], win = new int[26];\n    for (int i = 0; i < m; i++) need[p.charAt(i) - 'a']++;\n    for (int i = 0; i < n; i++) {\n        win[s.charAt(i) - 'a']++;\n        if (i >= m) win[s.charAt(i - m) - 'a']--;\n        if (i >= m - 1 && Arrays.equals(win, need)) res.add(i - m + 1);\n    }\n    return res;\n}"
+}
+],
+"insight": "Anagram search = fixed-width sliding window comparing 26-letter frequency vectors."
+},
+"niche-advanced__distinct-echo-substrings": {
+"title": "Distinct Echo Substrings",
+"topic": "Niche / Advanced",
+"subtopic": "String Matching (KMP/Z/RK)",
+"difficulty": "Hard",
+"pattern": "Double rolling hash (Rabin-Karp) over prefix hashes",
+"notes": "",
+"statement": "Return the number of distinct non-empty substrings of `text` that can be written as the concatenation of some string with itself (i.e. of the form `a + a`).",
+"examples": [
+{
+"input": "text = \"abcabcabc\"",
+"output": "3",
+"explanation": "The echo substrings are \"abcabc\", \"bcabca\" and \"cabcab\"."
+},
+{
+"input": "text = \"leetcodeleetcode\"",
+"output": "2",
+"explanation": "\"ee\" and \"leetcodeleetcode\"."
+}
+],
+"constraints": [
+"1 <= text.length <= 2000",
+"text has only lowercase English letters."
+],
+"approaches": [
+{
+"name": "Prefix rolling hash + hash set",
+"idea": "A valid substring of half-length `len` starts at `i` iff the window `[i, i+len)` equals `[i+len, i+2len)`. Precompute polynomial prefix hashes so any substring hash is O(1). For every `len` and every start `i`, compare the two halves by hash; when equal, record the (double) hash of the half in a set so identical echo substrings are counted once. Two independent moduli make a false collision astronomically unlikely.",
+"time": "O(n^2)",
+"space": "O(n)",
+"code": "public int distinctEchoSubstrings(String text) {\n    int n = text.length();\n    final long MOD1 = 1_000_000_007L, MOD2 = 998_244_353L, B1 = 131, B2 = 137;\n    long[] h1 = new long[n + 1], h2 = new long[n + 1];\n    long[] p1 = new long[n + 1], p2 = new long[n + 1];\n    p1[0] = p2[0] = 1;\n    for (int i = 0; i < n; i++) {\n        h1[i + 1] = (h1[i] * B1 + text.charAt(i)) % MOD1;\n        h2[i + 1] = (h2[i] * B2 + text.charAt(i)) % MOD2;\n        p1[i + 1] = p1[i] * B1 % MOD1;\n        p2[i + 1] = p2[i] * B2 % MOD2;\n    }\n    Set<Long> seen = new HashSet<>();\n    for (int len = 1; 2 * len <= n; len++) {\n        for (int i = 0; i + 2 * len <= n; i++) {\n            long a1 = sub(h1, p1, i, i + len, MOD1);\n            long b1 = sub(h1, p1, i + len, i + 2 * len, MOD1);\n            if (a1 != b1) continue;\n            long a2 = sub(h2, p2, i, i + len, MOD2);\n            long b2 = sub(h2, p2, i + len, i + 2 * len, MOD2);\n            if (a2 == b2) seen.add(a1 * MOD2 + a2);\n        }\n    }\n    return seen.size();\n}\n\nprivate long sub(long[] h, long[] p, int l, int r, long mod) {\n    return (h[r] - h[l] * p[r - l] % mod + mod) % mod;\n}"
+}
+],
+"insight": "Compare the two halves by O(1) prefix-hash lookups; dedupe echoes with a double-hash set."
+},
+"niche-advanced__longest-duplicate-substring": {
+"title": "Longest Duplicate Substring",
+"topic": "Niche / Advanced",
+"subtopic": "String Matching (KMP/Z/RK)",
+"difficulty": "Hard",
+"pattern": "Binary search on length + Rabin-Karp (double hashing)",
+"notes": "",
+"statement": "Given a string `s`, consider all duplicated substrings: (contiguous) substrings of `s` that occur 2 or more times. The occurrences may overlap. Return any duplicated substring that has the longest possible length. If `s` has no duplicated substring, return an empty string.",
+"examples": [
+{
+"input": "s = \"banana\"",
+"output": "\"ana\"",
+"explanation": "\"ana\" occurs twice (overlapping)."
+},
+{
+"input": "s = \"abcd\"",
+"output": "\"\"",
+"explanation": "No duplicated substring."
+}
+],
+"constraints": [
+"2 <= s.length <= 3 * 10^4",
+"s consists of lowercase English letters."
+],
+"approaches": [
+{
+"name": "Binary search on length + rolling hash",
+"idea": "If a duplicate substring of length `L` exists, so does one of every smaller length, so the answer length is monotonic and can be binary-searched. For a candidate `L`, use Rabin-Karp: hash every length-`L` window (O(1) each via prefix hashes) and detect a repeated hash with a set. Double hashing makes collisions negligible, so a repeated key reliably signals a real duplicate. Track the start index of the found duplicate.",
+"time": "O(n log n)",
+"space": "O(n)",
+"code": "public String longestDupSubstring(String s) {\n    int n = s.length();\n    final long MOD1 = 1_000_000_007L, MOD2 = 998_244_353L, B1 = 131, B2 = 137;\n    long[] h1 = new long[n + 1], h2 = new long[n + 1];\n    long[] p1 = new long[n + 1], p2 = new long[n + 1];\n    p1[0] = p2[0] = 1;\n    for (int i = 0; i < n; i++) {\n        h1[i + 1] = (h1[i] * B1 + s.charAt(i)) % MOD1;\n        h2[i + 1] = (h2[i] * B2 + s.charAt(i)) % MOD2;\n        p1[i + 1] = p1[i] * B1 % MOD1;\n        p2[i + 1] = p2[i] * B2 % MOD2;\n    }\n    int lo = 1, hi = n - 1, start = -1, len = 0;\n    while (lo <= hi) {\n        int mid = (lo + hi) >>> 1;\n        int pos = find(mid, n, h1, h2, p1, p2, MOD1, MOD2);\n        if (pos >= 0) { start = pos; len = mid; lo = mid + 1; }\n        else hi = mid - 1;\n    }\n    return start < 0 ? \"\" : s.substring(start, start + len);\n}\n\nprivate int find(int L, int n, long[] h1, long[] h2,\n                 long[] p1, long[] p2, long MOD1, long MOD2) {\n    Set<Long> seen = new HashSet<>();\n    for (int i = 0; i + L <= n; i++) {\n        long a = (h1[i + L] - h1[i] * p1[L] % MOD1 + MOD1) % MOD1;\n        long b = (h2[i + L] - h2[i] * p2[L] % MOD2 + MOD2) % MOD2;\n        long key = a * MOD2 + b;\n        if (!seen.add(key)) return i;   // duplicate window found\n    }\n    return -1;\n}"
+}
+],
+"insight": "Answer length is monotonic -> binary search it, testing each length with Rabin-Karp windows in a hash set."
+},
+"niche-advanced__strings-differ-by-one-char": {
+"title": "Strings Differ by One Char",
+"topic": "Niche / Advanced",
+"subtopic": "String Matching (KMP/Z/RK)",
+"difficulty": "Hard",
+"pattern": "Positional polynomial hashing with masked-out column",
+"notes": "",
+"statement": "Given a list of strings `dict` where all the strings are of the same length, return `true` if there are two strings that differ by exactly one character in the same position, otherwise `false`.",
+"examples": [
+{
+"input": "dict = [\"abcd\",\"acbd\",\"aacd\"]",
+"output": "true",
+"explanation": "\"abcd\" and \"aacd\" differ only at index 1: 'b' vs 'a'."
+},
+{
+"input": "dict = [\"ab\",\"cd\",\"yz\"]",
+"output": "false",
+"explanation": ""
+}
+],
+"constraints": [
+"Number of characters in dict <= 10^5",
+"dict[i].length == dict[j].length",
+"dict[i] consists of only lowercase English letters."
+],
+"approaches": [
+{
+"name": "Column-masked hashing with verification",
+"idea": "Two words differ at exactly one position `j` iff they are identical after deleting column `j`. Compute a polynomial hash of each word, then for each column `j` derive the masked hash by subtracting that column's contribution. Words sharing a masked hash at column `j` are identical except possibly at `j`; verify with a direct character diff (guards against hash collisions and against duplicate words, which differ by 0). Grouping per column keeps it linear in total characters.",
+"time": "O(n * m)",
+"space": "O(n)",
+"code": "public boolean differByOne(String[] dict) {\n    int n = dict.length, m = dict[0].length();\n    final long MOD = 1_000_000_007L, B = 131;\n    long[] pow = new long[m];\n    pow[0] = 1;\n    for (int j = 1; j < m; j++) pow[j] = pow[j - 1] * B % MOD;\n    long[] hash = new long[n];\n    for (int i = 0; i < n; i++) {\n        long h = 0;\n        for (int j = 0; j < m; j++)\n            h = (h + dict[i].charAt(j) * pow[m - 1 - j]) % MOD;\n        hash[i] = h;\n    }\n    for (int j = 0; j < m; j++) {\n        Map<Long, List<Integer>> seen = new HashMap<>();\n        for (int i = 0; i < n; i++) {\n            long masked = (hash[i] - dict[i].charAt(j) * pow[m - 1 - j] % MOD + MOD) % MOD;\n            List<Integer> lst = seen.computeIfAbsent(masked, k -> new ArrayList<>());\n            for (int prev : lst)\n                if (differExactlyOne(dict[prev], dict[i])) return true;\n            lst.add(i);\n        }\n    }\n    return false;\n}\n\nprivate boolean differExactlyOne(String a, String b) {\n    int diff = 0;\n    for (int i = 0; i < a.length(); i++)\n        if (a.charAt(i) != b.charAt(i) && ++diff > 1) return false;\n    return diff == 1;\n}"
+}
+],
+"insight": "Mask out one column at a time via hash subtraction; equal masked hashes mean 'same except that column' -> verify one-char diff."
+},
+"niche-advanced__fibonacci-at-large-n": {
+"title": "Fibonacci at large n",
+"topic": "Niche / Advanced",
+"subtopic": "Matrix Exponentiation",
+"difficulty": "Very Hard",
+"pattern": "2x2 matrix fast exponentiation of [[1,1],[1,0]]",
+"notes": "",
+"statement": "Compute the `n`-th Fibonacci number modulo `10^9 + 7`, where `F(0) = 0`, `F(1) = 1`, and `F(k) = F(k-1) + F(k-2)`. `n` can be extremely large (up to 10^18), so a linear scan is too slow.",
+"examples": [
+{
+"input": "n = 10",
+"output": "55",
+"explanation": ""
+},
+{
+"input": "n = 1000000000000000000",
+"output": "(F(10^18) mod 1e9+7)",
+"explanation": "Computed in O(log n) matrix multiplications."
+}
+],
+"constraints": [
+"0 <= n <= 10^18",
+"Answer is returned modulo 10^9 + 7."
+],
+"approaches": [
+{
+"name": "Matrix fast exponentiation",
+"idea": "Since [[1,1],[1,0]]^n = [[F(n+1), F(n)], [F(n), F(n-1)]], raising the transformation matrix to the `n`-th power via binary exponentiation yields F(n) in the top-right cell. Squaring the matrix log(n) times reduces the recurrence from O(n) to O(log n), with all arithmetic done modulo 10^9 + 7.",
+"time": "O(log n)",
+"space": "O(1)",
+"code": "public int fib(long n) {\n    final long MOD = 1_000_000_007L;\n    if (n == 0) return 0;\n    long[][] r = matpow(new long[][]{{1, 1}, {1, 0}}, n, MOD);\n    return (int) r[0][1];          // F(n)\n}\n\nprivate long[][] matpow(long[][] m, long p, long MOD) {\n    int k = m.length;\n    long[][] res = new long[k][k];\n    for (int i = 0; i < k; i++) res[i][i] = 1;   // identity\n    while (p > 0) {\n        if ((p & 1) == 1) res = mul(res, m, MOD);\n        m = mul(m, m, MOD);\n        p >>= 1;\n    }\n    return res;\n}\n\nprivate long[][] mul(long[][] a, long[][] b, long MOD) {\n    int n = a.length, m = b[0].length, k = b.length;\n    long[][] c = new long[n][m];\n    for (int i = 0; i < n; i++)\n        for (int x = 0; x < k; x++) {\n            if (a[i][x] == 0) continue;\n            for (int j = 0; j < m; j++)\n                c[i][j] = (c[i][j] + a[i][x] * b[x][j]) % MOD;\n        }\n    return c;\n}"
+}
+],
+"insight": "Encode a linear recurrence as a matrix; matrix^n via binary exponentiation gives the n-th term in O(log n)."
+},
+"niche-advanced__count-paths-of-length-k-in-a-graph": {
+"title": "Count paths of length k in a graph",
+"topic": "Niche / Advanced",
+"subtopic": "Matrix Exponentiation",
+"difficulty": "Very Hard",
+"pattern": "k-th power of the adjacency matrix",
+"notes": "",
+"statement": "Given the adjacency matrix `adj` of a directed graph on `n` nodes (`adj[i][j] = 1` if there is an edge `i -> j`), a length `k`, and nodes `src` and `dst`, return the number of distinct walks of exactly `k` edges from `src` to `dst`, modulo `10^9 + 7`. Walks may repeat vertices and edges.",
+"examples": [
+{
+"input": "adj = [[0,1,0],[0,0,1],[1,0,0]], k = 3, src = 0, dst = 0",
+"output": "1",
+"explanation": "The only length-3 walk 0->1->2->0 returns to 0."
+},
+{
+"input": "adj = [[0,1],[1,0]], k = 2, src = 0, dst = 0",
+"output": "1",
+"explanation": "0->1->0."
+}
+],
+"constraints": [
+"1 <= n <= 100",
+"0 <= k <= 10^9",
+"adj[i][j] is 0 or 1; answer returned modulo 10^9 + 7."
+],
+"approaches": [
+{
+"name": "Adjacency matrix power",
+"idea": "The number of walks of length exactly `k` from `i` to `j` equals `(A^k)[i][j]`, where `A` is the adjacency matrix — this follows by induction, since one matrix multiply extends every walk by one edge. Compute `A^k` by binary exponentiation of the matrix, giving O(n^3 log k) instead of enumerating exponentially many walks.",
+"time": "O(n^3 log k)",
+"space": "O(n^2)",
+"code": "public int countPaths(int[][] adj, int k, int src, int dst) {\n    final long MOD = 1_000_000_007L;\n    int n = adj.length;\n    long[][] a = new long[n][n];\n    for (int i = 0; i < n; i++)\n        for (int j = 0; j < n; j++)\n            a[i][j] = adj[i][j];\n    long[][] r = matpow(a, k, MOD);\n    return (int) r[src][dst];\n}\n\nprivate long[][] matpow(long[][] m, long p, long MOD) {\n    int k = m.length;\n    long[][] res = new long[k][k];\n    for (int i = 0; i < k; i++) res[i][i] = 1;   // identity\n    while (p > 0) {\n        if ((p & 1) == 1) res = mul(res, m, MOD);\n        m = mul(m, m, MOD);\n        p >>= 1;\n    }\n    return res;\n}\n\nprivate long[][] mul(long[][] a, long[][] b, long MOD) {\n    int n = a.length, m = b[0].length, k = b.length;\n    long[][] c = new long[n][m];\n    for (int i = 0; i < n; i++)\n        for (int x = 0; x < k; x++) {\n            if (a[i][x] == 0) continue;\n            for (int j = 0; j < m; j++)\n                c[i][j] = (c[i][j] + a[i][x] * b[x][j]) % MOD;\n        }\n    return c;\n}"
+}
+],
+"insight": "Walks of length k between nodes = entries of A^k; exponentiate the adjacency matrix in O(log k)."
+},
+"niche-advanced__knight-dialer": {
+"title": "Knight Dialer",
+"topic": "Niche / Advanced",
+"subtopic": "Matrix Exponentiation",
+"difficulty": "Hard",
+"pattern": "Linear DP over digit transitions; matrix power for huge n",
+"notes": "",
+"statement": "A chess knight sits on a phone dialpad (digits 0-9 in the usual layout, with `*` and `#` unusable). Starting on any numeric cell, the knight makes `n - 1` valid knight moves to dial a number of length `n`. Return how many distinct phone numbers of length `n` can be dialed, modulo `10^9 + 7`.",
+"examples": [
+{
+"input": "n = 1",
+"output": "10",
+"explanation": "Each of the 10 digits is a valid length-1 number."
+},
+{
+"input": "n = 2",
+"output": "20",
+"explanation": ""
+},
+{
+"input": "n = 3131",
+"output": "136006598",
+"explanation": "Answer taken modulo 10^9 + 7."
+}
+],
+"constraints": [
+"1 <= n <= 5000"
+],
+"approaches": [
+{
+"name": "Linear DP over knight transitions",
+"idea": "Let `dp[d]` be the count of length-`L` numbers ending on digit `d`. Each digit reaches a fixed small set of digits by a knight move, so `next[nb] += dp[d]` for every neighbor `nb`. Starting from `dp[d] = 1` (length 1), iterate `n - 1` times and sum. Linear in `n` with only 10 states.",
+"time": "O(n)",
+"space": "O(1)",
+"code": "public int knightDialer(int n) {\n    final long MOD = 1_000_000_007L;\n    int[][] moves = {\n        {4, 6}, {6, 8}, {7, 9}, {4, 8}, {0, 3, 9},\n        {}, {0, 1, 7}, {2, 6}, {1, 3}, {2, 4}\n    };\n    long[] dp = new long[10];\n    Arrays.fill(dp, 1);\n    for (int step = 1; step < n; step++) {\n        long[] next = new long[10];\n        for (int d = 0; d < 10; d++)\n            for (int nb : moves[d])\n                next[nb] = (next[nb] + dp[d]) % MOD;\n        dp = next;\n    }\n    long sum = 0;\n    for (long v : dp) sum = (sum + v) % MOD;\n    return (int) sum;\n}"
+},
+{
+"name": "Matrix exponentiation (for astronomically large n)",
+"idea": "The transition is linear, so build a 10x10 matrix `T` with `T[nb][d] = 1` when digit `d` can move to `nb`. Then the vector of counts after `n - 1` steps is `T^(n-1)` applied to the all-ones vector; summing its entries gives the answer. Raising `T` to a power via binary exponentiation makes this O(10^3 log n), which matters if `n` were up to 10^18 rather than 5000.",
+"time": "O(10^3 log n)",
+"space": "O(1)",
+"code": "public int knightDialer(int n) {\n    final long MOD = 1_000_000_007L;\n    int[][] moves = {\n        {4, 6}, {6, 8}, {7, 9}, {4, 8}, {0, 3, 9},\n        {}, {0, 1, 7}, {2, 6}, {1, 3}, {2, 4}\n    };\n    long[][] T = new long[10][10];\n    for (int d = 0; d < 10; d++)\n        for (int nb : moves[d])\n            T[nb][d] = 1;                      // nb <- d\n    long[][] P = matpow(T, n - 1, MOD);        // T^(n-1)\n    long sum = 0;\n    for (int i = 0; i < 10; i++)\n        for (int j = 0; j < 10; j++)\n            sum = (sum + P[i][j]) % MOD;        // apply to all-ones start\n    return (int) sum;\n}\n\nprivate long[][] matpow(long[][] m, long p, long MOD) {\n    int k = m.length;\n    long[][] res = new long[k][k];\n    for (int i = 0; i < k; i++) res[i][i] = 1;\n    while (p > 0) {\n        if ((p & 1) == 1) res = mul(res, m, MOD);\n        m = mul(m, m, MOD);\n        p >>= 1;\n    }\n    return res;\n}\n\nprivate long[][] mul(long[][] a, long[][] b, long MOD) {\n    int n = a.length, m = b[0].length, k = b.length;\n    long[][] c = new long[n][m];\n    for (int i = 0; i < n; i++)\n        for (int x = 0; x < k; x++) {\n            if (a[i][x] == 0) continue;\n            for (int j = 0; j < m; j++)\n                c[i][j] = (c[i][j] + a[i][x] * b[x][j]) % MOD;\n        }\n    return c;\n}"
+}
+],
+"insight": "Knight moves form a fixed linear transition on 10 digits: O(n) DP, or matrix^(n-1) when n is enormous."
+},
+"niche-advanced__student-attendance-record-ii": {
+"title": "Student Attendance Record II",
+"topic": "Niche / Advanced",
+"subtopic": "Matrix Exponentiation",
+"difficulty": "Hard",
+"pattern": "DP over (absences, trailing lates) states; matrix power variant",
+"notes": "",
+"statement": "An attendance record of length `n` is a string of `'A'` (absent), `'L'` (late), `'P'` (present). A record is rewardable if it contains fewer than 2 `'A'` total and never has 3 or more consecutive `'L'`. Return the number of rewardable records of length `n`, modulo `10^9 + 7`.",
+"examples": [
+{
+"input": "n = 2",
+"output": "8",
+"explanation": "All length-2 strings except \"AA\" are rewardable."
+},
+{
+"input": "n = 1",
+"output": "3",
+"explanation": "\"A\", \"L\", \"P\"."
+},
+{
+"input": "n = 10101",
+"output": "183236316",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= n <= 10^5"
+],
+"approaches": [
+{
+"name": "DP over 6 states (absences x trailing lates)",
+"idea": "State = (number of `A` so far in {0,1}, number of trailing `L` in {0,1,2}), 6 states total. From each state: appending `P` resets lates to 0; appending `A` is allowed only if no `A` yet and resets lates to 0; appending `L` is allowed only if fewer than 2 trailing lates and increments them. Iterate `n` times and sum all states.",
+"time": "O(n)",
+"space": "O(1)",
+"code": "public int checkRecord(int n) {\n    final long MOD = 1_000_000_007L;\n    long[][] dp = new long[2][3];      // dp[absences][trailing L]\n    dp[0][0] = 1;\n    for (int i = 0; i < n; i++) {\n        long[][] nd = new long[2][3];\n        for (int a = 0; a < 2; a++)\n            for (int l = 0; l < 3; l++) {\n                long cur = dp[a][l];\n                if (cur == 0) continue;\n                nd[a][0] = (nd[a][0] + cur) % MOD;              // append P\n                if (a == 0) nd[1][0] = (nd[1][0] + cur) % MOD;  // append A\n                if (l < 2) nd[a][l + 1] = (nd[a][l + 1] + cur) % MOD; // append L\n            }\n        dp = nd;\n    }\n    long sum = 0;\n    for (int a = 0; a < 2; a++)\n        for (int l = 0; l < 3; l++)\n            sum = (sum + dp[a][l]) % MOD;\n    return (int) sum;\n}"
+},
+{
+"name": "Matrix exponentiation over the 6 states",
+"idea": "Because the state transition is fixed and linear, flatten the 6 states into a vector and encode the P/A/L transitions in a 6x6 matrix `T`. The answer is the sum of entries of `T^n` applied to the initial state, computable in O(6^3 log n) — the standard speedup when `n` is far larger than 10^5.",
+"time": "O(6^3 log n)",
+"space": "O(1)",
+"code": "public int checkRecord(int n) {\n    final long MOD = 1_000_000_007L;\n    // states 0..5 = (a,l): 0=(0,0) 1=(0,1) 2=(0,2) 3=(1,0) 4=(1,1) 5=(1,2)\n    long[][] T = new long[6][6];       // T[to][from]\n    int[][] al = {{0,0},{0,1},{0,2},{1,0},{1,1},{1,2}};\n    for (int s = 0; s < 6; s++) {\n        int a = al[s][0], l = al[s][1];\n        add(T, idx(a, 0), s);                  // P\n        if (a == 0) add(T, idx(1, 0), s);      // A\n        if (l < 2) add(T, idx(a, l + 1), s);   // L\n    }\n    long[][] P = matpow(T, n, MOD);\n    // initial vector = state (0,0) only -> sum of column 0 of P\n    long sum = 0;\n    for (int i = 0; i < 6; i++) sum = (sum + P[i][0]) % MOD;\n    return (int) sum;\n}\n\nprivate int idx(int a, int l) { return a * 3 + l; }\nprivate void add(long[][] T, int to, int from) { T[to][from]++; }\n\nprivate long[][] matpow(long[][] m, long p, long MOD) {\n    int k = m.length;\n    long[][] res = new long[k][k];\n    for (int i = 0; i < k; i++) res[i][i] = 1;\n    while (p > 0) {\n        if ((p & 1) == 1) res = mul(res, m, MOD);\n        m = mul(m, m, MOD);\n        p >>= 1;\n    }\n    return res;\n}\n\nprivate long[][] mul(long[][] a, long[][] b, long MOD) {\n    int n = a.length, m = b[0].length, k = b.length;\n    long[][] c = new long[n][m];\n    for (int i = 0; i < n; i++)\n        for (int x = 0; x < k; x++) {\n            if (a[i][x] == 0) continue;\n            for (int j = 0; j < m; j++)\n                c[i][j] = (c[i][j] + a[i][x] * b[x][j]) % MOD;\n        }\n    return c;\n}"
+}
+],
+"insight": "Track (total A, trailing L) as 6 states: O(n) DP, and the same transition as a 6x6 matrix^n for huge n."
+},
+"niche-advanced__number-of-ways-to-stay-in-the-same-place-after-some-steps": {
+"title": "Number of Ways to Stay in the Same Place After Some Steps",
+"topic": "Niche / Advanced",
+"subtopic": "Matrix Exponentiation",
+"difficulty": "Hard",
+"pattern": "Bounded DP over reachable positions (capped at steps/2)",
+"notes": "",
+"statement": "You have a pointer at index 0 in an array of size `arrLen`. At each step you may move the pointer 1 position left, 1 position right, or stay, without ever leaving the array bounds. Given `steps` and `arrLen`, return the number of ways to move the pointer so that after exactly `steps` steps it is back at index 0, modulo `10^9 + 7`.",
+"examples": [
+{
+"input": "steps = 3, arrLen = 2",
+"output": "4",
+"explanation": "Right/Left/Stay combinations: RLS, RSL, SRL, SSS."
+},
+{
+"input": "steps = 2, arrLen = 4",
+"output": "2",
+"explanation": "SS and RL."
+},
+{
+"input": "steps = 4, arrLen = 2",
+"output": "8",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= steps <= 500",
+"1 <= arrLen <= 10^6"
+],
+"approaches": [
+{
+"name": "DP over reachable positions",
+"idea": "To return to index 0 within the remaining steps, the pointer can never go farther right than `steps/2`, so cap positions at `maxPos = min(steps/2, arrLen-1)` even when the array is huge. Let `dp[p]` be the number of ways to be at position `p`; each step spreads a position's count to itself, left, and right (respecting bounds). After `steps` iterations, `dp[0]` is the answer.",
+"time": "O(steps * min(steps, arrLen))",
+"space": "O(min(steps, arrLen))",
+"code": "public int numWays(int steps, int arrLen) {\n    final long MOD = 1_000_000_007L;\n    int maxPos = Math.min(steps / 2, arrLen - 1);\n    long[] dp = new long[maxPos + 1];\n    dp[0] = 1;\n    for (int s = 0; s < steps; s++) {\n        long[] nd = new long[maxPos + 1];\n        for (int p = 0; p <= maxPos; p++) {\n            long cur = dp[p];\n            if (cur == 0) continue;\n            nd[p] = (nd[p] + cur) % MOD;                       // stay\n            if (p > 0) nd[p - 1] = (nd[p - 1] + cur) % MOD;    // left\n            if (p < maxPos) nd[p + 1] = (nd[p + 1] + cur) % MOD; // right\n        }\n        dp = nd;\n    }\n    return (int) dp[0];\n}"
+}
+],
+"insight": "Cap reachable index at steps/2 (not arrLen) so the DP is O(steps^2) even for a million-length array."
+}
+}

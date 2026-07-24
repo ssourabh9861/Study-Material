@@ -1,0 +1,345 @@
+{
+"linked-list__reverse-nodes-in-k-group": {
+"title": "Reverse Nodes in k-Group",
+"topic": "Linked List",
+"subtopic": "Linked List",
+"difficulty": "Hard",
+"pattern": "In-place group reversal with a dummy head",
+"notes": "",
+"statement": "Reverse the nodes of a linked list `k` at a time and return the modified list. If the number of remaining nodes is fewer than `k`, leave them as-is. You must reverse the actual nodes, not just swap values.",
+"examples": [
+{
+"input": "head = [1,2,3,4,5], k = 2",
+"output": "[2,1,4,3,5]",
+"explanation": "First pair (1,2) reversed, second pair (3,4) reversed, node 5 has no full group left."
+}
+],
+"constraints": [
+"1 <= k <= n <= 5000",
+"0 <= Node.val <= 1000"
+],
+"approaches": [
+{
+"name": "Count k, reverse in place, stitch with groupPrev",
+"idea": "Use a dummy node before the head. Repeatedly walk `k` steps from `groupPrev` to find the `kth` node; if fewer than `k` nodes remain, stop. Reverse the segment `[groupPrev.next .. kth]` by initializing `prev` to `groupNext` (the node after the group) so the reversed tail auto-links to the rest. Then reconnect `groupPrev` to the new head (`kth`) and advance `groupPrev` to the old head (now the tail).",
+"time": "O(n)",
+"space": "O(1)",
+"code": "class ListNode {\n    int val;\n    ListNode next;\n    ListNode(int v) { val = v; }\n}\n\npublic ListNode reverseKGroup(ListNode head, int k) {\n    ListNode dummy = new ListNode(0);\n    dummy.next = head;\n    ListNode groupPrev = dummy;\n\n    while (true) {\n        ListNode kth = groupPrev;\n        for (int i = 0; i < k && kth != null; i++) kth = kth.next;\n        if (kth == null) break;                 // fewer than k left\n\n        ListNode groupNext = kth.next;\n        // reverse [groupPrev.next .. kth]\n        ListNode prev = groupNext, cur = groupPrev.next;\n        while (cur != groupNext) {\n            ListNode nxt = cur.next;\n            cur.next = prev;\n            prev = cur;\n            cur = nxt;\n        }\n        ListNode newGroupPrev = groupPrev.next;  // old head = new tail\n        groupPrev.next = kth;                    // kth is new head\n        groupPrev = newGroupPrev;\n    }\n    return dummy.next;\n}"
+}
+],
+"insight": "Reverse the segment with `prev` initialized to `groupNext` (not null) so the tail auto-links to the rest; the old segment head becomes the next `groupPrev`."
+},
+"linked-list__merge-k-sorted-lists": {
+"title": "Merge k Sorted Lists",
+"topic": "Linked List",
+"subtopic": "Linked List",
+"difficulty": "Hard",
+"pattern": "Min-heap or divide-and-conquer pairwise merge",
+"notes": "",
+"statement": "You are given an array of `k` linked lists, each sorted in ascending order. Merge all the lists into one sorted linked list and return it.",
+"examples": [
+{
+"input": "lists = [[1,4,5],[1,3,4],[2,6]]",
+"output": "[1,1,2,3,4,4,5,6]",
+"explanation": ""
+}
+],
+"constraints": [
+"0 <= k <= 10^4",
+"0 <= lists[i].length, total nodes <= 10^4",
+"each list is sorted in ascending order"
+],
+"approaches": [
+{
+"name": "Min-heap",
+"idea": "Push the head of each non-empty list into a min-heap keyed by value. Repeatedly pop the smallest node, append it to the result tail, and push its `next` if present. With `N` total nodes and `k` lists, the heap holds at most `k` nodes at a time.",
+"time": "O(N log k)",
+"space": "O(k)",
+"code": "import java.util.PriorityQueue;\n\nclass ListNode {\n    int val;\n    ListNode next;\n    ListNode(int v) { val = v; }\n}\n\npublic ListNode mergeKLists(ListNode[] lists) {\n    PriorityQueue<ListNode> pq = new PriorityQueue<>((a, b) -> a.val - b.val);\n    for (ListNode l : lists) if (l != null) pq.offer(l);\n    ListNode dummy = new ListNode(0), tail = dummy;\n    while (!pq.isEmpty()) {\n        ListNode node = pq.poll();\n        tail.next = node;\n        tail = node;\n        if (node.next != null) pq.offer(node.next);\n    }\n    return dummy.next;\n}"
+},
+{
+"name": "Divide and conquer",
+"idea": "Pairwise-merge lists (using a standard merge-two-sorted-lists routine) in `log k` rounds, doubling the merge interval each round. Same `O(N log k)` time but avoids heap overhead and is often faster in practice.",
+"time": "O(N log k)",
+"space": "O(1)",
+"code": "class ListNode {\n    int val;\n    ListNode next;\n    ListNode(int v) { val = v; }\n}\n\npublic ListNode mergeKLists(ListNode[] lists) {\n    if (lists.length == 0) return null;\n    int interval = 1;\n    while (interval < lists.length) {\n        for (int i = 0; i + interval < lists.length; i += interval * 2)\n            lists[i] = merge2(lists[i], lists[i + interval]);\n        interval *= 2;\n    }\n    return lists[0];\n}\n\nprivate ListNode merge2(ListNode a, ListNode b) {\n    ListNode dummy = new ListNode(0), tail = dummy;\n    while (a != null && b != null) {\n        if (a.val <= b.val) { tail.next = a; a = a.next; }\n        else { tail.next = b; b = b.next; }\n        tail = tail.next;\n    }\n    tail.next = (a != null) ? a : b;\n    return dummy.next;\n}"
+}
+],
+"insight": "Both are O(N log k): heap = 'always pop the global min'; divide-and-conquer = 'halve the number of lists each round'. D&C avoids heap overhead; heap generalizes to streaming."
+},
+"linked-list__copy-list-with-random-pointer": {
+"title": "Copy List with Random Pointer",
+"topic": "Linked List",
+"subtopic": "Linked List",
+"difficulty": "Medium",
+"pattern": "Interleave clones to resolve random pointers in O(1) space",
+"notes": "",
+"statement": "A linked list of length `n` has each node carrying an extra `random` pointer that may point to any node in the list or to `null`. Construct a deep copy: the copy must consist of brand-new nodes whose `val`, `next`, and `random` mirror the originals but point only into the copied list.",
+"examples": [
+{
+"input": "head = [[7,null],[13,0],[11,4],[10,2],[1,0]]",
+"output": "[[7,null],[13,0],[11,4],[10,2],[1,0]]",
+"explanation": "Each pair is [val, index-of-random-target]; the deep copy reproduces the same structure with new nodes."
+}
+],
+"constraints": [
+"0 <= n <= 1000",
+"-10^4 <= Node.val <= 10^4",
+"random points to a node in the list or null"
+],
+"approaches": [
+{
+"name": "Interleave copied nodes (O(1) space)",
+"idea": "Insert each clone directly after its original: `A -> A' -> B -> B' -> ...`. Now for any original node `cur`, `cur.next.random = cur.random.next` sets the clone's random in one pass. Finally unweave the two lists to restore the original and extract the copy.",
+"time": "O(n)",
+"space": "O(1)",
+"code": "class Node {\n    int val;\n    Node next;\n    Node random;\n    Node(int val) { this.val = val; }\n}\n\npublic Node copyRandomList(Node head) {\n    if (head == null) return null;\n    // 1. clone each node and interleave: A -> A' -> B -> B' ...\n    for (Node cur = head; cur != null; cur = cur.next.next) {\n        Node copy = new Node(cur.val);\n        copy.next = cur.next;\n        cur.next = copy;\n    }\n    // 2. assign random pointers for the clones\n    for (Node cur = head; cur != null; cur = cur.next.next) {\n        if (cur.random != null) cur.next.random = cur.random.next;\n    }\n    // 3. unweave the two lists\n    Node dummy = new Node(0), copyTail = dummy;\n    for (Node cur = head; cur != null; cur = cur.next) {\n        copyTail.next = cur.next;\n        copyTail = copyTail.next;\n        cur.next = cur.next.next;   // restore original\n    }\n    return dummy.next;\n}"
+},
+{
+"name": "Hash map original -> clone",
+"idea": "First pass creates a clone for every node and stores `orig -> clone` in a map. Second pass wires each clone's `next` and `random` by looking up the mapped clones. Simpler to reason about at the cost of O(n) extra space.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "import java.util.HashMap;\nimport java.util.Map;\n\nclass Node {\n    int val;\n    Node next;\n    Node random;\n    Node(int val) { this.val = val; }\n}\n\npublic Node copyRandomList(Node head) {\n    Map<Node, Node> map = new HashMap<>();\n    for (Node cur = head; cur != null; cur = cur.next)\n        map.put(cur, new Node(cur.val));\n    for (Node cur = head; cur != null; cur = cur.next) {\n        Node clone = map.get(cur);\n        clone.next = map.get(cur.next);       // null-safe: map.get(null) == null\n        clone.random = map.get(cur.random);\n    }\n    return map.get(head);\n}"
+}
+],
+"insight": "Interleave each clone right after its original so `orig.random.next` is exactly the clone's random target, giving an O(1)-space deep copy without a hash map."
+},
+"linked-list__lru-cache": {
+"title": "LRU Cache",
+"topic": "Linked List",
+"subtopic": "Linked List",
+"difficulty": "Medium",
+"pattern": "HashMap + doubly linked list for O(1) get/put",
+"notes": "",
+"statement": "Design a data structure for a Least Recently Used (LRU) cache with a fixed `capacity`. `get(key)` returns the value if present (and marks it most-recently used) or `-1`. `put(key, value)` inserts or updates the key; if the cache exceeds capacity, evict the least recently used key. Both operations must run in O(1) average time.",
+"examples": [
+{
+"input": "LRUCache(2); put(1,1); put(2,2); get(1); put(3,3); get(2); put(4,4); get(1); get(3); get(4)",
+"output": "1, -1, -1, 3, 4",
+"explanation": "put(3,3) evicts key 2; put(4,4) evicts key 1, so get(2) and get(1) return -1."
+}
+],
+"constraints": [
+"1 <= capacity <= 3000",
+"0 <= key, value <= 10^4",
+"at most 2 * 10^5 calls to get and put"
+],
+"approaches": [
+{
+"name": "HashMap + doubly linked list",
+"idea": "Keep a doubly linked list ordered by recency (head = most recent, tail = least recent) with sentinel head/tail nodes, plus a map from key to its node. `get` moves the node to the front; `put` inserts/updates at the front and, when over capacity, removes the node just before the tail sentinel. Sentinels remove all null-edge checks so every splice is O(1).",
+"time": "O(1) per operation",
+"space": "O(capacity)",
+"code": "import java.util.HashMap;\nimport java.util.Map;\n\nclass LRUCache {\n    private static class Node {\n        int key, val;\n        Node prev, next;\n        Node(int k, int v) { key = k; val = v; }\n    }\n\n    private final int capacity;\n    private final Map<Integer, Node> map = new HashMap<>();\n    private final Node head = new Node(0, 0); // most recent side\n    private final Node tail = new Node(0, 0); // least recent side\n\n    public LRUCache(int capacity) {\n        this.capacity = capacity;\n        head.next = tail;\n        tail.prev = head;\n    }\n\n    public int get(int key) {\n        Node n = map.get(key);\n        if (n == null) return -1;\n        remove(n);\n        addFront(n);\n        return n.val;\n    }\n\n    public void put(int key, int value) {\n        Node n = map.get(key);\n        if (n != null) {\n            n.val = value;\n            remove(n);\n            addFront(n);\n            return;\n        }\n        if (map.size() == capacity) {\n            Node lru = tail.prev;\n            remove(lru);\n            map.remove(lru.key);\n        }\n        Node fresh = new Node(key, value);\n        map.put(key, fresh);\n        addFront(fresh);\n    }\n\n    private void remove(Node n) {\n        n.prev.next = n.next;\n        n.next.prev = n.prev;\n    }\n\n    private void addFront(Node n) {\n        n.next = head.next;\n        n.prev = head;\n        head.next.prev = n;\n        head.next = n;\n    }\n}"
+}
+],
+"insight": "HashMap gives O(1) lookup to a node; a doubly linked list with sentinel head/tail gives O(1) reorder/eviction. The list encodes recency order, the map encodes identity."
+},
+"linked-list__lfu-cache": {
+"title": "LFU Cache",
+"topic": "Linked List",
+"subtopic": "Linked List",
+"difficulty": "Hard",
+"pattern": "Two hash maps + per-frequency doubly linked lists (LinkedHashSet)",
+"notes": "",
+"statement": "Design a Least Frequently Used (LFU) cache with fixed `capacity`. `get(key)` returns the value (incrementing its use frequency) or `-1`. `put(key, value)` inserts/updates a key; when over capacity, evict the least frequently used key, breaking ties by least recently used. Both operations must run in O(1) average time.",
+"examples": [
+{
+"input": "LFUCache(2); put(1,1); put(2,2); get(1); put(3,3); get(2); get(3); put(4,4); get(1); get(3); get(4)",
+"output": "1, -1, 3, -1, 3, 4",
+"explanation": "put(3,3) evicts key 2 (freq 1) since key 1 was used; later put(4,4) evicts key 1 (least frequent among the tie)."
+}
+],
+"constraints": [
+"1 <= capacity <= 10^4",
+"0 <= key, value <= 10^9",
+"at most 2 * 10^5 calls to get and put"
+],
+"approaches": [
+{
+"name": "key->value/freq maps + freq->LinkedHashSet buckets",
+"idea": "Maintain `values` (key->value), `counts` (key->frequency), and `buckets` (frequency->ordered set of keys). Track `minFreq`. On access, move the key from its `f` bucket to the `f+1` bucket (a `LinkedHashSet` preserves insertion order so the oldest key sits first, giving LRU tie-breaking); if the old bucket for `minFreq` empties, increment `minFreq`. On insert over capacity, evict the first key in the `minFreq` bucket, then add the new key at frequency 1 and reset `minFreq = 1`.",
+"time": "O(1) per operation",
+"space": "O(capacity)",
+"code": "import java.util.HashMap;\nimport java.util.LinkedHashSet;\nimport java.util.Map;\n\nclass LFUCache {\n    private final int capacity;\n    private int minFreq;\n    private final Map<Integer, Integer> values = new HashMap<>();\n    private final Map<Integer, Integer> counts = new HashMap<>();\n    private final Map<Integer, LinkedHashSet<Integer>> buckets = new HashMap<>();\n\n    public LFUCache(int capacity) {\n        this.capacity = capacity;\n    }\n\n    public int get(int key) {\n        if (!values.containsKey(key)) return -1;\n        touch(key);\n        return values.get(key);\n    }\n\n    public void put(int key, int value) {\n        if (capacity == 0) return;\n        if (values.containsKey(key)) {\n            values.put(key, value);\n            touch(key);\n            return;\n        }\n        if (values.size() == capacity) {\n            LinkedHashSet<Integer> lowest = buckets.get(minFreq);\n            int evict = lowest.iterator().next();\n            lowest.remove(evict);\n            values.remove(evict);\n            counts.remove(evict);\n        }\n        values.put(key, value);\n        counts.put(key, 1);\n        buckets.computeIfAbsent(1, z -> new LinkedHashSet<>()).add(key);\n        minFreq = 1;\n    }\n\n    private void touch(int key) {\n        int f = counts.get(key);\n        counts.put(key, f + 1);\n        LinkedHashSet<Integer> old = buckets.get(f);\n        old.remove(key);\n        if (old.isEmpty()) {\n            buckets.remove(f);\n            if (minFreq == f) minFreq = f + 1;\n        }\n        buckets.computeIfAbsent(f + 1, z -> new LinkedHashSet<>()).add(key);\n    }\n}"
+}
+],
+"insight": "Group keys into per-frequency buckets and track `minFreq`; a `LinkedHashSet` per bucket gives O(1) membership plus insertion-order iteration, so LFU eviction with LRU tie-break stays O(1)."
+},
+"linked-list__reorder-list": {
+"title": "Reorder List",
+"topic": "Linked List",
+"subtopic": "Linked List",
+"difficulty": "Medium",
+"pattern": "Find middle + reverse second half + merge alternately",
+"notes": "",
+"statement": "Given the head of a singly linked list `L0 -> L1 -> ... -> Ln-1 -> Ln`, reorder it in place to `L0 -> Ln -> L1 -> Ln-1 -> L2 -> Ln-2 -> ...`. You may not modify the node values, only the node pointers.",
+"examples": [
+{
+"input": "head = [1,2,3,4]",
+"output": "[1,4,2,3]",
+"explanation": ""
+},
+{
+"input": "head = [1,2,3,4,5]",
+"output": "[1,5,2,4,3]",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= n <= 5 * 10^4",
+"1 <= Node.val <= 1000"
+],
+"approaches": [
+{
+"name": "Split at middle, reverse tail, weave",
+"idea": "Find the middle with slow/fast pointers, split the list into two halves, reverse the second half, then merge the two halves by alternating nodes. Using slow's stopping point cuts the first half at or before the midpoint so lengths line up for both even and odd `n`.",
+"time": "O(n)",
+"space": "O(1)",
+"code": "class ListNode {\n    int val;\n    ListNode next;\n    ListNode(int v) { val = v; }\n}\n\npublic void reorderList(ListNode head) {\n    if (head == null || head.next == null) return;\n\n    // 1. find middle (slow ends at end of first half)\n    ListNode slow = head, fast = head;\n    while (fast.next != null && fast.next.next != null) {\n        slow = slow.next;\n        fast = fast.next.next;\n    }\n\n    // 2. reverse second half\n    ListNode second = slow.next;\n    slow.next = null;\n    ListNode prev = null;\n    while (second != null) {\n        ListNode nxt = second.next;\n        second.next = prev;\n        prev = second;\n        second = nxt;\n    }\n    second = prev; // head of reversed second half\n\n    // 3. weave the two halves\n    ListNode first = head;\n    while (second != null) {\n        ListNode f1 = first.next, s1 = second.next;\n        first.next = second;\n        second.next = f1;\n        first = f1;\n        second = s1;\n    }\n}"
+}
+],
+"insight": "Three classic sub-routines in sequence: find middle (slow/fast), reverse the second half, then zip the halves alternately."
+},
+"linked-list__linked-list-cycle-ii": {
+"title": "Linked List Cycle II",
+"topic": "Linked List",
+"subtopic": "Linked List",
+"difficulty": "Medium",
+"pattern": "Floyd's tortoise and hare; reset one pointer to head",
+"notes": "",
+"statement": "Given the head of a linked list, return the node where the cycle begins. If there is no cycle, return `null`. Do not modify the list. Solve using O(1) extra memory.",
+"examples": [
+{
+"input": "head = [3,2,0,-4], pos = 1",
+"output": "node with value 2",
+"explanation": "The tail connects back to the node at index 1 (value 2), which is the cycle entry."
+},
+{
+"input": "head = [1], pos = -1",
+"output": "null",
+"explanation": "No cycle."
+}
+],
+"constraints": [
+"0 <= n <= 10^4",
+"-10^5 <= Node.val <= 10^5",
+"pos is -1 (no cycle) or a valid index into the list"
+],
+"approaches": [
+{
+"name": "Floyd's cycle detection (two phases)",
+"idea": "Advance `slow` by 1 and `fast` by 2. If they meet, a cycle exists. The distance from head to the cycle entry equals the distance from the meeting point to the entry, so reset one pointer to head and advance both by 1; they meet at the cycle's start. If `fast` reaches null, there is no cycle.",
+"time": "O(n)",
+"space": "O(1)",
+"code": "class ListNode {\n    int val;\n    ListNode next;\n    ListNode(int v) { val = v; }\n}\n\npublic ListNode detectCycle(ListNode head) {\n    ListNode slow = head, fast = head;\n    while (fast != null && fast.next != null) {\n        slow = slow.next;\n        fast = fast.next.next;\n        if (slow == fast) {                 // cycle detected\n            ListNode p = head;\n            while (p != slow) {\n                p = p.next;\n                slow = slow.next;\n            }\n            return p;                       // cycle entry\n        }\n    }\n    return null;                            // no cycle\n}"
+}
+],
+"insight": "After tortoise/hare meet, the head-to-entry distance equals the meeting-point-to-entry distance, so walking two pointers at speed 1 from head and from the meeting point converge at the cycle start."
+},
+"linked-list__sort-list": {
+"title": "Sort List",
+"topic": "Linked List",
+"subtopic": "Linked List",
+"difficulty": "Hard",
+"pattern": "Merge sort on a linked list",
+"notes": "",
+"statement": "Given the head of a linked list, return the list sorted in ascending order. Aim for O(n log n) time and O(1) auxiliary space (excluding recursion, or fully iterative bottom-up).",
+"examples": [
+{
+"input": "head = [4,2,1,3]",
+"output": "[1,2,3,4]",
+"explanation": ""
+},
+{
+"input": "head = [-1,5,3,4,0]",
+"output": "[-1,0,3,4,5]",
+"explanation": ""
+}
+],
+"constraints": [
+"0 <= n <= 5 * 10^4",
+"-10^5 <= Node.val <= 10^5"
+],
+"approaches": [
+{
+"name": "Top-down merge sort (recursive)",
+"idea": "Split the list at the middle using slow/fast pointers, recursively sort each half, then merge the two sorted halves. Merge sort suits linked lists because splitting and merging are pure pointer operations with no random access.",
+"time": "O(n log n)",
+"space": "O(log n) recursion",
+"code": "class ListNode {\n    int val;\n    ListNode next;\n    ListNode(int v) { val = v; }\n}\n\npublic ListNode sortList(ListNode head) {\n    if (head == null || head.next == null) return head;\n    // split into two halves\n    ListNode slow = head, fast = head.next;\n    while (fast != null && fast.next != null) {\n        slow = slow.next;\n        fast = fast.next.next;\n    }\n    ListNode mid = slow.next;\n    slow.next = null;\n    ListNode left = sortList(head);\n    ListNode right = sortList(mid);\n    return merge(left, right);\n}\n\nprivate ListNode merge(ListNode a, ListNode b) {\n    ListNode dummy = new ListNode(0), tail = dummy;\n    while (a != null && b != null) {\n        if (a.val <= b.val) { tail.next = a; a = a.next; }\n        else { tail.next = b; b = b.next; }\n        tail = tail.next;\n    }\n    tail.next = (a != null) ? a : b;\n    return dummy.next;\n}"
+},
+{
+"name": "Bottom-up merge sort (O(1) space)",
+"idea": "Iteratively merge sublists of size 1, 2, 4, ... In each pass, cut off two runs of the current `size`, merge them, and append to a growing result. This eliminates recursion and achieves true O(1) auxiliary space.",
+"time": "O(n log n)",
+"space": "O(1)",
+"code": "class ListNode {\n    int val;\n    ListNode next;\n    ListNode(int v) { val = v; }\n}\n\npublic ListNode sortList(ListNode head) {\n    int n = 0;\n    for (ListNode c = head; c != null; c = c.next) n++;\n    ListNode dummy = new ListNode(0);\n    dummy.next = head;\n    for (int size = 1; size < n; size *= 2) {\n        ListNode prev = dummy, cur = dummy.next;\n        while (cur != null) {\n            ListNode left = cur;\n            ListNode right = split(left, size);\n            cur = split(right, size);       // start of next block\n            prev = mergeInto(prev, left, right);\n        }\n    }\n    return dummy.next;\n}\n\n// detach first `size` nodes from `node`, return head of the remainder\nprivate ListNode split(ListNode node, int size) {\n    for (int i = 1; node != null && i < size; i++) node = node.next;\n    if (node == null) return null;\n    ListNode rest = node.next;\n    node.next = null;\n    return rest;\n}\n\n// merge a and b, link after prev, return new tail\nprivate ListNode mergeInto(ListNode prev, ListNode a, ListNode b) {\n    ListNode tail = prev;\n    while (a != null && b != null) {\n        if (a.val <= b.val) { tail.next = a; a = a.next; }\n        else { tail.next = b; b = b.next; }\n        tail = tail.next;\n    }\n    tail.next = (a != null) ? a : b;\n    while (tail.next != null) tail = tail.next;\n    return tail;\n}"
+}
+],
+"insight": "Merge sort is the natural O(n log n) sort for lists (no random access needed); go bottom-up if you need strict O(1) space without recursion."
+},
+"linked-list__flatten-a-multilevel-doubly-linked-list": {
+"title": "Flatten a Multilevel Doubly Linked List",
+"topic": "Linked List",
+"subtopic": "Linked List",
+"difficulty": "Medium",
+"pattern": "DFS via child pointers, splice child list inline",
+"notes": "",
+"statement": "You have a doubly linked list where, in addition to `next` and `prev`, each node may have a `child` pointer to a separate doubly linked list (which may itself have children). Flatten the structure into a single-level doubly linked list: nodes appear in depth-first order, and all `child` pointers must be set to `null`.",
+"examples": [
+{
+"input": "head = [1,2,3,4,5,6] with node 3 having child [7,8,9,10] and node 8 having child [11,12]",
+"output": "[1,2,3,7,8,11,12,9,10,4,5,6]",
+"explanation": "Each child list is inserted immediately after its parent, before the parent's original next."
+}
+],
+"constraints": [
+"0 <= number of nodes <= 1000",
+"1 <= Node.val <= 10^5",
+"the depth of the multilevel list can be up to 1000"
+],
+"approaches": [
+{
+"name": "Iterative splice with a stack",
+"idea": "Walk the list; whenever a node has a `child`, push its `next` onto a stack, splice the child list in right after the current node (fixing `next`/`prev` and clearing `child`), and continue. When a node's `next` is null, pop the stack to reconnect the deferred sibling. This produces depth-first order without recursion.",
+"time": "O(n)",
+"space": "O(depth)",
+"code": "import java.util.ArrayDeque;\nimport java.util.Deque;\n\nclass Node {\n    int val;\n    Node prev;\n    Node next;\n    Node child;\n}\n\npublic Node flatten(Node head) {\n    if (head == null) return null;\n    Deque<Node> stack = new ArrayDeque<>();\n    Node cur = head;\n    while (cur != null) {\n        if (cur.child != null) {\n            if (cur.next != null) stack.push(cur.next);\n            cur.next = cur.child;\n            cur.child.prev = cur;\n            cur.child = null;\n        }\n        if (cur.next == null && !stack.isEmpty()) {\n            Node resume = stack.pop();\n            cur.next = resume;\n            resume.prev = cur;\n        }\n        cur = cur.next;\n    }\n    return head;\n}"
+}
+],
+"insight": "Treat `child` as a branch to inline: splice the child list between a node and its `next`, stacking the deferred `next` so DFS order falls out of a single linear walk."
+},
+"linked-list__merge-in-between-linked-lists": {
+"title": "Merge In Between Linked Lists",
+"topic": "Linked List",
+"subtopic": "Linked List",
+"difficulty": "Medium",
+"pattern": "Locate boundary nodes and re-link",
+"notes": "",
+"statement": "You are given two linked lists `list1` and `list2`. Remove nodes from `list1` at positions `a` through `b` inclusive, and splice `list2` into that gap. Return the head of the resulting list.",
+"examples": [
+{
+"input": "list1 = [10,1,13,6,9,5], a = 3, b = 4, list2 = [1000000,1000001,1000002]",
+"output": "[10,1,13,1000000,1000001,1000002,5]",
+"explanation": "Nodes at indices 3 and 4 (values 6 and 9) are removed and list2 is inserted in their place."
+}
+],
+"constraints": [
+"3 <= list1.length <= 10^4",
+"1 <= a <= b < list1.length - 1",
+"1 <= list2.length <= 10^4"
+],
+"approaches": [
+{
+"name": "Find node before a and node after b, relink",
+"idea": "Walk to `before` = node at index `a-1` and continue to `after` = node at index `b+1`. Point `before.next` to `list2`'s head, walk to `list2`'s tail, and point that tail to `after`. Single pass, constant extra space.",
+"time": "O(n + m)",
+"space": "O(1)",
+"code": "class ListNode {\n    int val;\n    ListNode next;\n    ListNode(int v) { val = v; }\n}\n\npublic ListNode mergeInBetween(ListNode list1, int a, int b, ListNode list2) {\n    ListNode before = list1;\n    for (int i = 0; i < a - 1; i++) before = before.next;  // node at index a-1\n    ListNode after = before;\n    for (int i = a - 1; i <= b; i++) after = after.next;   // node at index b+1\n\n    before.next = list2;\n    ListNode tail = list2;\n    while (tail.next != null) tail = tail.next;\n    tail.next = after;\n    return list1;\n}"
+}
+],
+"insight": "Only two boundary pointers matter: the node just before `a` and the node just after `b`; bridge them through list2's head and tail."
+}
+}

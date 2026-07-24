@@ -1,0 +1,365 @@
+{
+"sliding-window__longest-substring-without-repeating-characters": {
+"title": "Longest Substring Without Repeating Characters",
+"topic": "Sliding Window",
+"subtopic": "Sliding Window",
+"difficulty": "Medium",
+"pattern": "Variable-size window + last-seen index",
+"notes": "",
+"statement": "Given a string `s`, return the length of the longest substring that contains no repeating characters.",
+"examples": [
+{
+"input": "s = \"abcabcbb\"",
+"output": "3",
+"explanation": "The answer is `abc`, with length 3."
+},
+{
+"input": "s = \"bbbbb\"",
+"output": "1",
+"explanation": "The answer is `b`."
+}
+],
+"constraints": [
+"0 <= s.length <= 5*10^4",
+"s consists of English letters, digits, symbols and spaces"
+],
+"approaches": [
+{
+"name": "Window with last-seen map",
+"idea": "Keep `left` at the start of the current valid window. For each `right`, if the current char was last seen at an index `>= left`, jump `left` to `seen[c] + 1` (never move it backward). Record the max width as you go.",
+"time": "O(n)",
+"space": "O(charset)",
+"code": "public int lengthOfLongestSubstring(String s) {\n    int[] last = new int[128];\n    Arrays.fill(last, -1);\n    int left = 0, best = 0;\n    for (int right = 0; right < s.length(); right++) {\n        char c = s.charAt(right);\n        if (last[c] >= left) left = last[c] + 1;\n        last[c] = right;\n        best = Math.max(best, right - left + 1);\n    }\n    return best;\n}"
+}
+],
+"insight": "Store the last index of each char and jump `left` forward (guard with `last[c] >= left` so it never moves backward). No per-step inner loop needed."
+},
+"sliding-window__minimum-window-substring": {
+"title": "Minimum Window Substring",
+"topic": "Sliding Window",
+"subtopic": "Sliding Window",
+"difficulty": "Hard",
+"pattern": "Variable-size window + need/have counts",
+"notes": "",
+"statement": "Given strings `s` and `t`, return the smallest substring of `s` that contains all characters of `t` (including multiplicity). Return `\"\"` if no such window exists.",
+"examples": [
+{
+"input": "s = \"ADOBECODEBANC\", t = \"ABC\"",
+"output": "\"BANC\"",
+"explanation": "`BANC` is the minimal window containing A, B and C."
+},
+{
+"input": "s = \"a\", t = \"aa\"",
+"output": "\"\"",
+"explanation": "Only one `a`; cannot cover two."
+}
+],
+"constraints": [
+"1 <= s.length, t.length <= 10^5",
+"s and t consist of uppercase and lowercase English letters"
+],
+"approaches": [
+{
+"name": "Expand then contract with a formed counter",
+"idea": "`need[c]` holds required counts and `required` the distinct chars needed. Expand `right`; when a char's window count reaches its required count, increment `formed`. While `formed == required`, record the best window and contract `left`, decrementing `formed` on the `== need[c]` transition.",
+"time": "O(|s| + |t|)",
+"space": "O(charset)",
+"code": "public String minWindow(String s, String t) {\n    if (s.length() < t.length()) return \"\";\n    int[] need = new int[128];\n    int required = 0;\n    for (char c : t.toCharArray()) { if (need[c]++ == 0) required++; }\n    int[] have = new int[128];\n    int formed = 0, left = 0, bestLen = Integer.MAX_VALUE, bestL = 0;\n    for (int right = 0; right < s.length(); right++) {\n        char c = s.charAt(right);\n        if (++have[c] == need[c]) formed++;\n        while (formed == required) {\n            if (right - left + 1 < bestLen) { bestLen = right - left + 1; bestL = left; }\n            char lc = s.charAt(left++);\n            if (have[lc]-- == need[lc]) formed--;\n        }\n    }\n    return bestLen == Integer.MAX_VALUE ? \"\" : s.substring(bestL, bestL + bestLen);\n}"
+}
+],
+"insight": "Track a single `formed` counter (how many distinct chars are fully satisfied) instead of re-scanning the map; the `== need[c]` transition is what moves `formed` up and down."
+},
+"sliding-window__subarrays-with-k-different-integers": {
+"title": "Subarrays with K Different Integers",
+"topic": "Sliding Window",
+"subtopic": "Sliding Window",
+"difficulty": "Hard",
+"pattern": "Exactly-K via atMost(K) - atMost(K-1)",
+"notes": "",
+"statement": "Given an integer array `nums` and an integer `k`, return the number of contiguous subarrays that contain exactly `k` distinct integers.",
+"examples": [
+{
+"input": "nums = [1,2,1,2,3], k = 2",
+"output": "7",
+"explanation": "Subarrays with exactly 2 distinct integers: [1,2],[2,1],[1,2],[2,3],[1,2,1],[2,1,2],[1,2,1,2]."
+},
+{
+"input": "nums = [1,2,1,3,4], k = 3",
+"output": "3",
+"explanation": "[1,2,1,3],[2,1,3],[1,3,4]."
+}
+],
+"constraints": [
+"1 <= nums.length <= 2*10^4",
+"1 <= nums[i], k <= nums.length"
+],
+"approaches": [
+{
+"name": "Difference of atMost windows",
+"idea": "Counting subarrays with exactly `k` distinct directly is awkward, but subarrays with at most `k` distinct is a clean sliding window: for each `right`, `right - left + 1` new subarrays end at `right`. Exactly `k` = atMost(k) - atMost(k-1).",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public int subarraysWithKDistinct(int[] nums, int k) {\n    return atMost(nums, k) - atMost(nums, k - 1);\n}\n\nprivate int atMost(int[] nums, int k) {\n    if (k < 0) return 0;\n    int[] count = new int[nums.length + 1];\n    int left = 0, distinct = 0, res = 0;\n    for (int right = 0; right < nums.length; right++) {\n        if (count[nums[right]]++ == 0) distinct++;\n        while (distinct > k) {\n            if (--count[nums[left]] == 0) distinct--;\n            left++;\n        }\n        res += right - left + 1;\n    }\n    return res;\n}"
+}
+],
+"insight": "When \"exactly K\" resists a direct window, compute atMost(K) - atMost(K-1); atMost adds `right - left + 1` per step."
+},
+"sliding-window__sliding-window-maximum": {
+"title": "Sliding Window Maximum",
+"topic": "Sliding Window",
+"subtopic": "Sliding Window",
+"difficulty": "Hard",
+"pattern": "Monotonic decreasing deque of indices",
+"notes": "",
+"statement": "Given an array `nums` and a window size `k`, return an array of the maximum value in each contiguous window of size `k` as it slides from left to right.",
+"examples": [
+{
+"input": "nums = [1,3,-1,-3,5,3,6,7], k = 3",
+"output": "[3,3,5,5,6,7]",
+"explanation": "Max of each length-3 window."
+},
+{
+"input": "nums = [1], k = 1",
+"output": "[1]",
+"explanation": "Single element."
+}
+],
+"constraints": [
+"1 <= nums.length <= 10^5",
+"-10^4 <= nums[i] <= 10^4",
+"1 <= k <= nums.length"
+],
+"approaches": [
+{
+"name": "Monotonic deque",
+"idea": "Maintain a deque of indices whose values are strictly decreasing front-to-back. Before appending `i`, pop smaller values from the back (they can never be a future max while `nums[i]` is in range) and drop the front if it falls out of the window. The front is always the current window's max.",
+"time": "O(n)",
+"space": "O(k)",
+"code": "public int[] maxSlidingWindow(int[] nums, int k) {\n    int n = nums.length;\n    int[] res = new int[n - k + 1];\n    Deque<Integer> dq = new ArrayDeque<>();\n    for (int i = 0; i < n; i++) {\n        if (!dq.isEmpty() && dq.peekFirst() <= i - k) dq.pollFirst();\n        while (!dq.isEmpty() && nums[dq.peekLast()] <= nums[i]) dq.pollLast();\n        dq.offerLast(i);\n        if (i >= k - 1) res[i - k + 1] = nums[dq.peekFirst()];\n    }\n    return res;\n}"
+}
+],
+"insight": "Store indices, not values, in a decreasing deque: pop the back while it is <= the incoming value, evict the front when it leaves the window, and the front is the max."
+},
+"sliding-window__longest-substring-with-at-most-k-distinct": {
+"title": "Longest Substring with At Most K Distinct",
+"topic": "Sliding Window",
+"subtopic": "Sliding Window",
+"difficulty": "Medium",
+"pattern": "Variable-size window + distinct count",
+"notes": "",
+"statement": "Given a string `s` and an integer `k`, return the length of the longest substring of `s` that contains at most `k` distinct characters.",
+"examples": [
+{
+"input": "s = \"eceba\", k = 2",
+"output": "3",
+"explanation": "`ece` has 2 distinct characters."
+},
+{
+"input": "s = \"aa\", k = 1",
+"output": "2",
+"explanation": "`aa` has 1 distinct character."
+}
+],
+"constraints": [
+"1 <= s.length <= 5*10^4",
+"0 <= k <= 50"
+],
+"approaches": [
+{
+"name": "Window with a count map",
+"idea": "Expand `right`, adding each char to a frequency map. Whenever the map holds more than `k` distinct keys, shrink from `left`, removing keys whose count hits zero. The window is always valid after shrinking, so track its max width.",
+"time": "O(n)",
+"space": "O(k)",
+"code": "public int lengthOfLongestSubstringKDistinct(String s, int k) {\n    if (k == 0) return 0;\n    Map<Character, Integer> count = new HashMap<>();\n    int left = 0, best = 0;\n    for (int right = 0; right < s.length(); right++) {\n        char c = s.charAt(right);\n        count.put(c, count.getOrDefault(c, 0) + 1);\n        while (count.size() > k) {\n            char lc = s.charAt(left++);\n            int v = count.get(lc) - 1;\n            if (v == 0) count.remove(lc); else count.put(lc, v);\n        }\n        best = Math.max(best, right - left + 1);\n    }\n    return best;\n}"
+}
+],
+"insight": "`map.size()` is the live distinct count; shrink only while it exceeds `k` and remove a key exactly when its count drops to zero."
+},
+"sliding-window__substring-with-concatenation-of-all-words": {
+"title": "Substring with Concatenation of All Words",
+"topic": "Sliding Window",
+"subtopic": "Sliding Window",
+"difficulty": "Hard",
+"pattern": "Fixed-length word window across offsets",
+"notes": "",
+"statement": "Given a string `s` and an array `words` of equal-length strings, return all starting indices of substrings in `s` that are a concatenation of every word in `words` exactly once, in any order, with no characters in between.",
+"examples": [
+{
+"input": "s = \"barfoothefoobarman\", words = [\"foo\",\"bar\"]",
+"output": "[0,9]",
+"explanation": "`barfoo` at 0 and `foobar` at 9 are concatenations of the two words."
+},
+{
+"input": "s = \"wordgoodgoodgoodbestword\", words = [\"word\",\"good\",\"best\",\"word\"]",
+"output": "[]",
+"explanation": "No valid concatenation exists."
+}
+],
+"constraints": [
+"1 <= s.length <= 10^4",
+"1 <= words.length <= 5000",
+"1 <= words[i].length <= 30",
+"s and words[i] consist of lowercase English letters"
+],
+"approaches": [
+{
+"name": "Sliding window per word-length offset",
+"idea": "All words share length `wl`, so any valid match aligns to one of `wl` offsets. For each offset run a word-level sliding window: step `wl` at a time, count matched words, shrink when a word's count exceeds its need or when a full match (`count == n`) is found, and skip forward past any word not in the dictionary.",
+"time": "O(wl * (n / wl)) = O(n) word steps, each O(wl) for substring",
+"space": "O(m * wl) for the word maps (m = words.length)",
+"code": "public List<Integer> findSubstring(String s, String[] words) {\n    List<Integer> res = new ArrayList<>();\n    if (words.length == 0) return res;\n    int wl = words[0].length(), n = words.length, total = wl * n;\n    if (s.length() < total) return res;\n    Map<String, Integer> need = new HashMap<>();\n    for (String w : words) need.merge(w, 1, Integer::sum);\n    for (int i = 0; i < wl; i++) {\n        int left = i, count = 0;\n        Map<String, Integer> window = new HashMap<>();\n        for (int j = i; j + wl <= s.length(); j += wl) {\n            String word = s.substring(j, j + wl);\n            if (need.containsKey(word)) {\n                window.merge(word, 1, Integer::sum);\n                count++;\n                while (window.get(word) > need.get(word)) {\n                    String lw = s.substring(left, left + wl);\n                    window.merge(lw, -1, Integer::sum);\n                    left += wl;\n                    count--;\n                }\n                if (count == n) {\n                    res.add(left);\n                    String lw = s.substring(left, left + wl);\n                    window.merge(lw, -1, Integer::sum);\n                    left += wl;\n                    count--;\n                }\n            } else {\n                window.clear();\n                count = 0;\n                left = j + wl;\n            }\n        }\n    }\n    return res;\n}"
+}
+],
+"insight": "Because every word is the same length, only `wl` alignments matter; run a word-granularity sliding window on each offset instead of re-checking every index."
+},
+"sliding-window__minimum-number-of-k-consecutive-bit-flips": {
+"title": "Minimum Number of K Consecutive Bit Flips",
+"topic": "Sliding Window",
+"subtopic": "Sliding Window",
+"difficulty": "Hard",
+"pattern": "Greedy left-to-right + difference array of flip effects",
+"notes": "",
+"statement": "Given a binary array `nums` and an integer `k`, in one move you flip a contiguous subarray of exactly `k` bits (0->1, 1->0). Return the minimum number of moves to make the whole array all 1s, or -1 if impossible.",
+"examples": [
+{
+"input": "nums = [0,1,0], k = 1",
+"output": "2",
+"explanation": "Flip index 0 and index 2."
+},
+{
+"input": "nums = [0,0,0,1,0,1,1,0], k = 3",
+"output": "3",
+"explanation": "Flip [0..2], then [4..6], then [5..7]."
+}
+],
+"constraints": [
+"1 <= nums.length <= 10^5",
+"1 <= k <= nums.length"
+],
+"approaches": [
+{
+"name": "Greedy with running flip parity",
+"idea": "Scan left to right keeping `current` = number of active flips covering position `i` (via a difference array). The effective value is `nums[i] ^ (current & 1)`; if it is 0 the leftmost fix must start here, so flip `[i, i+k-1]`. If that window runs off the end, return -1. Each 0 forces at most one flip, so greedy is optimal.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public int minKBitFlips(int[] nums, int k) {\n    int n = nums.length;\n    int[] diff = new int[n + 1];\n    int flips = 0, current = 0;\n    for (int i = 0; i < n; i++) {\n        current += diff[i];\n        if (((nums[i] + current) & 1) == 0) {\n            if (i + k > n) return -1;\n            flips++;\n            current++;\n            diff[i + k]--;\n        }\n    }\n    return flips;\n}"
+}
+],
+"insight": "Track flip effects with a difference array so `current`'s parity tells you the live bit value in O(1); the leftmost 0 forces its own window, so greedy is optimal."
+},
+"sliding-window__count-number-of-nice-subarrays": {
+"title": "Count Number of Nice Subarrays",
+"topic": "Sliding Window",
+"subtopic": "Sliding Window",
+"difficulty": "Medium",
+"pattern": "Exactly-K odds via atMost(K) - atMost(K-1)",
+"notes": "",
+"statement": "Given an integer array `nums` and an integer `k`, a subarray is nice if it contains exactly `k` odd numbers. Return the number of nice subarrays.",
+"examples": [
+{
+"input": "nums = [1,1,2,1,1], k = 3",
+"output": "2",
+"explanation": "[1,1,2,1] and [1,2,1,1] each hold exactly 3 odd numbers."
+},
+{
+"input": "nums = [2,2,2,1,2,2,1,2,2,2], k = 2",
+"output": "16",
+"explanation": "16 subarrays contain exactly two odd numbers."
+}
+],
+"constraints": [
+"1 <= nums.length <= 5*10^4",
+"1 <= nums[i] <= 10^5",
+"1 <= k <= nums.length"
+],
+"approaches": [
+{
+"name": "Difference of atMost windows",
+"idea": "Treat odd numbers as 1 and even as 0. Subarrays with at most `k` odds is a clean sliding window that adds `right - left + 1` per step. Exactly `k` odds = atMost(k) - atMost(k-1).",
+"time": "O(n)",
+"space": "O(1)",
+"code": "public int numberOfSubarrays(int[] nums, int k) {\n    return atMost(nums, k) - atMost(nums, k - 1);\n}\n\nprivate int atMost(int[] nums, int k) {\n    if (k < 0) return 0;\n    int left = 0, odd = 0, res = 0;\n    for (int right = 0; right < nums.length; right++) {\n        odd += nums[right] & 1;\n        while (odd > k) odd -= nums[left++] & 1;\n        res += right - left + 1;\n    }\n    return res;\n}"
+}
+],
+"insight": "Map odd->1, even->0 and reuse the atMost(K) - atMost(K-1) trick; the parity `& 1` is the only per-element work."
+},
+"sliding-window__replace-the-substring-for-balanced-string": {
+"title": "Replace the Substring for Balanced String",
+"topic": "Sliding Window",
+"subtopic": "Sliding Window",
+"difficulty": "Hard",
+"pattern": "Minimize window whose complement is feasible",
+"notes": "",
+"statement": "You are given a string `s` of length `n` (a multiple of 4) containing only the characters 'Q','W','E','R'. The string is balanced when each character appears exactly `n/4` times. Return the minimum length of a substring you can replace (with any of these characters) to make `s` balanced.",
+"examples": [
+{
+"input": "s = \"QWER\"",
+"output": "0",
+"explanation": "Already balanced."
+},
+{
+"input": "s = \"QQWE\"",
+"output": "1",
+"explanation": "Replace one 'Q' with 'R' to get a balanced string."
+}
+],
+"constraints": [
+"n == s.length",
+"4 <= n <= 10^5, n is a multiple of 4",
+"s contains only 'Q', 'W', 'E', 'R'"
+],
+"approaches": [
+{
+"name": "Shrink the replaceable window",
+"idea": "Whatever lies inside the replaced window can be rewritten freely, so a window is valid iff every character's count OUTSIDE it is <= n/4. Keep counts of the outside region: as `right` advances, remove `s[right]` from the outside; while the outside is balanced, record the window length and add `s[left]` back as `left` advances. Minimize the window length.",
+"time": "O(n)",
+"space": "O(1)",
+"code": "public int balancedString(String s) {\n    int n = s.length(), k = n / 4;\n    int[] count = new int[128];\n    for (char c : s.toCharArray()) count[c]++;\n    if (count['Q'] <= k && count['W'] <= k && count['E'] <= k && count['R'] <= k) return 0;\n    int left = 0, best = n;\n    for (int right = 0; right < n; right++) {\n        count[s.charAt(right)]--;\n        while (left < n && count['Q'] <= k && count['W'] <= k && count['E'] <= k && count['R'] <= k) {\n            best = Math.min(best, right - left + 1);\n            count[s.charAt(left++)]++;\n        }\n    }\n    return best;\n}"
+}
+],
+"insight": "The window is what you replace, so validity depends on the counts OUTSIDE it being <= n/4; keep the outside counts and shrink while the outside stays feasible."
+},
+"sliding-window__longest-substring-with-at-least-k-repeating-characters": {
+"title": "Longest Substring with At Least K Repeating Characters",
+"topic": "Sliding Window",
+"subtopic": "Sliding Window",
+"difficulty": "Hard",
+"pattern": "Window constrained by target unique count / divide & conquer",
+"notes": "",
+"statement": "Given a string `s` and an integer `k`, return the length of the longest substring in which every character appears at least `k` times.",
+"examples": [
+{
+"input": "s = \"aaabb\", k = 3",
+"output": "3",
+"explanation": "`aaa` — 'a' appears 3 times."
+},
+{
+"input": "s = \"ababbc\", k = 2",
+"output": "5",
+"explanation": "`ababb` — 'a' twice and 'b' three times."
+}
+],
+"constraints": [
+"1 <= s.length <= 10^4",
+"s consists of only lowercase English letters",
+"1 <= k <= 10^5"
+],
+"approaches": [
+{
+"name": "Sliding window bounded by unique-char target",
+"idea": "A plain expanding window has no monotonic validity here, so fix the number of distinct characters `unique` from 1..26 and run a window that keeps exactly `unique` distinct chars. Track how many of them already appear >= k times; when the count of distinct equals `unique` and all of them meet the threshold, the window is valid.",
+"time": "O(26 * n)",
+"space": "O(1)",
+"code": "public int longestSubstring(String s, int k) {\n    int best = 0;\n    for (int unique = 1; unique <= 26; unique++) {\n        int[] count = new int[26];\n        int left = 0, curUnique = 0, countAtLeastK = 0;\n        for (int right = 0; right < s.length(); right++) {\n            int r = s.charAt(right) - 'a';\n            if (count[r]++ == 0) curUnique++;\n            if (count[r] == k) countAtLeastK++;\n            while (curUnique > unique) {\n                int l = s.charAt(left++) - 'a';\n                if (count[l] == k) countAtLeastK--;\n                if (--count[l] == 0) curUnique--;\n            }\n            if (curUnique == unique && curUnique == countAtLeastK) {\n                best = Math.max(best, right - left + 1);\n            }\n        }\n    }\n    return best;\n}"
+},
+{
+"name": "Divide and conquer on rare characters",
+"idea": "Any character appearing fewer than `k` times can never be inside the answer, so it becomes a split point. Recurse on the pieces between such characters; if none exist in a segment, the whole segment is valid.",
+"time": "O(26 * n) worst case",
+"space": "O(n) recursion",
+"code": "public int longestSubstring(String s, int k) {\n    return divide(s, 0, s.length(), k);\n}\n\nprivate int divide(String s, int start, int end, int k) {\n    if (end - start < k) return 0;\n    int[] count = new int[26];\n    for (int i = start; i < end; i++) count[s.charAt(i) - 'a']++;\n    for (int mid = start; mid < end; mid++) {\n        if (count[s.charAt(mid) - 'a'] >= k) continue;\n        int nextMid = mid + 1;\n        while (nextMid < end && count[s.charAt(nextMid) - 'a'] < k) nextMid++;\n        return Math.max(divide(s, start, mid, k), divide(s, nextMid, end, k));\n    }\n    return end - start;\n}"
+}
+],
+"insight": "Validity is not monotonic for a single window, so either fix the distinct-char count (1..26) to restore monotonicity, or split on characters that occur fewer than k times."
+}
+}

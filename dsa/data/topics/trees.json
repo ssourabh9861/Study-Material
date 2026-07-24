@@ -1,0 +1,315 @@
+{
+"trees__binary-tree-maximum-path-sum": {
+"title": "Binary Tree Maximum Path Sum",
+"topic": "Trees",
+"subtopic": "Trees",
+"difficulty": "Hard",
+"pattern": "Post-order DFS returning single-branch gain, updating a global max",
+"notes": "",
+"statement": "A path is any sequence of connected nodes where each node appears at most once; it need not pass through the root. Return the maximum sum of values over any non-empty path.",
+"examples": [
+{
+"input": "root = [-10,9,20,null,null,15,7]",
+"output": "42",
+"explanation": "Best path is 15 -> 20 -> 7."
+}
+],
+"constraints": [
+"1 <= n <= 3*10^4",
+"-1000 <= Node.val <= 1000"
+],
+"approaches": [
+{
+"name": "DFS returning single-branch gain",
+"idea": "For each node compute the max downward gain of a path starting at that node and extending into at most one child (`node.val + max(0, leftGain, rightGain)`, clamping negative child gains to 0). Separately, the best path *bending* at this node joins both children: `node.val + max(0,left) + max(0,right)`; use that to update the global answer. Return only the single-branch value so the parent can extend it.",
+"time": "O(n)",
+"space": "O(h) recursion",
+"code": "class TreeNode {\n    int val;\n    TreeNode left, right;\n    TreeNode(int v) { val = v; }\n}\n\nclass Solution {\n    private int best;\n\n    public int maxPathSum(TreeNode root) {\n        best = Integer.MIN_VALUE;\n        gain(root);\n        return best;\n    }\n\n    private int gain(TreeNode node) {\n        if (node == null) return 0;\n        int left  = Math.max(0, gain(node.left));\n        int right = Math.max(0, gain(node.right));\n        best = Math.max(best, node.val + left + right); // path bending at node\n        return node.val + Math.max(left, right);        // path continuing upward\n    }\n}"
+}
+],
+"insight": "Two quantities: what you RETURN (one branch, to extend the parent) vs what you RECORD (both branches joined here). Clamp child gains at 0 to drop negative subtrees."
+},
+"trees__serialize-and-deserialize-binary-tree": {
+"title": "Serialize and Deserialize Binary Tree",
+"topic": "Trees",
+"subtopic": "Trees",
+"difficulty": "Hard",
+"pattern": "Preorder DFS with null markers",
+"notes": "",
+"statement": "Design an algorithm to serialize a binary tree to a string and deserialize that string back to the identical tree structure.",
+"examples": [
+{
+"input": "root = [1,2,3,null,null,4,5]",
+"output": "[1,2,3,null,null,4,5]",
+"explanation": "serialize then deserialize reproduces the tree."
+}
+],
+"constraints": [
+"0 <= n <= 10^4",
+"-1000 <= Node.val <= 1000"
+],
+"approaches": [
+{
+"name": "Preorder with '#' null markers",
+"idea": "Serialize by a preorder walk, emitting each node value and a sentinel `#` for every null child, comma-separated. This fully encodes structure so no second traversal (like inorder) is needed. Deserialize by consuming tokens in the same preorder order from a queue: `#` yields null, otherwise build a node then recursively read its left and right subtrees.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "import java.util.*;\n\npublic class Codec {\n    static class TreeNode {\n        int val;\n        TreeNode left, right;\n        TreeNode(int v) { val = v; }\n    }\n\n    public String serialize(TreeNode root) {\n        StringBuilder sb = new StringBuilder();\n        build(root, sb);\n        return sb.toString();\n    }\n\n    private void build(TreeNode node, StringBuilder sb) {\n        if (node == null) { sb.append(\"#,\"); return; }\n        sb.append(node.val).append(',');\n        build(node.left, sb);\n        build(node.right, sb);\n    }\n\n    public TreeNode deserialize(String data) {\n        Deque<String> q = new ArrayDeque<>(Arrays.asList(data.split(\",\")));\n        return parse(q);\n    }\n\n    private TreeNode parse(Deque<String> q) {\n        String t = q.poll();\n        if (t.equals(\"#\")) return null;\n        TreeNode node = new TreeNode(Integer.parseInt(t));\n        node.left = parse(q);\n        node.right = parse(q);\n        return node;\n    }\n}"
+}
+],
+"insight": "Preorder + explicit null sentinels uniquely determines a binary tree, so one traversal round-trips it; consume tokens in the same order to rebuild."
+},
+"trees__construct-binary-tree-from-preorder-inorder": {
+"title": "Construct Binary Tree from Preorder & Inorder",
+"topic": "Trees",
+"subtopic": "Trees",
+"difficulty": "Medium",
+"pattern": "Recursion using preorder root + inorder split, with index map",
+"notes": "",
+"statement": "Given `preorder` and `inorder` traversals of a binary tree with unique values, reconstruct and return the tree.",
+"examples": [
+{
+"input": "preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]",
+"output": "[3,9,20,null,null,15,7]",
+"explanation": "3 is root; 9 is left, 15/20/7 form the right subtree."
+}
+],
+"constraints": [
+"1 <= n <= 3000",
+"preorder and inorder consist of unique values",
+"inorder is a permutation of preorder"
+],
+"approaches": [
+{
+"name": "Preorder pointer + inorder index map",
+"idea": "The first unused preorder value is always the current subtree's root. Its position in inorder splits inorder into the left subtree (before it) and right subtree (after it). Advance a single global preorder pointer and recurse on the left inorder range first (preorder visits left before right). A hash map from value to inorder index makes each split O(1), giving overall O(n).",
+"time": "O(n)",
+"space": "O(n)",
+"code": "import java.util.*;\n\nclass Solution {\n    static class TreeNode {\n        int val;\n        TreeNode left, right;\n        TreeNode(int v) { val = v; }\n    }\n\n    private int preIdx = 0;\n    private final Map<Integer, Integer> inPos = new HashMap<>();\n\n    public TreeNode buildTree(int[] preorder, int[] inorder) {\n        for (int i = 0; i < inorder.length; i++) inPos.put(inorder[i], i);\n        return build(preorder, 0, inorder.length - 1);\n    }\n\n    private TreeNode build(int[] preorder, int lo, int hi) {\n        if (lo > hi) return null;\n        int rootVal = preorder[preIdx++];\n        TreeNode root = new TreeNode(rootVal);\n        int mid = inPos.get(rootVal);\n        root.left = build(preorder, lo, mid - 1);\n        root.right = build(preorder, mid + 1, hi);\n        return root;\n    }\n}"
+}
+],
+"insight": "Preorder gives the next root in order; inorder position of that root partitions left vs right. Recurse left before right to keep the preorder pointer aligned."
+},
+"trees__lowest-common-ancestor": {
+"title": "Lowest Common Ancestor",
+"topic": "Trees",
+"subtopic": "Trees",
+"difficulty": "Medium",
+"pattern": "Post-order recursion returning where p and q are found",
+"notes": "",
+"statement": "Given a binary tree and two nodes `p` and `q`, return their lowest common ancestor: the deepest node that has both `p` and `q` as descendants (a node can be a descendant of itself).",
+"examples": [
+{
+"input": "root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1",
+"output": "3",
+"explanation": "5 and 1 are on opposite sides of the root 3."
+}
+],
+"constraints": [
+"2 <= n <= 10^5",
+"-10^9 <= Node.val <= 10^9",
+"all Node.val are unique",
+"p != q and both exist in the tree"
+],
+"approaches": [
+{
+"name": "Single post-order DFS",
+"idea": "Recurse: return the node itself if it is null, `p`, or `q`. Otherwise take the results from both subtrees. If both sides return non-null, this node is where the two targets meet, so it is the LCA. If only one side is non-null, propagate that result upward. This finds the answer in one pass without parent pointers.",
+"time": "O(n)",
+"space": "O(h) recursion",
+"code": "class Solution {\n    static class TreeNode {\n        int val;\n        TreeNode left, right;\n        TreeNode(int v) { val = v; }\n    }\n\n    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {\n        if (root == null || root == p || root == q) return root;\n        TreeNode left  = lowestCommonAncestor(root.left, p, q);\n        TreeNode right = lowestCommonAncestor(root.right, p, q);\n        if (left != null && right != null) return root;\n        return left != null ? left : right;\n    }\n}"
+}
+],
+"insight": "The LCA is the first node where p and q are found in different subtrees; a node matching p or q short-circuits upward."
+},
+"trees__binary-tree-cameras": {
+"title": "Binary Tree Cameras",
+"topic": "Trees",
+"subtopic": "Trees",
+"difficulty": "Hard",
+"pattern": "Greedy post-order with 3 states (needs cover / covered / has camera)",
+"notes": "",
+"statement": "Each camera on a node monitors its parent, itself, and its immediate children. Return the minimum number of cameras needed to monitor every node of the tree.",
+"examples": [
+{
+"input": "root = [0,0,null,0,0]",
+"output": "1",
+"explanation": "One camera on the middle node covers all nodes."
+}
+],
+"constraints": [
+"1 <= n <= 1000",
+"Node.val is 0"
+],
+"approaches": [
+{
+"name": "Greedy bottom-up placement",
+"idea": "Return one of three states per node: 0 = uncovered, 1 = covered but no camera here, 2 = has a camera. Place cameras as late as possible (near leaves' parents): if any child is uncovered, this node must hold a camera (state 2); else if any child has a camera, this node is covered (state 1); otherwise it is uncovered (state 0) and defers to its parent. A null child returns 1 so leaves are treated as uncovered. Finally, if the root is left uncovered, add one camera.",
+"time": "O(n)",
+"space": "O(h) recursion",
+"code": "class Solution {\n    static class TreeNode {\n        int val;\n        TreeNode left, right;\n        TreeNode(int v) { val = v; }\n    }\n\n    private int cameras = 0;\n\n    public int minCameraCover(TreeNode root) {\n        if (dfs(root) == 0) cameras++; // root uncovered -> place a camera\n        return cameras;\n    }\n\n    // 0 = uncovered, 1 = covered (no camera here), 2 = has a camera\n    private int dfs(TreeNode node) {\n        if (node == null) return 1;\n        int l = dfs(node.left);\n        int r = dfs(node.right);\n        if (l == 0 || r == 0) { cameras++; return 2; }\n        if (l == 2 || r == 2) return 1;\n        return 0;\n    }\n}"
+}
+],
+"insight": "Push cameras onto parents of leaves, not leaves themselves; a null returns 'covered' so leaves stay uncovered and force a camera one level up."
+},
+"trees__vertical-order-traversal": {
+"title": "Vertical Order Traversal",
+"topic": "Trees",
+"subtopic": "Trees",
+"difficulty": "Hard",
+"pattern": "DFS with (row,col) coords, ordered by col then row then value",
+"notes": "",
+"statement": "Return the vertical order traversal of a binary tree: group nodes by column (left to right); within a column order by row (top to bottom); nodes sharing the same row and column are ordered by increasing value.",
+"examples": [
+{
+"input": "root = [3,9,20,null,null,15,7]",
+"output": "[[9],[3,15],[20],[7]]",
+"explanation": "Columns from -1 to 2."
+}
+],
+"constraints": [
+"1 <= n <= 1000",
+"0 <= Node.val <= 1000"
+],
+"approaches": [
+{
+"name": "Coordinate DFS + sorted maps",
+"idea": "Assign each node a coordinate: root is (row 0, col 0); a left child is (row+1, col-1) and a right child is (row+1, col+1). Collect values into a `TreeMap` keyed by column, whose values are `TreeMap`s keyed by row, whose values are a min-heap (or sorted list) of node values. Iterating the nested sorted structures yields columns left-to-right, rows top-to-bottom, and ties broken by value.",
+"time": "O(n log n)",
+"space": "O(n)",
+"code": "import java.util.*;\n\nclass Solution {\n    static class TreeNode {\n        int val;\n        TreeNode left, right;\n        TreeNode(int v) { val = v; }\n    }\n\n    public List<List<Integer>> verticalTraversal(TreeNode root) {\n        TreeMap<Integer, TreeMap<Integer, PriorityQueue<Integer>>> map = new TreeMap<>();\n        dfs(root, 0, 0, map);\n        List<List<Integer>> res = new ArrayList<>();\n        for (TreeMap<Integer, PriorityQueue<Integer>> rows : map.values()) {\n            List<Integer> col = new ArrayList<>();\n            for (PriorityQueue<Integer> pq : rows.values()) {\n                while (!pq.isEmpty()) col.add(pq.poll());\n            }\n            res.add(col);\n        }\n        return res;\n    }\n\n    private void dfs(TreeNode node, int row, int col,\n                     TreeMap<Integer, TreeMap<Integer, PriorityQueue<Integer>>> map) {\n        if (node == null) return;\n        map.computeIfAbsent(col, k -> new TreeMap<>())\n           .computeIfAbsent(row, k -> new PriorityQueue<>())\n           .add(node.val);\n        dfs(node.left, row + 1, col - 1, map);\n        dfs(node.right, row + 1, col + 1, map);\n    }\n}"
+}
+],
+"insight": "Sort by (col, row, value) exactly in that priority; nesting TreeMap>TreeMap>min-heap bakes the ordering in so no explicit comparator sort is needed."
+},
+"trees__recover-binary-search-tree": {
+"title": "Recover Binary Search Tree",
+"topic": "Trees",
+"subtopic": "Trees",
+"difficulty": "Hard",
+"pattern": "Inorder traversal to find the two swapped nodes",
+"notes": "",
+"statement": "Exactly two nodes of a BST were swapped by mistake. Recover the tree by restoring it to a valid BST without changing its structure.",
+"examples": [
+{
+"input": "root = [1,3,null,null,2]",
+"output": "[3,1,null,null,2]",
+"explanation": "Nodes 1 and 3 were swapped; swap their values back."
+}
+],
+"constraints": [
+"2 <= n <= 1000",
+"-2^31 <= Node.val <= 2^31 - 1"
+],
+"approaches": [
+{
+"name": "Inorder scan for inversions",
+"idea": "An inorder traversal of a valid BST is strictly increasing. Two swapped nodes create either one adjacent inversion (`first` = the larger, `second` = the smaller, adjacent) or two inversions (`first` = the larger of the first drop, `second` = the smaller of the second drop). Track the previous node during inorder: on the first inversion set `first = prev` and `second = cur`; on any later inversion update `second = cur`. Swapping the two nodes' values fixes the tree.",
+"time": "O(n)",
+"space": "O(h) recursion",
+"code": "class Solution {\n    static class TreeNode {\n        int val;\n        TreeNode left, right;\n        TreeNode(int v) { val = v; }\n    }\n\n    private TreeNode first, second, prev;\n\n    public void recoverTree(TreeNode root) {\n        inorder(root);\n        int t = first.val;\n        first.val = second.val;\n        second.val = t;\n    }\n\n    private void inorder(TreeNode node) {\n        if (node == null) return;\n        inorder(node.left);\n        if (prev != null && prev.val > node.val) {\n            if (first == null) first = prev;\n            second = node;\n        }\n        prev = node;\n        inorder(node.right);\n    }\n}"
+},
+{
+"name": "Morris inorder (O(1) space)",
+"idea": "Same inversion logic, but use Morris traversal to walk inorder without recursion or a stack: temporarily thread each node's inorder predecessor's right pointer to it, then unthread on the second visit. This achieves O(1) extra space, which is the follow-up ask.",
+"time": "O(n)",
+"space": "O(1)",
+"code": "class Solution {\n    static class TreeNode {\n        int val;\n        TreeNode left, right;\n        TreeNode(int v) { val = v; }\n    }\n\n    public void recoverTree(TreeNode root) {\n        TreeNode first = null, second = null, prev = null, cur = root;\n        while (cur != null) {\n            if (cur.left == null) {\n                if (prev != null && prev.val > cur.val) {\n                    if (first == null) first = prev;\n                    second = cur;\n                }\n                prev = cur;\n                cur = cur.right;\n            } else {\n                TreeNode pred = cur.left;\n                while (pred.right != null && pred.right != cur) pred = pred.right;\n                if (pred.right == null) {\n                    pred.right = cur;\n                    cur = cur.left;\n                } else {\n                    pred.right = null;\n                    if (prev != null && prev.val > cur.val) {\n                        if (first == null) first = prev;\n                        second = cur;\n                    }\n                    prev = cur;\n                    cur = cur.right;\n                }\n            }\n        }\n        int t = first.val;\n        first.val = second.val;\n        second.val = t;\n    }\n}"
+}
+],
+"insight": "Inorder must be sorted; the two swapped nodes are the endpoints of the inversion(s): first = the higher value seen first, second = the lower value seen last."
+},
+"trees__count-of-smaller-numbers-after-self": {
+"title": "Count of Smaller Numbers After Self",
+"topic": "Trees",
+"subtopic": "Trees",
+"difficulty": "Hard",
+"pattern": "Fenwick tree (BIT) over ranks, scanning right to left",
+"notes": "",
+"statement": "Given an integer array `nums`, return an array `counts` where `counts[i]` is the number of elements to the right of `nums[i]` that are smaller than `nums[i]`.",
+"examples": [
+{
+"input": "nums = [5,2,6,1]",
+"output": "[2,1,1,0]",
+"explanation": "Right-smaller counts: 5->{2,1}, 2->{1}, 6->{1}, 1->{}."
+}
+],
+"constraints": [
+"1 <= nums.length <= 10^5",
+"-10^4 <= nums[i] <= 10^4"
+],
+"approaches": [
+{
+"name": "Binary Indexed Tree over compressed ranks",
+"idea": "Compress values to ranks via a sorted copy. Scan `nums` right to left, maintaining a Fenwick tree of already-seen ranks. For each element, query the prefix count of ranks strictly less than its own rank — those are the smaller elements already inserted (i.e. to its right) — then insert its own rank. This is grouped under Trees because a Fenwick/segment tree is the classic structure here; a merge-sort counting inversions is an equivalent O(n log n) alternative.",
+"time": "O(n log n)",
+"space": "O(n)",
+"code": "import java.util.*;\n\nclass Solution {\n    public List<Integer> countSmaller(int[] nums) {\n        int n = nums.length;\n        Integer[] res = new Integer[n];\n        int[] sorted = nums.clone();\n        Arrays.sort(sorted);\n        int[] tree = new int[n + 1]; // 1-indexed Fenwick\n        for (int i = n - 1; i >= 0; i--) {\n            int rank = lowerBound(sorted, nums[i]) + 1; // 1..n\n            res[i] = query(tree, rank - 1);\n            update(tree, rank, n);\n        }\n        return Arrays.asList(res);\n    }\n\n    private int lowerBound(int[] a, int target) {\n        int lo = 0, hi = a.length;\n        while (lo < hi) {\n            int mid = (lo + hi) >>> 1;\n            if (a[mid] < target) lo = mid + 1; else hi = mid;\n        }\n        return lo;\n    }\n\n    private void update(int[] tree, int i, int n) {\n        for (; i <= n; i += i & (-i)) tree[i]++;\n    }\n\n    private int query(int[] tree, int i) {\n        int s = 0;\n        for (; i > 0; i -= i & (-i)) s += tree[i];\n        return s;\n    }\n}"
+}
+],
+"insight": "Scan right to left and count how many smaller ranks are already inserted; a Fenwick tree makes each prefix-count and insert O(log n)."
+},
+"trees__all-nodes-distance-k-in-binary-tree": {
+"title": "All Nodes Distance K in Binary Tree",
+"topic": "Trees",
+"subtopic": "Trees",
+"difficulty": "Medium",
+"pattern": "Build parent links, then BFS outward from target",
+"notes": "",
+"statement": "Given a binary tree, a `target` node, and integer `k`, return the values of all nodes that are exactly distance `k` from the target node, in any order.",
+"examples": [
+{
+"input": "root = [3,5,1,6,2,0,8,null,null,7,4], target = 5, k = 2",
+"output": "[7,4,1]",
+"explanation": "Nodes 7,4 (down) and 1 (up via root) are distance 2 from 5."
+}
+],
+"constraints": [
+"1 <= n <= 500",
+"0 <= Node.val <= 500",
+"all Node.val are unique",
+"target is a node in the tree",
+"0 <= k <= 1000"
+],
+"approaches": [
+{
+"name": "Parent map + BFS",
+"idea": "A binary tree only has downward pointers, so first record each node's parent with a DFS. Then treat the tree as an undirected graph and BFS outward from `target`, expanding to left child, right child, and parent at each step while tracking visited nodes. After `k` levels the queue holds exactly the nodes at distance `k`.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "import java.util.*;\n\nclass Solution {\n    static class TreeNode {\n        int val;\n        TreeNode left, right;\n        TreeNode(int v) { val = v; }\n    }\n\n    public List<Integer> distanceK(TreeNode root, TreeNode target, int k) {\n        Map<TreeNode, TreeNode> parent = new HashMap<>();\n        buildParents(root, null, parent);\n\n        Queue<TreeNode> queue = new LinkedList<>();\n        Set<TreeNode> visited = new HashSet<>();\n        queue.offer(target);\n        visited.add(target);\n\n        int dist = 0;\n        while (!queue.isEmpty() && dist < k) {\n            int size = queue.size();\n            for (int i = 0; i < size; i++) {\n                TreeNode node = queue.poll();\n                for (TreeNode next : new TreeNode[]{node.left, node.right, parent.get(node)}) {\n                    if (next != null && visited.add(next)) queue.offer(next);\n                }\n            }\n            dist++;\n        }\n\n        List<Integer> res = new ArrayList<>();\n        for (TreeNode node : queue) res.add(node.val);\n        return res;\n    }\n\n    private void buildParents(TreeNode node, TreeNode par, Map<TreeNode, TreeNode> parent) {\n        if (node == null) return;\n        parent.put(node, par);\n        buildParents(node.left, node, parent);\n        buildParents(node.right, node, parent);\n    }\n}"
+}
+],
+"insight": "Add parent pointers to make the tree an undirected graph, then it is a plain BFS-by-levels stopping at level k."
+},
+"trees__maximum-sum-bst-in-binary-tree": {
+"title": "Maximum Sum BST in Binary Tree",
+"topic": "Trees",
+"subtopic": "Trees",
+"difficulty": "Hard",
+"pattern": "Post-order returning {isBST, min, max, sum}",
+"notes": "",
+"statement": "Given a binary tree, return the maximum sum of node values of any subtree that is itself a valid Binary Search Tree. The empty subtree is allowed, so the answer is at least 0.",
+"examples": [
+{
+"input": "root = [1,4,3,2,4,2,5,null,null,null,null,null,null,4,6]",
+"output": "20",
+"explanation": "The subtree rooted at 3 with children 2 and 5 (and 4,6) is a BST summing to 20."
+}
+],
+"constraints": [
+"1 <= n <= 4*10^4",
+"-4*10^4 <= Node.val <= 4*10^4"
+],
+"approaches": [
+{
+"name": "Bottom-up BST validation",
+"idea": "With one post-order pass, return four facts per subtree: whether it is a BST, its min value, its max value, and its sum. A node forms a BST only if both children are BSTs and its value is strictly greater than the left subtree's max and strictly less than the right subtree's min. When valid, update the global best with the combined sum and return the merged (min,max,sum); otherwise mark not-a-BST so ancestors are disqualified. Empty children return isBST with +INF min / -INF max so any node compares correctly against them.",
+"time": "O(n)",
+"space": "O(h) recursion",
+"code": "class Solution {\n    static class TreeNode {\n        int val;\n        TreeNode left, right;\n        TreeNode(int v) { val = v; }\n    }\n\n    private int best = 0;\n\n    public int maxSumBST(TreeNode root) {\n        dfs(root);\n        return best;\n    }\n\n    // returns {isBST(1/0), min, max, sum}\n    private int[] dfs(TreeNode node) {\n        if (node == null) return new int[]{1, Integer.MAX_VALUE, Integer.MIN_VALUE, 0};\n        int[] l = dfs(node.left);\n        int[] r = dfs(node.right);\n        if (l[0] == 1 && r[0] == 1 && node.val > l[2] && node.val < r[1]) {\n            int sum = l[3] + r[3] + node.val;\n            best = Math.max(best, sum);\n            return new int[]{1, Math.min(l[1], node.val), Math.max(r[2], node.val), sum};\n        }\n        return new int[]{0, 0, 0, 0};\n    }\n}"
+}
+],
+"insight": "Carry (isBST,min,max,sum) up in one post-order pass; a node is a BST iff both subtrees are and val lies strictly between left.max and right.min."
+}
+}

@@ -1,0 +1,298 @@
+{
+"arrays-hashing-prefix-sum__subarray-sum-equals-k": {
+"title": "Subarray Sum Equals K",
+"topic": "Arrays / Hashing / Prefix-sum",
+"subtopic": "Arrays / Hashing / Prefix-sum",
+"difficulty": "Medium",
+"pattern": "Prefix sum + hashmap of seen prefix counts",
+"notes": "",
+"statement": "Given an integer array `nums` and an integer `k`, return the total number of contiguous subarrays whose elements sum to exactly `k`. Values may be negative, so a sliding window does not work.",
+"examples": [
+{
+"input": "nums = [1,1,1], k = 2",
+"output": "2",
+"explanation": "The subarrays [1,1] (indices 0..1) and [1,1] (indices 1..2)."
+},
+{
+"input": "nums = [1,2,3], k = 3",
+"output": "2",
+"explanation": "[1,2] and [3]."
+}
+],
+"constraints": [
+"1 <= nums.length <= 2*10^4",
+"-1000 <= nums[i] <= 1000",
+"-10^7 <= k <= 10^7"
+],
+"approaches": [
+{
+"name": "Prefix sum with hashmap",
+"idea": "A subarray ending at index `i` sums to `k` iff there is an earlier prefix equal to `prefix[i]-k`. Keep a running prefix sum and a map from prefix value to how many times it occurred (seed with `0->1` for the empty prefix). At each element add the count of `prefix-k` to the answer, then record the current prefix. This handles negatives, unlike a window.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public int subarraySum(int[] nums, int k) {\n    Map<Integer, Integer> count = new HashMap<>();\n    count.put(0, 1);\n    int prefix = 0, res = 0;\n    for (int x : nums) {\n        prefix += x;\n        res += count.getOrDefault(prefix - k, 0);\n        count.merge(prefix, 1, Integer::sum);\n    }\n    return res;\n}"
+}
+],
+"insight": "Count subarrays with a target sum by counting earlier prefix sums equal to current_prefix - k."
+},
+"arrays-hashing-prefix-sum__subarrays-with-k-different-integers": {
+"title": "Subarrays with K Different Integers",
+"topic": "Arrays / Hashing / Prefix-sum",
+"subtopic": "Arrays / Hashing / Prefix-sum",
+"difficulty": "Hard",
+"pattern": "Exactly(K) = atMost(K) - atMost(K-1) sliding window",
+"notes": "",
+"statement": "Given an integer array `nums` and integer `k`, return the number of contiguous subarrays that contain exactly `k` distinct integers (a \"good\" subarray). Counting exactly-k directly is awkward, but exactly-k equals (at-most-k) minus (at-most-(k-1)).",
+"examples": [
+{
+"input": "nums = [1,2,1,2,3], k = 2",
+"output": "7",
+"explanation": "[1,2],[2,1],[1,2],[2,3],[1,2,1],[2,1,2],[1,2,1,2]."
+},
+{
+"input": "nums = [1,2,1,3,4], k = 3",
+"output": "3",
+"explanation": "[1,2,1,3],[2,1,3],[1,3,4]."
+}
+],
+"constraints": [
+"1 <= nums.length <= 2*10^4",
+"1 <= nums[i], k <= nums.length"
+],
+"approaches": [
+{
+"name": "atMost(k) - atMost(k-1)",
+"idea": "`atMost(k)` counts subarrays with at most `k` distinct values using a sliding window: expand `right`, and whenever the window holds more than `k` distinct values shrink from `left`; every window contributes `right-left+1` subarrays ending at `right`. Subarrays with exactly `k` distinct = atMost(k) - atMost(k-1). This converts a hard exact-count into two easy monotone windows.",
+"time": "O(n)",
+"space": "O(k)",
+"code": "public int subarraysWithKDistinct(int[] nums, int k) {\n    return atMost(nums, k) - atMost(nums, k - 1);\n}\n\nprivate int atMost(int[] nums, int k) {\n    if (k < 0) return 0;\n    Map<Integer, Integer> freq = new HashMap<>();\n    int left = 0, res = 0;\n    for (int right = 0; right < nums.length; right++) {\n        if (freq.merge(nums[right], 1, Integer::sum) == 1) k--;\n        while (k < 0) {\n            if (freq.merge(nums[left], -1, Integer::sum) == 0) k++;\n            left++;\n        }\n        res += right - left + 1;\n    }\n    return res;\n}"
+}
+],
+"insight": "Exactly-K distinct = atMost(K) - atMost(K-1); each 'at most' is a clean monotone sliding window."
+},
+"arrays-hashing-prefix-sum__count-of-range-sum": {
+"title": "Count of Range Sum",
+"topic": "Arrays / Hashing / Prefix-sum",
+"subtopic": "Arrays / Hashing / Prefix-sum",
+"difficulty": "Hard",
+"pattern": "Prefix sums + merge sort (count inversions in a range)",
+"notes": "",
+"statement": "Given an integer array `nums` and two integers `lower` and `upper`, return the number of range sums `S(i,j) = nums[i]+...+nums[j]` (i <= j) that lie in the inclusive range `[lower, upper]`. Equivalently, count pairs `p < q` of prefix sums with `lower <= prefix[q]-prefix[p] <= upper`.",
+"examples": [
+{
+"input": "nums = [-2,5,-1], lower = -2, upper = 2",
+"output": "3",
+"explanation": "Range sums in [-2,2] are [0,0]=-2, [2,2]=-1, [0,2]=2."
+},
+{
+"input": "nums = [0], lower = 0, upper = 0",
+"output": "1",
+"explanation": "Only the single-element range sum 0."
+}
+],
+"constraints": [
+"1 <= nums.length <= 10^5",
+"-2^31 <= nums[i] <= 2^31 - 1",
+"-10^5 <= lower <= upper <= 10^5",
+"prefix sums can overflow int, use long"
+],
+"approaches": [
+{
+"name": "Merge sort on prefix sums",
+"idea": "Build prefix sums `prefix[0..n]` (use `long`). The answer counts pairs `i<j` with `lower <= prefix[j]-prefix[i] <= upper`. During merge sort of the prefix array, when the left and right halves are each sorted, for every `i` in the left half advance two pointers over the right half to count how many `prefix[j]` fall in `[prefix[i]+lower, prefix[i]+upper]`, then merge. Each level counts cross-pairs in linear time.",
+"time": "O(n log n)",
+"space": "O(n)",
+"code": "public int countRangeSum(int[] nums, int lower, int upper) {\n    long[] prefix = new long[nums.length + 1];\n    for (int i = 0; i < nums.length; i++) prefix[i + 1] = prefix[i] + nums[i];\n    return mergeCount(prefix, 0, prefix.length - 1, lower, upper, new long[prefix.length]);\n}\n\nprivate int mergeCount(long[] sum, int lo, int hi, int lower, int upper, long[] tmp) {\n    if (lo >= hi) return 0;\n    int mid = (lo + hi) >>> 1;\n    int count = mergeCount(sum, lo, mid, lower, upper, tmp)\n              + mergeCount(sum, mid + 1, hi, lower, upper, tmp);\n    int j = mid + 1, k = mid + 1;\n    for (int i = lo; i <= mid; i++) {\n        while (j <= hi && sum[j] - sum[i] < lower) j++;\n        while (k <= hi && sum[k] - sum[i] <= upper) k++;\n        count += k - j;\n    }\n    int t = lo, p = lo, q = mid + 1;\n    while (p <= mid && q <= hi) tmp[t++] = sum[p] <= sum[q] ? sum[p++] : sum[q++];\n    while (p <= mid) tmp[t++] = sum[p++];\n    while (q <= hi) tmp[t++] = sum[q++];\n    System.arraycopy(tmp, lo, sum, lo, hi - lo + 1);\n    return count;\n}"
+}
+],
+"insight": "Reduce to counting prefix-sum pairs in a value window; a merge sort counts those cross-pairs in O(n log n)."
+},
+"arrays-hashing-prefix-sum__maximum-sum-of-3-non-overlapping-subarrays": {
+"title": "Maximum Sum of 3 Non-Overlapping Subarrays",
+"topic": "Arrays / Hashing / Prefix-sum",
+"subtopic": "Arrays / Hashing / Prefix-sum",
+"difficulty": "Hard",
+"pattern": "Prefix sums + best-left / best-right precompute around a fixed middle",
+"notes": "",
+"statement": "Given an integer array `nums` and integer `k`, find three non-overlapping subarrays each of length `k` that have the maximum total sum, and return their starting indices. If several answers tie, return the lexicographically smallest index triple.",
+"examples": [
+{
+"input": "nums = [1,2,1,2,6,7,5,1], k = 2",
+"output": "[0,3,5]",
+"explanation": "Windows [1,2],[2,6],[7,5] with sums 3,8,12 = 23, the maximum."
+},
+{
+"input": "nums = [1,2,1,2,1,2,1,2,1], k = 2",
+"output": "[0,2,4]",
+"explanation": "Lexicographically smallest triple among the ties."
+}
+],
+"constraints": [
+"1 <= nums.length <= 2*10^4",
+"1 <= k <= nums.length / 3",
+"0 <= nums[i] < 2^16"
+],
+"approaches": [
+{
+"name": "Fix the middle window, precompute best left/right",
+"idea": "Precompute each length-`k` window sum via prefix sums. `left[i]` = index of the best window in `[0..i]` (earliest on ties) and `right[i]` = index of the best window in `[i..end]` (earliest on ties, so scan right-to-left with `>=`). Then try every valid middle start `mid`; the best left window is `left[mid-k]` and best right is `right[mid+k]`. Keep the max total, which yields the lexicographically smallest triple because ties always favor the earliest index.",
+"time": "O(n)",
+"space": "O(n)",
+"code": "public int[] maxSumOfThreeSubarrays(int[] nums, int k) {\n    int n = nums.length;\n    int[] sum = new int[n + 1];\n    for (int i = 0; i < n; i++) sum[i + 1] = sum[i] + nums[i];\n    int w = n - k + 1;                 // number of length-k windows\n    int[] left = new int[w], right = new int[w];\n    int best = 0;\n    for (int i = 0; i < w; i++) {\n        if (sum[i + k] - sum[i] > sum[best + k] - sum[best]) best = i;\n        left[i] = best;\n    }\n    best = w - 1;\n    for (int i = w - 1; i >= 0; i--) {\n        if (sum[i + k] - sum[i] >= sum[best + k] - sum[best]) best = i;\n        right[i] = best;\n    }\n    int[] res = {-1, -1, -1};\n    int total = -1;\n    for (int mid = k; mid <= n - 2 * k; mid++) {\n        int l = left[mid - k], r = right[mid + k];\n        int t = (sum[l + k] - sum[l]) + (sum[mid + k] - sum[mid]) + (sum[r + k] - sum[r]);\n        if (t > total) { total = t; res = new int[]{l, mid, r}; }\n    }\n    return res;\n}"
+}
+],
+"insight": "Anchor the middle window, then the problem splits into independent best-left and best-right lookups."
+},
+"arrays-hashing-prefix-sum__number-of-submatrices-that-sum-to-target": {
+"title": "Number of Submatrices That Sum to Target",
+"topic": "Arrays / Hashing / Prefix-sum",
+"subtopic": "Arrays / Hashing / Prefix-sum",
+"difficulty": "Hard",
+"pattern": "Fix column pair, reduce to 1D Subarray Sum Equals K",
+"notes": "",
+"statement": "Given a 2D matrix and an integer `target`, return the number of non-empty submatrices whose elements sum to `target`. Two submatrices are different if they differ in any coordinate. Reduce the 2D count to repeated 1D subarray-sum-equals-target counts.",
+"examples": [
+{
+"input": "matrix = [[0,1,0],[1,1,1],[0,1,0]], target = 0",
+"output": "4",
+"explanation": "Four submatrices sum to 0 (the four corner cells)."
+},
+{
+"input": "matrix = [[1,-1],[-1,1]], target = 0",
+"output": "5",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= matrix.length, matrix[0].length <= 100",
+"-1000 <= matrix[i][j] <= 1000",
+"-10^8 <= target <= 10^8"
+],
+"approaches": [
+{
+"name": "Row prefix sums + hashmap over column pairs",
+"idea": "First turn each row into its horizontal prefix sums, so the sum of row `r` between columns `c1..c2` is O(1). For every column pair `(c1,c2)`, walk down the rows accumulating a running column-band prefix and apply the 1D Subarray-Sum-Equals-K trick: a hashmap of seen band-prefixes lets you count how many earlier rows give a rectangle summing to `target`. This is the matrix analog of prefix + hashmap.",
+"time": "O(rows * cols^2)",
+"space": "O(rows)",
+"code": "public int numSubmatrixSumTarget(int[][] matrix, int target) {\n    int rows = matrix.length, cols = matrix[0].length;\n    for (int r = 0; r < rows; r++)\n        for (int c = 1; c < cols; c++)\n            matrix[r][c] += matrix[r][c - 1];   // horizontal prefix per row\n    int res = 0;\n    for (int c1 = 0; c1 < cols; c1++) {\n        for (int c2 = c1; c2 < cols; c2++) {\n            Map<Integer, Integer> count = new HashMap<>();\n            count.put(0, 1);\n            int prefix = 0;\n            for (int r = 0; r < rows; r++) {\n                prefix += matrix[r][c2] - (c1 > 0 ? matrix[r][c1 - 1] : 0);\n                res += count.getOrDefault(prefix - target, 0);\n                count.merge(prefix, 1, Integer::sum);\n            }\n        }\n    }\n    return res;\n}"
+}
+],
+"insight": "Collapse two of the four rectangle boundaries by fixing a column pair, leaving a 1D subarray-sum-equals-target scan."
+},
+"arrays-hashing-prefix-sum__max-sum-of-rectangle-no-larger-than-k": {
+"title": "Max Sum of Rectangle No Larger Than K",
+"topic": "Arrays / Hashing / Prefix-sum",
+"subtopic": "Arrays / Hashing / Prefix-sum",
+"difficulty": "Hard",
+"pattern": "Fix column pair + TreeSet for max subarray sum <= K",
+"notes": "",
+"statement": "Given an `m x n` matrix and an integer `k`, return the maximum sum of any non-empty rectangle whose sum is no larger than `k`. It is guaranteed such a rectangle exists.",
+"examples": [
+{
+"input": "matrix = [[1,0,1],[0,-2,3]], k = 2",
+"output": "2",
+"explanation": "Rectangle [[0,1],[-2,3]] sums to 2, the max sum that is <= 2."
+},
+{
+"input": "matrix = [[2,2,-1]], k = 3",
+"output": "3",
+"explanation": "The [2,2,-1] band sums to 3."
+}
+],
+"constraints": [
+"1 <= m, n <= 100",
+"-100 <= matrix[i][j] <= 100",
+"-10^5 <= k <= 10^5"
+],
+"approaches": [
+{
+"name": "Column-pair compression + TreeSet ceiling",
+"idea": "Fix a pair of columns and compress each row into a single band value, reducing the problem to: max subarray sum <= k in a 1D array. For that, keep a sorted set of seen prefix sums; for a running prefix `p`, the best subarray ending here with sum <= k is `p - ceiling(p-k)`, found via `TreeSet.ceiling`. Track the global best over all column pairs. Iterate the outer loop over the smaller dimension for speed.",
+"time": "O(min(m,n)^2 * max(m,n) log(max(m,n)))",
+"space": "O(max(m,n))",
+"code": "public int maxSumSubmatrix(int[][] matrix, int k) {\n    int rows = matrix.length, cols = matrix[0].length;\n    int best = Integer.MIN_VALUE;\n    for (int c1 = 0; c1 < cols; c1++) {\n        int[] rowSum = new int[rows];\n        for (int c2 = c1; c2 < cols; c2++) {\n            for (int r = 0; r < rows; r++) rowSum[r] += matrix[r][c2];\n            TreeSet<Integer> set = new TreeSet<>();\n            set.add(0);\n            int prefix = 0;\n            for (int s : rowSum) {\n                prefix += s;\n                Integer ceil = set.ceiling(prefix - k);\n                if (ceil != null) best = Math.max(best, prefix - ceil);\n                set.add(prefix);\n            }\n        }\n    }\n    return best;\n}"
+}
+],
+"insight": "For 'sum no larger than k', a sorted set of prefix sums plus ceiling(prefix-k) gives the best bounded subarray."
+},
+"arrays-hashing-prefix-sum__continuous-subarray-sum-subarray-sums-divisible-by-k": {
+"title": "Continuous Subarray Sum / Subarray Sums Divisible by K",
+"topic": "Arrays / Hashing / Prefix-sum",
+"subtopic": "Arrays / Hashing / Prefix-sum",
+"difficulty": "Medium",
+"pattern": "Prefix-sum remainders modulo k in a hashmap",
+"notes": "",
+"statement": "Two related problems built on prefix-sum remainders mod `k`. Continuous Subarray Sum: return true if there is a contiguous subarray of length at least 2 whose sum is a multiple of `k`. Subarray Sums Divisible by K: return the count of contiguous subarrays whose sum is divisible by `k`. Both use the fact that two prefixes with the same remainder bound a subarray whose sum is a multiple of `k`.",
+"examples": [
+{
+"input": "checkSubarraySum(nums = [23,2,4,6,7], k = 6)",
+"output": "true",
+"explanation": "[2,4] sums to 6, a multiple of 6, length >= 2."
+},
+{
+"input": "subarraysDivByK(nums = [4,5,0,-2,-3,1], k = 5)",
+"output": "7",
+"explanation": "Seven subarrays have a sum divisible by 5."
+}
+],
+"constraints": [
+"1 <= nums.length <= 10^5",
+"0 <= nums[i] <= 10^9 (Continuous Subarray Sum); -10^4 <= nums[i] <= 10^4 (Divisible by K)",
+"1 <= k <= 2^31 - 1 (Continuous); 2 <= k <= 10^4 (Divisible)",
+"normalize remainders with ((x % k) + k) % k to handle negatives"
+],
+"approaches": [
+{
+"name": "Continuous Subarray Sum: first index of each remainder",
+"idea": "If two prefix sums share the same remainder mod `k`, the subarray between them sums to a multiple of `k`. Store the earliest index at which each remainder appears (seed remainder 0 at index -1). When a remainder repeats and the gap is at least 2, return true. Keeping only the first index maximizes the length gap.",
+"time": "O(n)",
+"space": "O(min(n, k))",
+"code": "public boolean checkSubarraySum(int[] nums, int k) {\n    Map<Integer, Integer> firstIndex = new HashMap<>();\n    firstIndex.put(0, -1);\n    int prefix = 0;\n    for (int i = 0; i < nums.length; i++) {\n        prefix += nums[i];\n        int r = ((prefix % k) + k) % k;\n        if (firstIndex.containsKey(r)) {\n            if (i - firstIndex.get(r) >= 2) return true;\n        } else {\n            firstIndex.put(r, i);\n        }\n    }\n    return false;\n}"
+},
+{
+"name": "Subarray Sums Divisible by K: count each remainder",
+"idea": "Count subarrays with sum divisible by `k` by counting, for each running remainder, how many earlier prefixes had the same remainder (each such pair bounds a divisible subarray). A size-`k` array of remainder counts (seeded with `count[0]=1` for the empty prefix) does this in one pass. Normalize negatives so remainders stay in `[0,k)`.",
+"time": "O(n)",
+"space": "O(k)",
+"code": "public int subarraysDivByK(int[] nums, int k) {\n    int[] count = new int[k];\n    count[0] = 1;\n    int prefix = 0, res = 0;\n    for (int x : nums) {\n        prefix = ((prefix + x) % k + k) % k;\n        res += count[prefix];\n        count[prefix]++;\n    }\n    return res;\n}"
+}
+],
+"insight": "Equal prefix-sum remainders mod k bound a subarray divisible by k; store first index to test existence, counts to tally."
+},
+"arrays-hashing-prefix-sum__split-array-largest-sum": {
+"title": "Split Array Largest Sum",
+"topic": "Arrays / Hashing / Prefix-sum",
+"subtopic": "Arrays / Hashing / Prefix-sum",
+"difficulty": "Hard",
+"pattern": "Binary search on the answer (min feasible largest sum)",
+"notes": "",
+"statement": "Given a non-negative integer array `nums` and integer `k`, split it into `k` non-empty contiguous subarrays so that the largest subarray sum among the splits is minimized, and return that minimized largest sum.",
+"examples": [
+{
+"input": "nums = [7,2,5,10,8], k = 2",
+"output": "18",
+"explanation": "Split [7,2,5] and [10,8]; largest sum 18 is minimal."
+},
+{
+"input": "nums = [1,2,3,4,5], k = 2",
+"output": "9",
+"explanation": "Split [1,2,3] and [4,5]; largest sum 9."
+}
+],
+"constraints": [
+"1 <= nums.length <= 1000",
+"0 <= nums[i] <= 10^6",
+"1 <= k <= min(50, nums.length)"
+],
+"approaches": [
+{
+"name": "Binary search on the maximum allowed subarray sum",
+"idea": "The answer lies between `max(nums)` (no piece can be smaller than the largest element) and `sum(nums)` (one piece). Binary search this range; for a candidate cap, greedily walk the array opening a new piece whenever adding the next element would exceed the cap, and count how many pieces are needed. If that count is <= k the cap is feasible, so search lower; otherwise search higher. Feasibility is monotone, so binary search converges to the minimum feasible cap.",
+"time": "O(n log(sum - max))",
+"space": "O(1)",
+"code": "public int splitArray(int[] nums, int k) {\n    int lo = 0, hi = 0;\n    for (int x : nums) { lo = Math.max(lo, x); hi += x; }\n    while (lo < hi) {\n        int mid = lo + (hi - lo) / 2;\n        if (canSplit(nums, k, mid)) hi = mid;\n        else lo = mid + 1;\n    }\n    return lo;\n}\n\nprivate boolean canSplit(int[] nums, int k, int cap) {\n    int pieces = 1, cur = 0;\n    for (int x : nums) {\n        if (cur + x > cap) {\n            pieces++;\n            cur = x;\n            if (pieces > k) return false;\n        } else {\n            cur += x;\n        }\n    }\n    return true;\n}"
+}
+],
+"insight": "Minimizing a maximum with a monotone feasibility check is binary search on the answer, greedily counting pieces."
+}
+}

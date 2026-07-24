@@ -1,0 +1,293 @@
+{
+"two-pointers__3sum-4sum-ksum": {
+"title": "3Sum / 4Sum / kSum",
+"topic": "Two Pointers",
+"subtopic": "Two Pointers",
+"difficulty": "Medium",
+"pattern": "Sort + recursive reduction to two-pointer 2Sum",
+"notes": "",
+"statement": "Find all unique combinations of `k` elements in an array that sum to a target (3Sum uses target 0 and k=3; 4Sum generalizes to k=4). Each combination must be unique regardless of order. The general kSum solution recurses down to a two-pointer 2Sum base case on the sorted array.",
+"examples": [
+{
+"input": "kSum(nums = [-1,0,1,2,-1,-4], target = 0, k = 3)",
+"output": "[[-1,-1,2],[-1,0,1]]",
+"explanation": "The two unique triplets summing to 0."
+},
+{
+"input": "kSum(nums = [1,0,-1,0,-2,2], target = 0, k = 4)",
+"output": "[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]",
+"explanation": "Unique quadruplets summing to 0."
+}
+],
+"constraints": [
+"1 <= nums.length <= 200",
+"-10^9 <= nums[i] <= 10^9",
+"2 <= k <= nums.length",
+"use long for the running target to avoid overflow"
+],
+"approaches": [
+{
+"name": "Sort then recurse to 2Sum two-pointer",
+"idea": "Sort the array. For k>2, fix the first element, skipping duplicates, and recurse on the suffix with `target - nums[i]` and `k-1`. The base case k=2 is the classic two-pointer scan: move `lo`/`hi` inward, skipping duplicate values, collecting pairs that hit the target. Sorting plus duplicate-skipping guarantees uniqueness without a set.",
+"time": "O(n^(k-1))",
+"space": "O(k) recursion depth (excluding output)",
+"code": "public List<List<Integer>> kSum(int[] nums, long target, int k) {\n    Arrays.sort(nums);\n    return kSumHelper(nums, 0, target, k);\n}\n\nprivate List<List<Integer>> kSumHelper(int[] nums, int start, long target, int k) {\n    List<List<Integer>> res = new ArrayList<>();\n    int n = nums.length;\n    if (start >= n) return res;\n    if (k == 2) {\n        int lo = start, hi = n - 1;\n        while (lo < hi) {\n            long sum = (long) nums[lo] + nums[hi];\n            if (sum < target || (lo > start && nums[lo] == nums[lo - 1])) lo++;\n            else if (sum > target || (hi < n - 1 && nums[hi] == nums[hi + 1])) hi--;\n            else res.add(new ArrayList<>(Arrays.asList(nums[lo++], nums[hi--])));\n        }\n        return res;\n    }\n    for (int i = start; i < n; i++) {\n        if (i > start && nums[i] == nums[i - 1]) continue;\n        for (List<Integer> sub : kSumHelper(nums, i + 1, target - nums[i], k - 1)) {\n            List<Integer> combo = new ArrayList<>();\n            combo.add(nums[i]);\n            combo.addAll(sub);\n            res.add(combo);\n        }\n    }\n    return res;\n}"
+}
+],
+"insight": "Every kSum peels off one fixed element (skipping dupes) down to a sorted two-pointer 2Sum base case."
+},
+"two-pointers__trapping-rain-water": {
+"title": "Trapping Rain Water",
+"topic": "Two Pointers",
+"subtopic": "Two Pointers",
+"difficulty": "Hard",
+"pattern": "Two pointers tracking left/right running maxima",
+"notes": "",
+"statement": "Given `n` non-negative integers representing an elevation map where each bar has width 1, compute how much water it can trap after raining. Water above index `i` is bounded by the smaller of the tallest bar to its left and the tallest bar to its right.",
+"examples": [
+{
+"input": "height = [0,1,0,2,1,0,1,3,2,1,2,1]",
+"output": "6",
+"explanation": "Six units of water are trapped in the dips."
+},
+{
+"input": "height = [4,2,0,3,2,5]",
+"output": "9",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= height.length <= 2*10^4",
+"0 <= height[i] <= 10^5"
+],
+"approaches": [
+{
+"name": "Two pointers with leftMax/rightMax",
+"idea": "Water at a position depends on min(leftMax, rightMax). Use two pointers with running `leftMax` and `rightMax`. Whichever side has the smaller current bar is the limiting side, so its running max is already final: add `sideMax - height` there and move that pointer inward. This computes the answer in one pass without storing prefix arrays.",
+"time": "O(n)",
+"space": "O(1)",
+"code": "public int trap(int[] height) {\n    int l = 0, r = height.length - 1;\n    int leftMax = 0, rightMax = 0, res = 0;\n    while (l < r) {\n        if (height[l] < height[r]) {\n            leftMax = Math.max(leftMax, height[l]);\n            res += leftMax - height[l];\n            l++;\n        } else {\n            rightMax = Math.max(rightMax, height[r]);\n            res += rightMax - height[r];\n            r--;\n        }\n    }\n    return res;\n}"
+}
+],
+"insight": "Advance the pointer on the shorter side; its running max is guaranteed to be the true bound there."
+},
+"two-pointers__container-with-most-water": {
+"title": "Container With Most Water",
+"topic": "Two Pointers",
+"subtopic": "Two Pointers",
+"difficulty": "Medium",
+"pattern": "Two pointers shrinking from the ends",
+"notes": "",
+"statement": "Given `n` non-negative heights where each represents a vertical line, find two lines that together with the x-axis form a container holding the most water. Return that maximum area. Area is `min(height[i], height[j]) * (j - i)`.",
+"examples": [
+{
+"input": "height = [1,8,6,2,5,4,8,3,7]",
+"output": "49",
+"explanation": "Lines at index 1 (8) and 8 (7) give min(8,7)*7 = 49."
+},
+{
+"input": "height = [1,1]",
+"output": "1",
+"explanation": ""
+}
+],
+"constraints": [
+"2 <= height.length <= 10^5",
+"0 <= height[i] <= 10^4"
+],
+"approaches": [
+{
+"name": "Two pointers from both ends",
+"idea": "Start with the widest container (pointers at both ends) and track the best area. The area is limited by the shorter line, so moving the shorter pointer inward is the only way to possibly increase the height enough to beat the loss in width; moving the taller one can never help. Advance the shorter side each step until the pointers meet.",
+"time": "O(n)",
+"space": "O(1)",
+"code": "public int maxArea(int[] height) {\n    int l = 0, r = height.length - 1, res = 0;\n    while (l < r) {\n        res = Math.max(res, Math.min(height[l], height[r]) * (r - l));\n        if (height[l] < height[r]) l++;\n        else r--;\n    }\n    return res;\n}"
+}
+],
+"insight": "Widest first, then always move the shorter wall inward: moving the taller one can only shrink area."
+},
+"two-pointers__sort-colors": {
+"title": "Sort Colors",
+"topic": "Two Pointers",
+"subtopic": "Two Pointers",
+"difficulty": "Medium",
+"pattern": "Dutch National Flag (three-way partition)",
+"notes": "",
+"statement": "Given an array with values 0, 1, and 2 representing red, white, and blue, sort them in-place so that same colors are adjacent and in the order 0,1,2. Do it in one pass with constant extra space, without a library sort.",
+"examples": [
+{
+"input": "nums = [2,0,2,1,1,0]",
+"output": "[0,0,1,1,2,2]",
+"explanation": ""
+},
+{
+"input": "nums = [2,0,1]",
+"output": "[0,1,2]",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= nums.length <= 300",
+"nums[i] is 0, 1, or 2"
+],
+"approaches": [
+{
+"name": "Dutch National Flag three pointers",
+"idea": "Maintain `low` (boundary of 0s), `mid` (scanner), and `high` (boundary of 2s). If `nums[mid]` is 0, swap into the low region and advance both `low` and `mid`; if 1, just advance `mid`; if 2, swap to the high region and shrink `high` without advancing `mid` (the swapped-in value is unexamined). One pass sorts three categories in place.",
+"time": "O(n)",
+"space": "O(1)",
+"code": "public void sortColors(int[] nums) {\n    int low = 0, mid = 0, high = nums.length - 1;\n    while (mid <= high) {\n        if (nums[mid] == 0) {\n            int t = nums[low]; nums[low] = nums[mid]; nums[mid] = t;\n            low++; mid++;\n        } else if (nums[mid] == 1) {\n            mid++;\n        } else {\n            int t = nums[mid]; nums[mid] = nums[high]; nums[high] = t;\n            high--;\n        }\n    }\n}"
+}
+],
+"insight": "Three pointers partition into <pivot, ==pivot, >pivot in one pass; don't advance mid after a swap from the high end."
+},
+"two-pointers__subarrays-with-product-less-than-k": {
+"title": "Subarrays with Product Less Than K",
+"topic": "Two Pointers",
+"subtopic": "Two Pointers",
+"difficulty": "Medium",
+"pattern": "Sliding window with running product (all positives)",
+"notes": "",
+"statement": "Given an array of positive integers `nums` and an integer `k`, return the number of contiguous subarrays whose product of all elements is strictly less than `k`. Because all values are positive, extending a window only increases the product, so a sliding window works.",
+"examples": [
+{
+"input": "nums = [10,5,2,6], k = 100",
+"output": "8",
+"explanation": "8 subarrays have product < 100; [10,5,2] and [5,2,6] are the length-3 ones."
+},
+{
+"input": "nums = [1,2,3], k = 0",
+"output": "0",
+"explanation": "No product is < 0."
+}
+],
+"constraints": [
+"1 <= nums.length <= 3*10^4",
+"1 <= nums[i] <= 1000",
+"0 <= k <= 10^6"
+],
+"approaches": [
+{
+"name": "Sliding window, count windows ending at right",
+"idea": "Since all elements are positive the product is monotone as the window grows. Expand `right`, multiply into `prod`; while `prod >= k` shrink from `left` dividing out. Every valid window ending at `right` contributes `right-left+1` subarrays. Guard `k <= 1` (no positive-integer product can be below 1).",
+"time": "O(n)",
+"space": "O(1)",
+"code": "public int numSubarrayProductLessThanK(int[] nums, int k) {\n    if (k <= 1) return 0;\n    int prod = 1, left = 0, res = 0;\n    for (int right = 0; right < nums.length; right++) {\n        prod *= nums[right];\n        while (prod >= k) prod /= nums[left++];\n        res += right - left + 1;\n    }\n    return res;\n}"
+}
+],
+"insight": "Positive values make the product monotone, so a single sliding window counts (right-left+1) subarrays per step."
+},
+"two-pointers__boats-to-save-people": {
+"title": "Boats to Save People",
+"topic": "Two Pointers",
+"subtopic": "Two Pointers",
+"difficulty": "Medium",
+"pattern": "Sort + greedy two pointers (pair lightest with heaviest)",
+"notes": "",
+"statement": "Each boat carries at most two people and has weight limit `limit`. Given people's weights, return the minimum number of boats to carry everyone (each person's weight is at most `limit`).",
+"examples": [
+{
+"input": "people = [1,2], limit = 3",
+"output": "1",
+"explanation": "Both fit in one boat (1+2 <= 3)."
+},
+{
+"input": "people = [3,2,2,1], limit = 3",
+"output": "3",
+"explanation": "Boats: (1,2), (2), (3)."
+}
+],
+"constraints": [
+"1 <= people.length <= 5*10^4",
+"1 <= people[i] <= limit <= 3*10^4"
+],
+"approaches": [
+{
+"name": "Sort then greedily pair extremes",
+"idea": "Sort weights. Use two pointers: the heaviest person `j` always takes a boat; if the lightest remaining `i` also fits with them (`people[i]+people[j] <= limit`), pair them and advance `i`. Always send `j` inward and count one boat. Pairing the heaviest with the lightest that fits is optimal because a heavy person can share with at most one other, and giving them the lightest maximizes the chance of pairing.",
+"time": "O(n log n)",
+"space": "O(1)",
+"code": "public int numRescueBoats(int[] people, int limit) {\n    Arrays.sort(people);\n    int i = 0, j = people.length - 1, boats = 0;\n    while (i <= j) {\n        if (people[i] + people[j] <= limit) i++;\n        j--;\n        boats++;\n    }\n    return boats;\n}"
+}
+],
+"insight": "Sort, then try to seat the lightest with the heaviest; the heaviest always leaves this round regardless."
+},
+"two-pointers__count-pairs-3sum-smaller": {
+"title": "Count Pairs / 3Sum Smaller",
+"topic": "Two Pointers",
+"subtopic": "Two Pointers",
+"difficulty": "Hard",
+"pattern": "Sort + two pointers, count-in-bulk on a match",
+"notes": "",
+"statement": "3Sum Smaller: given an array `nums` and integer `target`, count index triplets `i<j<k` with `nums[i]+nums[j]+nums[k] < target`. The core trick (also used to count pairs with sum below a threshold) is that after sorting, when `nums[lo]+nums[hi] < target` all elements between `lo` and `hi` also work, so you add `hi-lo` at once.",
+"examples": [
+{
+"input": "threeSumSmaller(nums = [-2,0,1,3], target = 2)",
+"output": "2",
+"explanation": "[-2,0,1] and [-2,0,3] have sums < 2."
+},
+{
+"input": "countPairs(nums = [1,2,3,4], target = 5)",
+"output": "2",
+"explanation": "Pairs (1,2)=3 and (1,3)=4 are < 5."
+}
+],
+"constraints": [
+"0 <= nums.length <= 3500 (3Sum Smaller)",
+"-100 <= nums[i] <= 100",
+"-100 <= target <= 300"
+],
+"approaches": [
+{
+"name": "3Sum Smaller: fix i, two-pointer count",
+"idea": "Sort the array. Fix the first index `i`, then run two pointers `lo`,`hi` on the suffix. If `nums[i]+nums[lo]+nums[hi] < target`, then pairing `lo` with every index in `(lo, hi]` also stays under target, so add `hi-lo` and move `lo` up; otherwise move `hi` down. Bulk counting on each match gives O(n^2) overall.",
+"time": "O(n^2)",
+"space": "O(1) beyond sorting",
+"code": "public int threeSumSmaller(int[] nums, int target) {\n    Arrays.sort(nums);\n    int count = 0, n = nums.length;\n    for (int i = 0; i < n - 2; i++) {\n        int lo = i + 1, hi = n - 1;\n        while (lo < hi) {\n            if (nums[i] + nums[lo] + nums[hi] < target) {\n                count += hi - lo;\n                lo++;\n            } else {\n                hi--;\n            }\n        }\n    }\n    return count;\n}"
+},
+{
+"name": "Count pairs with sum < target",
+"idea": "The 2D version used inside the base case: sort, then with two pointers, whenever `nums[lo]+nums[hi] < target` every index between `lo` and `hi` also pairs with `lo` under target, so add `hi-lo` and advance `lo`; otherwise shrink `hi`. This is the reusable counting primitive.",
+"time": "O(n log n)",
+"space": "O(1) beyond sorting",
+"code": "public int countPairs(int[] nums, int target) {\n    Arrays.sort(nums);\n    int lo = 0, hi = nums.length - 1, count = 0;\n    while (lo < hi) {\n        if (nums[lo] + nums[hi] < target) {\n            count += hi - lo;\n            lo++;\n        } else {\n            hi--;\n        }\n    }\n    return count;\n}"
+}
+],
+"insight": "On a sorted array, a match at (lo,hi) below the threshold means all lo..hi pairs qualify, so add hi-lo in one shot."
+},
+"two-pointers__trapping-rain-water-ii": {
+"title": "Trapping Rain Water II",
+"topic": "Two Pointers",
+"subtopic": "Two Pointers",
+"difficulty": "Hard",
+"pattern": "Min-heap boundary flood-fill (Dijkstra-like)",
+"notes": "",
+"statement": "Given an `m x n` matrix of heights, compute the volume of water trapped after raining on the 2D surface. Water can escape off the grid edges, so the outer border holds no water and the fill level at any cell is set by the lowest surrounding wall on a path to the boundary.",
+"examples": [
+{
+"input": "heightMap = [[1,4,3,1,3,2],[3,2,1,3,2,4],[2,3,3,2,3,1]]",
+"output": "4",
+"explanation": "Four units are trapped in the interior basins."
+},
+{
+"input": "heightMap = [[3,3,3,3,3],[3,2,2,2,3],[3,2,1,2,3],[3,2,2,2,3],[3,3,3,3,3]]",
+"output": "10",
+"explanation": ""
+}
+],
+"constraints": [
+"1 <= m, n <= 200",
+"0 <= heightMap[i][j] <= 2*10^4"
+],
+"approaches": [
+{
+"name": "Min-heap from the border inward",
+"idea": "Push all border cells into a min-heap keyed by height and mark them visited; the border is the initial water wall. Repeatedly pop the lowest wall cell and visit its unvisited neighbors: the effective water level reaching a neighbor is the max of the current wall height and the neighbor's own height, and any positive difference `level - neighborHeight` is trapped water. Push the neighbor back with that effective level. Processing the lowest wall first guarantees each cell is finalized by the true minimum enclosing barrier (Dijkstra-like).",
+"time": "O(m*n log(m*n))",
+"space": "O(m*n)",
+"code": "public int trapRainWater(int[][] heightMap) {\n    if (heightMap == null || heightMap.length < 3 || heightMap[0].length < 3) return 0;\n    int m = heightMap.length, n = heightMap[0].length;\n    boolean[][] visited = new boolean[m][n];\n    PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[2] - b[2]);\n    for (int i = 0; i < m; i++) {\n        for (int j = 0; j < n; j++) {\n            if (i == 0 || i == m - 1 || j == 0 || j == n - 1) {\n                pq.offer(new int[]{i, j, heightMap[i][j]});\n                visited[i][j] = true;\n            }\n        }\n    }\n    int[] dirs = {-1, 0, 1, 0, -1};\n    int water = 0;\n    while (!pq.isEmpty()) {\n        int[] cell = pq.poll();\n        int level = cell[2];\n        for (int d = 0; d < 4; d++) {\n            int ni = cell[0] + dirs[d], nj = cell[1] + dirs[d + 1];\n            if (ni < 0 || ni >= m || nj < 0 || nj >= n || visited[ni][nj]) continue;\n            visited[ni][nj] = true;\n            water += Math.max(0, level - heightMap[ni][nj]);\n            pq.offer(new int[]{ni, nj, Math.max(level, heightMap[ni][nj])});\n        }\n    }\n    return water;\n}"
+}
+],
+"insight": "Flood inward from the lowest border wall via a min-heap; the current lowest wall fixes each interior cell's water level."
+}
+}

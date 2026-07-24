@@ -2,986 +2,990 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/01-distributed-systems-foundations/01-cap-and-pacelc/01-cap-and-pacelc/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/01-distributed-systems-foundations/02-consistency-models/02-consistency-models/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/01-distributed-systems-foundations/03-consensus-raft-and-paxos/03-consensus-raft-and-paxos/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/01-distributed-systems-foundations/04-replication-and-quorums/04-replication-and-quorums/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/01-distributed-systems-foundations/05-time-clocks-and-ordering/05-time-clocks-and-ordering/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/01-distributed-systems-foundations/06-failure-detection-and-membership/06-failure-detection-and-membership/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/02-distributed-transactions-and-consistency/01-2pc-and-3pc/01-2pc-and-3pc/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/02-distributed-transactions-and-consistency/02-saga-pattern/02-saga-pattern/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/02-distributed-transactions-and-consistency/03-transactional-outbox-and-cdc/03-transactional-outbox-and-cdc/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/02-distributed-transactions-and-consistency/04-idempotency-and-deduplication/04-idempotency-and-deduplication/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/02-distributed-transactions-and-consistency/05-delivery-semantics/05-delivery-semantics/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/02-distributed-transactions-and-consistency/06-distributed-locks/06-distributed-locks/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/03-scalability-and-architecture-patterns/01-architectural-styles/01-architectural-styles/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/03-scalability-and-architecture-patterns/02-cqrs-and-event-sourcing/02-cqrs-and-event-sourcing/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/03-scalability-and-architecture-patterns/03-load-balancing-and-service-discovery/03-load-balancing-and-service-discovery/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/03-scalability-and-architecture-patterns/04-rate-limiting/04-rate-limiting/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/03-scalability-and-architecture-patterns/05-backpressure-and-flow-control/05-backpressure-and-flow-control/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/03-scalability-and-architecture-patterns/06-gateway-bff-and-service-mesh/06-gateway-bff-and-service-mesh/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/03-scalability-and-architecture-patterns/07-capacity-estimation/07-capacity-estimation/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/04-resilience-and-fault-tolerance/01-timeouts-retries-backoff/01-timeouts-retries-backoff/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/04-resilience-and-fault-tolerance/02-circuit-breakers/02-circuit-breakers/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/04-resilience-and-fault-tolerance/03-bulkheads-and-isolation/03-bulkheads-and-isolation/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/04-resilience-and-fault-tolerance/04-load-shedding-and-degradation/04-load-shedding-and-degradation/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/04-resilience-and-fault-tolerance/05-thundering-herd-and-stampede/05-thundering-herd-and-stampede/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/04-resilience-and-fault-tolerance/06-redundancy-failover-multiregion/06-redundancy-failover-multiregion/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/04-resilience-and-fault-tolerance/07-chaos-engineering/07-chaos-engineering/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/05-databases-paradigms-and-selection/01-acid-vs-base/01-acid-vs-base/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/05-databases-paradigms-and-selection/02-relational-databases/02-relational-databases/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/05-databases-paradigms-and-selection/03-key-value-stores/03-key-value-stores/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/05-databases-paradigms-and-selection/04-wide-column-stores/04-wide-column-stores/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/05-databases-paradigms-and-selection/05-document-and-graph-databases/05-document-and-graph-databases/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/05-databases-paradigms-and-selection/06-storage-engines-btree-vs-lsm/06-storage-engines-btree-vs-lsm/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/05-databases-paradigms-and-selection/07-isolation-levels-and-mvcc/07-isolation-levels-and-mvcc/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/05-databases-paradigms-and-selection/08-choosing-a-datastore/08-choosing-a-datastore/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/06-database-scaling-and-partitioning/01-partitioning-and-sharding/01-partitioning-and-sharding/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/06-database-scaling-and-partitioning/02-consistent-hashing/02-consistent-hashing/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/06-database-scaling-and-partitioning/03-replication-and-read-replicas/03-replication-and-read-replicas/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/06-database-scaling-and-partitioning/04-replication-lag-handling/04-replication-lag-handling/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/06-database-scaling-and-partitioning/05-multiregion-and-geo-partitioning/05-multiregion-and-geo-partitioning/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/06-database-scaling-and-partitioning/06-online-resharding-and-migration/06-online-resharding-and-migration/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/07-caching-and-in-memory-stores/01-cache-patterns/01-cache-patterns/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/07-caching-and-in-memory-stores/02-redis-deep-dive/02-redis-deep-dive/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/07-caching-and-in-memory-stores/03-memcached/03-memcached/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/07-caching-and-in-memory-stores/04-eviction-and-memory/04-eviction-and-memory/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/07-caching-and-in-memory-stores/05-cache-invalidation/05-cache-invalidation/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/07-caching-and-in-memory-stores/06-stampede-protection/06-stampede-protection/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/07-caching-and-in-memory-stores/07-cache-consistency-and-multilayer/07-cache-consistency-and-multilayer/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/08-kafka-and-message-brokers/01-architecture-and-the-log/01-architecture-and-the-log/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/08-kafka-and-message-brokers/02-replication-isr-controller-kraft/02-replication-isr-controller-kraft/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/08-kafka-and-message-brokers/03-producers-and-delivery/03-producers-and-delivery/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/08-kafka-and-message-brokers/04-consumers-and-groups/04-consumers-and-groups/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/08-kafka-and-message-brokers/05-rebalancing/05-rebalancing/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/08-kafka-and-message-brokers/06-exactly-once-and-transactions/06-exactly-once-and-transactions/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/08-kafka-and-message-brokers/07-retention-and-log-compaction/07-retention-and-log-compaction/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/08-kafka-and-message-brokers/08-broker-comparison/08-broker-comparison/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/08-kafka-and-message-brokers/09-operations-and-troubleshooting/09-operations-and-troubleshooting/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/09-java-language-and-concurrency/01-type-system-and-generics/01-type-system-and-generics/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/09-java-language-and-concurrency/02-collections-framework-internals/02-collections-framework-internals/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/09-java-language-and-concurrency/03-streams-and-functional/03-streams-and-functional/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/09-java-language-and-concurrency/04-modern-java-features/04-modern-java-features/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/09-java-language-and-concurrency/05-java-memory-model/05-java-memory-model/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/09-java-language-and-concurrency/06-threads-and-context-switching/06-threads-and-context-switching/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/09-java-language-and-concurrency/07-synchronization-and-locks/07-synchronization-and-locks/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/09-java-language-and-concurrency/08-atomics-and-cas/08-atomics-and-cas/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/09-java-language-and-concurrency/09-executors-and-thread-pools/09-executors-and-thread-pools/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/09-java-language-and-concurrency/10-completablefuture-and-async/10-completablefuture-and-async/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/09-java-language-and-concurrency/11-virtual-threads-and-structured-concurrency/11-virtual-threads-and-structured-concurrency/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/09-java-language-and-concurrency/12-concurrent-collections/12-concurrent-collections/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/09-java-language-and-concurrency/13-concurrency-debugging/13-concurrency-debugging/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/10-jvm-internals-and-gc/01-jvm-architecture-and-memory/01-jvm-architecture-and-memory/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/10-jvm-internals-and-gc/02-jit-and-object-layout/02-jit-and-object-layout/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/10-jvm-internals-and-gc/03-class-loading/03-class-loading/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/10-jvm-internals-and-gc/04-gc-fundamentals/04-gc-fundamentals/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/10-jvm-internals-and-gc/05-gc-algorithms/05-gc-algorithms/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/10-jvm-internals-and-gc/06-gc-tuning-and-logs/06-gc-tuning-and-logs/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/10-jvm-internals-and-gc/07-oom-and-leak-diagnosis/07-oom-and-leak-diagnosis/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/10-jvm-internals-and-gc/08-profiling-and-low-latency-tuning/08-profiling-and-low-latency-tuning/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/11-spring-and-hibernate/01-ioc-and-dependency-injection/01-ioc-and-dependency-injection/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/11-spring-and-hibernate/02-bean-lifecycle-and-scopes/02-bean-lifecycle-and-scopes/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/11-spring-and-hibernate/03-aop/03-aop/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/11-spring-and-hibernate/04-spring-boot-autoconfiguration/04-spring-boot-autoconfiguration/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/11-spring-and-hibernate/05-spring-mvc-and-rest/05-spring-mvc-and-rest/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/11-spring-and-hibernate/06-spring-webflux-reactive/06-spring-webflux-reactive/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/11-spring-and-hibernate/07-spring-data-jpa/07-spring-data-jpa/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/11-spring-and-hibernate/08-hibernate-orm-internals/08-hibernate-orm-internals/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/11-spring-and-hibernate/09-entity-mappings-and-relationships/09-entity-mappings-and-relationships/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/11-spring-and-hibernate/10-fetching-strategies-and-n%2B1/10-fetching-strategies-and-n%2B1/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/11-spring-and-hibernate/11-transactions-and-spring-tx/11-transactions-and-spring-tx/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/11-spring-and-hibernate/12-spring-security-and-testing/12-spring-security-and-testing/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/12-kubernetes-and-containers/01-containers-and-linux-primitives/01-containers-and-linux-primitives/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/12-kubernetes-and-containers/02-control-plane-architecture/02-control-plane-architecture/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/12-kubernetes-and-containers/03-workload-objects/03-workload-objects/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/12-kubernetes-and-containers/04-scheduling-and-resources/04-scheduling-and-resources/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/12-kubernetes-and-containers/05-networking/05-networking/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/12-kubernetes-and-containers/06-storage/06-storage/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/12-kubernetes-and-containers/07-autoscaling/07-autoscaling/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/12-kubernetes-and-containers/08-config-and-secrets/08-config-and-secrets/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/12-kubernetes-and-containers/09-rollouts-and-probes/09-rollouts-and-probes/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/12-kubernetes-and-containers/10-troubleshooting/10-troubleshooting/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/13-observability-and-sre/01-three-pillars/01-three-pillars/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/13-observability-and-sre/02-metrics-and-prometheus/02-metrics-and-prometheus/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/13-observability-and-sre/03-distributed-tracing/03-distributed-tracing/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/13-observability-and-sre/04-logging-and-aggregation/04-logging-and-aggregation/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/13-observability-and-sre/05-slo-sli-error-budgets/05-slo-sli-error-budgets/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/13-observability-and-sre/06-alerting-design/06-alerting-design/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/13-observability-and-sre/07-grafana-and-dashboards/07-grafana-and-dashboards/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/13-observability-and-sre/08-incident-response-and-postmortems/08-incident-response-and-postmortems/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/14-security-for-backend-systems/01-authn-vs-authz/01-authn-vs-authz/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/14-security-for-backend-systems/02-oauth2-and-oidc/02-oauth2-and-oidc/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/14-security-for-backend-systems/03-jwt-deep-dive/03-jwt-deep-dive/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/14-security-for-backend-systems/04-mtls-and-service-identity/04-mtls-and-service-identity/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/14-security-for-backend-systems/05-secrets-and-encryption/05-secrets-and-encryption/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/14-security-for-backend-systems/06-owasp-top-10/06-owasp-top-10/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/14-security-for-backend-systems/07-api-security/07-api-security/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/14-security-for-backend-systems/08-request-integrity-and-replay/08-request-integrity-and-replay/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/14-security-for-backend-systems/09-data-privacy-and-pci/09-data-privacy-and-pci/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/15-api-design-and-management/01-rest-design/01-rest-design/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/15-api-design-and-management/02-grpc/02-grpc/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/15-api-design-and-management/03-graphql/03-graphql/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/15-api-design-and-management/04-versioning-and-compatibility/04-versioning-and-compatibility/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/15-api-design-and-management/05-error-handling-and-idempotency/05-error-handling-and-idempotency/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/15-api-design-and-management/06-pagination-and-bulk/06-pagination-and-bulk/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/15-api-design-and-management/07-webhooks/07-webhooks/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/15-api-design-and-management/08-api-gateway-and-management/08-api-gateway-and-management/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/15-api-design-and-management/09-rate-limiting-and-quotas/09-rate-limiting-and-quotas/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/16-cicd-and-release-engineering/01-pipeline-fundamentals/01-pipeline-fundamentals/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/16-cicd-and-release-engineering/02-branching-and-feature-flags/02-branching-and-feature-flags/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/16-cicd-and-release-engineering/03-deployment-strategies/03-deployment-strategies/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/16-cicd-and-release-engineering/04-iac-terraform-helm/04-iac-terraform-helm/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/16-cicd-and-release-engineering/05-gitops/05-gitops/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/16-cicd-and-release-engineering/06-testing-in-ci/06-testing-in-ci/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/16-cicd-and-release-engineering/07-supply-chain-security/07-supply-chain-security/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/16-cicd-and-release-engineering/08-dora-metrics/08-dora-metrics/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/17-ai-and-llm-foundations/01-llm-fundamentals/01-llm-fundamentals/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/17-ai-and-llm-foundations/02-tokens-and-context-windows/02-tokens-and-context-windows/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/17-ai-and-llm-foundations/03-embeddings-and-vector-search/03-embeddings-and-vector-search/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/17-ai-and-llm-foundations/04-prompt-engineering/04-prompt-engineering/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/17-ai-and-llm-foundations/05-function-and-tool-calling/05-function-and-tool-calling/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/17-ai-and-llm-foundations/06-rag-architecture/06-rag-architecture/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/17-ai-and-llm-foundations/07-chunking-and-retrieval/07-chunking-and-retrieval/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/17-ai-and-llm-foundations/08-reranking-and-evaluation/08-reranking-and-evaluation/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/17-ai-and-llm-foundations/09-fine-tuning-vs-rag/09-fine-tuning-vs-rag/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/17-ai-and-llm-foundations/10-inference-and-serving/10-inference-and-serving/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/17-ai-and-llm-foundations/11-guardrails-and-observability/11-guardrails-and-observability/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/18-mcp-model-context-protocol/01-overview-and-why-mcp/01-overview-and-why-mcp/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/18-mcp-model-context-protocol/02-architecture-host-client-server/02-architecture-host-client-server/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/18-mcp-model-context-protocol/03-transports/03-transports/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/18-mcp-model-context-protocol/04-tools-primitive/04-tools-primitive/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/18-mcp-model-context-protocol/05-resources-primitive/05-resources-primitive/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/18-mcp-model-context-protocol/06-prompts-primitive/06-prompts-primitive/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/18-mcp-model-context-protocol/07-building-an-mcp-server/07-building-an-mcp-server/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/18-mcp-model-context-protocol/08-client-integration/08-client-integration/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/18-mcp-model-context-protocol/09-auth-and-security/09-auth-and-security/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/18-mcp-model-context-protocol/10-sampling-and-roots/10-sampling-and-roots/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/19-agentic-ai-and-agents/01-agent-fundamentals-and-loop/01-agent-fundamentals-and-loop/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/19-agentic-ai-and-agents/02-react-pattern/02-react-pattern/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/19-agentic-ai-and-agents/03-planning-and-decomposition/03-planning-and-decomposition/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/19-agentic-ai-and-agents/04-tool-use-and-orchestration/04-tool-use-and-orchestration/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/19-agentic-ai-and-agents/05-memory-and-state/05-memory-and-state/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/19-agentic-ai-and-agents/06-multi-agent-systems/06-multi-agent-systems/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/19-agentic-ai-and-agents/07-reflection-and-self-critique/07-reflection-and-self-critique/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/19-agentic-ai-and-agents/08-agent-frameworks/08-agent-frameworks/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/19-agentic-ai-and-agents/09-agent-evaluation/09-agent-evaluation/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/19-agentic-ai-and-agents/10-failure-modes-and-guardrails/10-failure-modes-and-guardrails/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/concept-prompts/19-agentic-ai-and-agents/11-production-agent-architecture/11-production-agent-architecture/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
+    </url>
+    <url>
+         <loc>https://ssourabh9861.github.io/Study-Material/dsa/</loc>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/01-fundamentals-and-framework/01-the-design-framework/01-the-design-framework/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/01-fundamentals-and-framework/02-back-of-envelope-estimation/02-back-of-envelope-estimation/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/01-fundamentals-and-framework/03-building-blocks-cheatsheet/03-building-blocks-cheatsheet/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/01-fundamentals-and-framework/04-tradeoff-playbook/04-tradeoff-playbook/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/02-social-and-feed/01-design-twitter-newsfeed/01-design-twitter-newsfeed/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/02-social-and-feed/02-design-instagram/02-design-instagram/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/02-social-and-feed/03-design-facebook-news-feed/03-design-facebook-news-feed/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/02-social-and-feed/04-design-trending-topk/04-design-trending-topk/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/02-social-and-feed/05-design-notification-system/05-design-notification-system/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/03-messaging-and-realtime/01-design-whatsapp-chat/01-design-whatsapp-chat/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/03-messaging-and-realtime/02-design-slack/02-design-slack/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/03-messaging-and-realtime/03-design-live-comments/03-design-live-comments/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/03-messaging-and-realtime/04-design-presence-system/04-design-presence-system/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/03-messaging-and-realtime/05-design-video-conferencing/05-design-video-conferencing/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/04-media-and-streaming/01-design-youtube/01-design-youtube/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/04-media-and-streaming/02-design-netflix/02-design-netflix/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/04-media-and-streaming/03-design-live-streaming/03-design-live-streaming/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/04-media-and-streaming/04-design-image-host-cdn/04-design-image-host-cdn/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/05-location-and-logistics/01-design-uber/01-design-uber/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/05-location-and-logistics/02-design-google-maps/02-design-google-maps/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/05-location-and-logistics/03-design-proximity-service-yelp/03-design-proximity-service-yelp/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/05-location-and-logistics/04-design-food-delivery/04-design-food-delivery/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/05-location-and-logistics/05-design-hotel-booking/05-design-hotel-booking/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/06-commerce-and-booking/01-design-ticketmaster/01-design-ticketmaster/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/06-commerce-and-booking/02-design-ecommerce-amazon/02-design-ecommerce-amazon/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/06-commerce-and-booking/03-design-payment-system/03-design-payment-system/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/06-commerce-and-booking/04-design-digital-wallet/04-design-digital-wallet/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/06-commerce-and-booking/05-design-ad-click-aggregator/05-design-ad-click-aggregator/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/07-storage-and-infra/01-design-tinyurl/01-design-tinyurl/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/07-storage-and-infra/02-design-pastebin/02-design-pastebin/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/07-storage-and-infra/03-design-dropbox-gdrive/03-design-dropbox-gdrive/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/07-storage-and-infra/04-design-s3-object-store/04-design-s3-object-store/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/07-storage-and-infra/05-design-distributed-key-value-store/05-design-distributed-key-value-store/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/07-storage-and-infra/06-design-distributed-cache/06-design-distributed-cache/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/07-storage-and-infra/07-design-rate-limiter/07-design-rate-limiter/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/07-storage-and-infra/08-design-web-crawler/08-design-web-crawler/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/07-storage-and-infra/09-design-search-autocomplete-typeahead/09-design-search-autocomplete-typeahead/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/07-storage-and-infra/10-design-distributed-message-queue/10-design-distributed-message-queue/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/07-storage-and-infra/11-design-distributed-job-scheduler/11-design-distributed-job-scheduler/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/07-storage-and-infra/12-design-distributed-counter/12-design-distributed-counter/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/07-storage-and-infra/13-design-metrics-monitoring-system/13-design-metrics-monitoring-system/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/hld-design-prompts/07-storage-and-infra/14-design-log-collection-and-analysis/14-design-log-collection-and-analysis/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/01-parking-lot/01-parking-lot/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/02-splitwise/02-splitwise/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/03-movie-ticket-booking-bookmyshow/03-movie-ticket-booking-bookmyshow/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/04-elevator-system/04-elevator-system/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/05-vending-machine/05-vending-machine/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/06-atm/06-atm/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/07-library-management/07-library-management/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/08-chess/08-chess/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/09-tic-tac-toe/09-tic-tac-toe/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/10-snake-and-ladder/10-snake-and-ladder/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/11-deck-of-cards-and-blackjack/11-deck-of-cards-and-blackjack/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/12-logging-framework/12-logging-framework/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/13-rate-limiter/13-rate-limiter/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/14-lru-cache/14-lru-cache/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/15-in-memory-key-value-store/15-in-memory-key-value-store/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/16-file-system/16-file-system/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/17-text-editor/17-text-editor/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/18-notification-system/18-notification-system/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/19-food-delivery-swiggy/19-food-delivery-swiggy/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/20-cab-booking-uber/20-cab-booking-uber/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/21-hotel-booking/21-hotel-booking/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/22-online-shopping-cart-amazon/22-online-shopping-cart-amazon/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/23-payment-gateway/23-payment-gateway/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/24-digital-wallet/24-digital-wallet/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/25-meeting-scheduler-calendar/25-meeting-scheduler-calendar/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/26-restaurant-management/26-restaurant-management/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/27-traffic-signal-control/27-traffic-signal-control/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/28-stock-exchange-matching-engine/28-stock-exchange-matching-engine/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/29-pub-sub-system/29-pub-sub-system/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/30-message-queue/30-message-queue/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/31-url-shortener/31-url-shortener/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/32-inventory-management/32-inventory-management/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/33-car-rental/33-car-rental/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/34-airline-reservation/34-airline-reservation/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/35-chat-application/35-chat-application/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/36-online-auction/36-online-auction/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/37-jukebox-music-player/37-jukebox-music-player/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
     <url>
          <loc>https://ssourabh9861.github.io/Study-Material/lld-design-prompts/38-task-management-jira/38-task-management-jira/</loc>
-         <lastmod>2026-06-26</lastmod>
+         <lastmod>2026-07-24</lastmod>
     </url>
 </urlset>

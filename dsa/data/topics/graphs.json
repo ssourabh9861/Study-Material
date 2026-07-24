@@ -1,0 +1,940 @@
+{
+"graphs__course-schedule-i-ii": {
+"title": "Course Schedule I/II",
+"topic": "Graphs",
+"subtopic": "Topological Sort",
+"difficulty": "Medium",
+"pattern": "Kahn's BFS topological sort / cycle detection",
+"notes": "",
+"statement": "`numCourses` courses with prerequisites `[a, b]` meaning `b` must be taken before `a`. **I:** can all courses be finished (no cycle)? **II:** return a valid order (or `[]` if impossible).",
+"examples": [
+{
+"input": "numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]",
+"output": "[0,1,2,3]",
+"explanation": "0 first, then 1 and 2, then 3; [0,2,1,3] is also valid."
+}
+],
+"constraints": [
+"1 <= numCourses <= 2000",
+"0 <= prerequisites.length <= 5000",
+"prerequisites[i].length == 2",
+"no duplicate prerequisites"
+],
+"approaches": [
+{
+"name": "Kahn's algorithm (BFS on indegrees)",
+"idea": "Build adjacency `b -> a` and an indegree array. Seed a queue with all indegree-0 nodes. Pop a node, append it to the order, decrement its neighbors' indegrees, and enqueue any that reach 0. If the produced order contains all `numCourses` nodes it is valid; otherwise the leftover nodes form a cycle and no order exists.",
+"time": "O(V + E)",
+"space": "O(V + E)",
+"code": "public int[] findOrder(int numCourses, int[][] prerequisites) {\n    List<List<Integer>> adj = new ArrayList<>();\n    for (int i = 0; i < numCourses; i++) adj.add(new ArrayList<>());\n    int[] indeg = new int[numCourses];\n    for (int[] p : prerequisites) { adj.get(p[1]).add(p[0]); indeg[p[0]]++; }\n\n    Deque<Integer> q = new ArrayDeque<>();\n    for (int i = 0; i < numCourses; i++) if (indeg[i] == 0) q.offer(i);\n\n    int[] order = new int[numCourses];\n    int idx = 0;\n    while (!q.isEmpty()) {\n        int u = q.poll();\n        order[idx++] = u;\n        for (int v : adj.get(u)) if (--indeg[v] == 0) q.offer(v);\n    }\n    return idx == numCourses ? order : new int[0];\n}\n\n// Course Schedule I: just return idx == numCourses\npublic boolean canFinish(int numCourses, int[][] prerequisites) {\n    return findOrder(numCourses, prerequisites).length == numCourses || prerequisites.length == 0 && numCourses > 0;\n}"
+}
+],
+"insight": "Kahn's: repeatedly remove indegree-0 nodes. If you can't remove all of them, the leftover forms a cycle -> impossible. For Course Schedule I, just check `idx == numCourses`."
+},
+"graphs__alien-dictionary": {
+"title": "Alien Dictionary",
+"topic": "Graphs",
+"subtopic": "Topological Sort",
+"difficulty": "Hard",
+"pattern": "Build precedence graph from adjacent words, then Kahn's topological sort",
+"notes": "",
+"statement": "Given a list of `words` sorted lexicographically by the rules of an unknown alien language, derive a possible order of its letters as a string. Return `\"\"` if no valid order exists (e.g. a longer word appears before its own prefix).",
+"examples": [
+{
+"input": "words = [\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]",
+"output": "\"wertf\"",
+"explanation": "Comparing adjacent words yields t<f, w<e, r<t, e<r -> wertf."
+},
+{
+"input": "words = [\"abc\",\"ab\"]",
+"output": "\"\"",
+"explanation": "A longer word precedes its prefix, which is invalid."
+}
+],
+"constraints": [
+"1 <= words.length <= 100",
+"1 <= words[i].length <= 100",
+"words[i] consists of only lowercase English letters"
+],
+"approaches": [
+{
+"name": "Precedence graph + Kahn's topological sort",
+"idea": "Only the first differing character between two adjacent words gives an ordering edge x -> y. Add every distinct letter as a node, derive edges from each adjacent pair (returning `\"\"` if a word is a prefix of the previous longer word), then topologically sort. If the sort consumes every letter the string is a valid order; otherwise a cycle exists and the language is inconsistent.",
+"time": "O(C) where C is total characters",
+"space": "O(1) (at most 26 nodes)",
+"code": "public String alienOrder(String[] words) {\n    Map<Character, Set<Character>> adj = new HashMap<>();\n    Map<Character, Integer> indeg = new HashMap<>();\n    for (String w : words)\n        for (char c : w.toCharArray()) {\n            adj.putIfAbsent(c, new HashSet<>());\n            indeg.putIfAbsent(c, 0);\n        }\n    for (int i = 0; i + 1 < words.length; i++) {\n        String a = words[i], b = words[i + 1];\n        int len = Math.min(a.length(), b.length());\n        int j = 0;\n        for (; j < len; j++) {\n            char x = a.charAt(j), y = b.charAt(j);\n            if (x != y) {\n                if (adj.get(x).add(y)) indeg.merge(y, 1, Integer::sum);\n                break;\n            }\n        }\n        if (j == len && a.length() > b.length()) return \"\"; // invalid prefix\n    }\n    Deque<Character> q = new ArrayDeque<>();\n    for (Map.Entry<Character, Integer> e : indeg.entrySet())\n        if (e.getValue() == 0) q.offer(e.getKey());\n    StringBuilder sb = new StringBuilder();\n    while (!q.isEmpty()) {\n        char u = q.poll();\n        sb.append(u);\n        for (char v : adj.get(u))\n            if (indeg.merge(v, -1, Integer::sum) == 0) q.offer(v);\n    }\n    return sb.length() == indeg.size() ? sb.toString() : \"\";\n}"
+}
+],
+"insight": "Ordering info comes ONLY from the first differing char of adjacent words; guard the prefix case (`abc` before `ab` is invalid), then Kahn's over <=26 letters."
+},
+"graphs__parallel-courses-ii": {
+"title": "Parallel Courses II",
+"topic": "Graphs",
+"subtopic": "Topological Sort",
+"difficulty": "Hard",
+"pattern": "Bitmask DP over course sets (topo + at-most-k-per-semester constraint)",
+"notes": "",
+"statement": "`n` courses, prerequisite edges `[a, b]` (a before b), and you may take up to `k` courses per semester (a course is available only once all its prereqs are done). Return the minimum number of semesters to finish all courses.",
+"examples": [
+{
+"input": "n = 4, relations = [[2,1],[3,1],[1,4]], k = 2",
+"output": "3",
+"explanation": "Sem1: {2,3}; Sem2: {1}; Sem3: {4}."
+}
+],
+"constraints": [
+"1 <= n <= 15",
+"1 <= k <= n",
+"relations form a DAG",
+"no duplicate relations"
+],
+"approaches": [
+{
+"name": "Subset DP over completed-course bitmasks",
+"idea": "`n <= 15` means state = bitmask of completed courses. For a state, `avail` is the set of not-yet-taken courses whose prereq mask is fully contained in the state. If at most `k` are available take all in one semester; otherwise enumerate every non-empty subset of `avail` of size <= k and transition, taking a min number of semesters. Greedily taking the k most-unlocking courses is a classic wrong answer, so all size-<=k subsets must be tried.",
+"time": "O(3^n) subset enumeration",
+"space": "O(2^n)",
+"code": "public int minNumberOfSemesters(int n, int[][] relations, int k) {\n    int[] pre = new int[n];                       // prereq mask per course\n    for (int[] r : relations) pre[r[1] - 1] |= (1 << (r[0] - 1));\n\n    int full = (1 << n) - 1;\n    int[] dp = new int[1 << n];\n    Arrays.fill(dp, Integer.MAX_VALUE);\n    dp[0] = 0;\n    for (int mask = 0; mask <= full; mask++) {\n        if (dp[mask] == Integer.MAX_VALUE) continue;\n        int avail = 0;\n        for (int c = 0; c < n; c++)\n            if ((mask & (1 << c)) == 0 && (mask & pre[c]) == pre[c]) avail |= (1 << c);\n\n        // enumerate all non-empty subsets of avail\n        for (int sub = avail; sub > 0; sub = (sub - 1) & avail) {\n            if (Integer.bitCount(sub) > k) continue;\n            int next = mask | sub;\n            dp[next] = Math.min(dp[next], dp[mask] + 1);\n        }\n    }\n    return dp[full];\n}"
+}
+],
+"insight": "`n <= 15` screams bitmask; you must try all size-<=k subsets of the currently-available set. `for (sub = mask; sub>0; sub=(sub-1)&mask)` enumerates subsets."
+},
+"graphs__sort-items-by-groups-respecting-dependencies": {
+"title": "Sort Items by Groups Respecting Dependencies",
+"topic": "Graphs",
+"subtopic": "Topological Sort",
+"difficulty": "Hard",
+"pattern": "Two-level topological sort (groups, then items within groups)",
+"notes": "2 topo sort",
+"statement": "`n` items, each in a group (`-1` means its own singleton group). Given item dependencies `beforeItems`, return an ordering of items so that (a) items in the same group are contiguous and (b) all dependencies are respected. Return `[]` if impossible.",
+"examples": [
+{
+"input": "n=8, m=2, group=[-1,-1,1,0,0,1,0,-1], beforeItems=[[],[6],[5],[6],[3,6],[],[],[]]",
+"output": "[6,3,4,1,5,2,0,7]",
+"explanation": "One valid ordering: groups contiguous and every dependency satisfied."
+}
+],
+"constraints": [
+"1 <= n <= 3*10^4",
+"0 <= m <= n",
+"group.length == beforeItems.length == n",
+"-1 <= group[i] <= m - 1"
+],
+"approaches": [
+{
+"name": "Topo sort at two levels (groups and items)",
+"idea": "Give each `-1` item a fresh unique group id so every item has a real group. Build an item graph (item->item deps) and a group graph (a cross-group dependency `b -> a` adds group edge `groupOf(b) -> groupOf(a)`). Topo-sort items and topo-sort groups independently; if either can't consume all nodes there is a cycle so return `[]`. Otherwise bucket the item order by group and emit buckets in group-topo order.",
+"time": "O(V + E)",
+"space": "O(V + E)",
+"code": "public int[] sortItems(int n, int m, int[] group, List<List<Integer>> beforeItems) {\n    // assign unique groups to -1 items\n    for (int i = 0; i < n; i++) if (group[i] == -1) group[i] = m++;\n\n    List<List<Integer>> itemAdj = new ArrayList<>(), grpAdj = new ArrayList<>();\n    int[] itemIn = new int[n], grpIn = new int[m];\n    for (int i = 0; i < n; i++) itemAdj.add(new ArrayList<>());\n    for (int i = 0; i < m; i++) grpAdj.add(new ArrayList<>());\n\n    for (int i = 0; i < n; i++)\n        for (int b : beforeItems.get(i)) {\n            itemAdj.get(b).add(i); itemIn[i]++;\n            if (group[b] != group[i]) { grpAdj.get(group[b]).add(group[i]); grpIn[group[i]]++; }\n        }\n\n    List<Integer> itemOrder = topo(itemAdj, itemIn, n);\n    List<Integer> grpOrder  = topo(grpAdj, grpIn, m);\n    if (itemOrder.isEmpty() || grpOrder.isEmpty()) return new int[0];\n\n    // bucket items by group, preserving item topo order\n    Map<Integer, List<Integer>> byGroup = new HashMap<>();\n    for (int it : itemOrder) byGroup.computeIfAbsent(group[it], z -> new ArrayList<>()).add(it);\n\n    int[] res = new int[n]; int idx = 0;\n    for (int g : grpOrder)\n        for (int it : byGroup.getOrDefault(g, new ArrayList<>())) res[idx++] = it;\n    return res;\n}\n\nprivate List<Integer> topo(List<List<Integer>> adj, int[] indeg, int cnt) {\n    Deque<Integer> q = new ArrayDeque<>();\n    for (int i = 0; i < cnt; i++) if (indeg[i] == 0) q.offer(i);\n    List<Integer> order = new ArrayList<>();\n    while (!q.isEmpty()) {\n        int u = q.poll(); order.add(u);\n        for (int v : adj.get(u)) if (--indeg[v] == 0) q.offer(v);\n    }\n    return order.size() == cnt ? order : new ArrayList<>();   // empty = cycle\n}"
+}
+],
+"insight": "Same-group-contiguous + cross deps = topo-sort the GROUPS and topo-sort the ITEMS independently, then lay items down grouped in group-topo order. Convert `-1` groups to unique ids first."
+},
+"graphs__sequence-reconstruction": {
+"title": "Sequence Reconstruction",
+"topic": "Graphs",
+"subtopic": "Topological Sort",
+"difficulty": "Hard",
+"pattern": "Unique topological order check via Kahn's (queue size must stay 1)",
+"notes": "",
+"statement": "Given a permutation `org` of `1..n` and a list of subsequences `seqs`, decide whether `org` is the one and only shortest supersequence of all sequences in `seqs`. Equivalently, whether the precedence graph built from `seqs` has a unique topological order and that order is exactly `org`.",
+"examples": [
+{
+"input": "org = [1,2,3], seqs = [[1,2],[1,3]]",
+"output": "false",
+"explanation": "Both [1,2,3] and [1,3,2] are valid supersequences, so reconstruction is not unique."
+},
+{
+"input": "org = [1,2,3], seqs = [[1,2],[1,3],[2,3]]",
+"output": "true",
+"explanation": "The order is forced to be exactly 1,2,3."
+}
+],
+"constraints": [
+"1 <= n <= 10^4",
+"org is a permutation of 1..n",
+"1 <= seqs.length <= 10^4",
+"seqs[i] contains values in 1..n"
+],
+"approaches": [
+{
+"name": "Kahn's with uniqueness enforcement",
+"idea": "Build a graph from consecutive elements of each subsequence and track distinct numbers. The reconstruction is unique iff at every step of Kahn's BFS the queue holds exactly one node, and that node matches `org` position by position. If the queue ever has more than one indegree-0 node the order is ambiguous; if the popped node diverges from `org`, or not all `n` numbers are covered, it fails.",
+"time": "O(V + E)",
+"space": "O(V + E)",
+"code": "public boolean sequenceReconstruction(int[] org, List<List<Integer>> seqs) {\n    int n = org.length;\n    Map<Integer, List<Integer>> adj = new HashMap<>();\n    Map<Integer, Integer> indeg = new HashMap<>();\n    for (List<Integer> seq : seqs)\n        for (int x : seq) {\n            adj.putIfAbsent(x, new ArrayList<>());\n            indeg.putIfAbsent(x, 0);\n        }\n    for (List<Integer> seq : seqs)\n        for (int i = 0; i + 1 < seq.size(); i++) {\n            int u = seq.get(i), v = seq.get(i + 1);\n            adj.get(u).add(v);\n            indeg.merge(v, 1, Integer::sum);\n        }\n    if (indeg.size() != n) return false;              // must cover exactly 1..n\n    Deque<Integer> q = new ArrayDeque<>();\n    for (Map.Entry<Integer, Integer> e : indeg.entrySet())\n        if (e.getValue() == 0) q.offer(e.getKey());\n    int idx = 0;\n    while (!q.isEmpty()) {\n        if (q.size() > 1) return false;               // not unique\n        int u = q.poll();\n        if (idx >= n || u != org[idx++]) return false; // diverges from org\n        for (int v : adj.get(u))\n            if (indeg.merge(v, -1, Integer::sum) == 0) q.offer(v);\n    }\n    return idx == n;\n}"
+}
+],
+"insight": "Unique topo order == the Kahn's queue never holds more than one node; also verify the distinct-number count equals n and each pop matches `org`."
+},
+"graphs__redundant-connection-i-ii": {
+"title": "Redundant Connection I/II",
+"topic": "Graphs",
+"subtopic": "Union-Find",
+"difficulty": "Medium",
+"pattern": "Union-Find to detect the cycle-closing edge (directed variant handles two-parent + cycle)",
+"notes": "",
+"statement": "A tree of `n` nodes had exactly one extra edge added. **I (undirected):** return the edge that can be removed so the result is a tree; if several, return the one appearing last. **II (directed):** the graph was a rooted tree plus one extra directed edge; return the edge to remove to restore a rooted tree (the last such edge in input).",
+"examples": [
+{
+"input": "I: edges = [[1,2],[1,3],[2,3]]",
+"output": "[2,3]",
+"explanation": "Edge [2,3] closes the cycle 1-2-3."
+},
+{
+"input": "II: edges = [[1,2],[1,3],[2,3]]",
+"output": "[2,3]",
+"explanation": "Node 3 gets two parents; removing [2,3] leaves a valid rooted tree."
+}
+],
+"constraints": [
+"n == edges.length",
+"3 <= n <= 1000",
+"edges[i].length == 2",
+"1 <= ai, bi <= n"
+],
+"approaches": [
+{
+"name": "I - Union-Find, first edge that fails to union",
+"idea": "Process edges in order and union their endpoints. The first edge whose two endpoints are already connected is the one that closes a cycle; since we scan in order this is automatically the last redundant edge for a single-extra-edge tree.",
+"time": "O(n alpha(n))",
+"space": "O(n)",
+"code": "public int[] findRedundantConnection(int[][] edges) {\n    int n = edges.length;\n    DSU dsu = new DSU(n + 1);\n    for (int[] e : edges)\n        if (!dsu.union(e[0], e[1])) return e;\n    return new int[0];\n}\n\nclass DSU {\n    int[] p;\n    DSU(int n) { p = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    boolean union(int a, int b) {\n        int ra = find(a), rb = find(b);\n        if (ra == rb) return false;\n        p[ra] = rb; return true;\n    }\n}"
+},
+{
+"name": "II - two-parent candidate + Union-Find cycle test",
+"idea": "The extra directed edge causes either a node with two parents, a cycle, or both. First detect a node with two incoming edges and record the two candidate edges (cand1 earlier, cand2 later). Then run Union-Find skipping cand2 if it exists: if a cycle appears with no two-parent case, that edge is the answer; if a cycle appears with a two-parent case, cand1 is the answer; if no cycle appears, cand2 is the answer.",
+"time": "O(n alpha(n))",
+"space": "O(n)",
+"code": "public int[] findRedundantDirectedConnection(int[][] edges) {\n    int n = edges.length;\n    int[] parent = new int[n + 1];\n    int[] cand1 = null, cand2 = null;\n    for (int[] e : edges) {\n        int u = e[0], v = e[1];\n        if (parent[v] != 0) {              // v already has a parent -> two parents\n            cand1 = new int[]{parent[v], v};\n            cand2 = new int[]{u, v};\n        } else {\n            parent[v] = u;\n        }\n    }\n    DSU dsu = new DSU(n + 1);\n    for (int[] e : edges) {\n        if (cand2 != null && e[0] == cand2[0] && e[1] == cand2[1]) continue; // skip cand2\n        if (!dsu.union(e[0], e[1])) {       // cycle detected\n            return cand1 == null ? e : cand1;\n        }\n    }\n    return cand2;\n}\n\nclass DSU {\n    int[] p;\n    DSU(int n) { p = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    boolean union(int a, int b) {\n        int ra = find(a), rb = find(b);\n        if (ra == rb) return false;\n        p[ra] = rb; return true;\n    }\n}"
+}
+],
+"insight": "Undirected = first union failure. Directed = classify into two-parent vs cycle: record both candidate edges, retry Union-Find skipping the later one, and pick cand1/cand2/current edge from the outcome."
+},
+"graphs__accounts-merge": {
+"title": "Accounts Merge",
+"topic": "Graphs",
+"subtopic": "Union-Find",
+"difficulty": "Medium",
+"pattern": "Union-Find over emails (shared email => same person)",
+"notes": "",
+"statement": "Each account is `[name, email1, email2, ...]`. Two accounts belong to the same person if they share at least one email (names alone are not enough since people can share a name). Merge accounts, returning each merged account as the name followed by its emails in sorted order.",
+"examples": [
+{
+"input": "accounts = [[\"John\",\"a@x\",\"b@x\"],[\"John\",\"b@x\",\"c@x\"],[\"Mary\",\"m@x\"]]",
+"output": "[[\"John\",\"a@x\",\"b@x\",\"c@x\"],[\"Mary\",\"m@x\"]]",
+"explanation": "The two Johns share b@x so they merge; Mary is separate."
+}
+],
+"constraints": [
+"1 <= accounts.length <= 1000",
+"2 <= accounts[i].length <= 10",
+"1 <= accounts[i][j].length <= 30",
+"emails are lowercase, name is alphabetic"
+],
+"approaches": [
+{
+"name": "Union-Find over email ids",
+"idea": "Assign each distinct email an integer id and remember its owner name. Within each account, union its first email with every other email so all of that account's emails join one component. Group emails by their DSU root, sort each group (a TreeSet keeps them sorted), and prepend the owner name.",
+"time": "O(N K log(N K)) for sorting, N accounts of up to K emails",
+"space": "O(N K)",
+"code": "public List<List<String>> accountsMerge(List<List<String>> accounts) {\n    Map<String, Integer> emailToId = new HashMap<>();\n    Map<String, String> emailToName = new HashMap<>();\n    int id = 0;\n    for (List<String> acc : accounts)\n        for (int i = 1; i < acc.size(); i++) {\n            String email = acc.get(i);\n            if (!emailToId.containsKey(email)) emailToId.put(email, id++);\n            emailToName.put(email, acc.get(0));\n        }\n    DSU dsu = new DSU(id);\n    for (List<String> acc : accounts)\n        for (int i = 2; i < acc.size(); i++)\n            dsu.union(emailToId.get(acc.get(1)), emailToId.get(acc.get(i)));\n\n    Map<Integer, TreeSet<String>> groups = new HashMap<>();\n    for (Map.Entry<String, Integer> e : emailToId.entrySet()) {\n        int root = dsu.find(e.getValue());\n        groups.computeIfAbsent(root, z -> new TreeSet<>()).add(e.getKey());\n    }\n    List<List<String>> res = new ArrayList<>();\n    for (TreeSet<String> emails : groups.values()) {\n        List<String> row = new ArrayList<>();\n        row.add(emailToName.get(emails.first()));\n        row.addAll(emails);\n        res.add(row);\n    }\n    return res;\n}\n\nclass DSU {\n    int[] p;\n    DSU(int n) { p = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    void union(int a, int b) { int ra = find(a), rb = find(b); if (ra != rb) p[ra] = rb; }\n}"
+}
+],
+"insight": "Emails are the nodes, not accounts: map each email to an id, union all emails inside an account, then group by root and sort. The name is any email's owner."
+},
+"graphs__number-of-islands-ii": {
+"title": "Number of Islands II",
+"topic": "Graphs",
+"subtopic": "Union-Find",
+"difficulty": "Hard",
+"pattern": "Incremental Union-Find on a grid, maintaining a component count",
+"notes": "",
+"statement": "An `m x n` grid starts all water. Given `positions` where each turns a cell to land one at a time, return, after each addition, the number of islands (4-directionally connected land groups).",
+"examples": [
+{
+"input": "m = 3, n = 3, positions = [[0,0],[0,1],[1,2],[2,1]]",
+"output": "[1,1,2,3]",
+"explanation": "Adding (0,0)->1; (0,1) merges->1; (1,2) new->2; (2,1) new->3."
+}
+],
+"constraints": [
+"1 <= m, n, positions.length <= 10^4",
+"positions[i].length == 2",
+"0 <= ri < m, 0 <= ci < n"
+],
+"approaches": [
+{
+"name": "Union-Find with running island count",
+"idea": "Flatten each cell to `r*n + c`. When land is added, increment the count by one, then for each already-land neighbor attempt a union; every successful union merges two distinct islands so decrement the count. Skip positions that are already land (duplicates) to avoid double counting. Record the count after each step.",
+"time": "O(L alpha(mn)) for L positions",
+"space": "O(mn)",
+"code": "public List<Integer> numIslands2(int m, int n, int[][] positions) {\n    DSU dsu = new DSU(m * n);\n    boolean[] land = new boolean[m * n];\n    int count = 0;\n    int[][] dirs = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};\n    List<Integer> res = new ArrayList<>();\n    for (int[] p : positions) {\n        int r = p[0], c = p[1], idx = r * n + c;\n        if (land[idx]) { res.add(count); continue; }   // duplicate add\n        land[idx] = true;\n        count++;\n        for (int[] d : dirs) {\n            int nr = r + d[0], nc = c + d[1];\n            if (nr < 0 || nc < 0 || nr >= m || nc >= n) continue;\n            int nidx = nr * n + nc;\n            if (land[nidx] && dsu.union(idx, nidx)) count--;\n        }\n        res.add(count);\n    }\n    return res;\n}\n\nclass DSU {\n    int[] p;\n    DSU(int n) { p = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    boolean union(int a, int b) {\n        int ra = find(a), rb = find(b);\n        if (ra == rb) return false;\n        p[ra] = rb; return true;\n    }\n}"
+}
+],
+"insight": "Each new land cell first adds 1 island; every successful union with an existing-land neighbor subtracts 1. Guard duplicate positions."
+},
+"graphs__most-stones-removed": {
+"title": "Most Stones Removed",
+"topic": "Graphs",
+"subtopic": "Union-Find",
+"difficulty": "Medium",
+"pattern": "Union-Find on rows and columns; answer = stones - components",
+"notes": "",
+"statement": "Stones sit on a 2D plane, one per cell. A stone can be removed if another stone shares its row or column. Return the maximum number of stones that can be removed.",
+"examples": [
+{
+"input": "stones = [[0,0],[0,1],[1,0],[1,2],[2,1],[2,2]]",
+"output": "5",
+"explanation": "All stones form one connected component, so all but one can be removed."
+}
+],
+"constraints": [
+"1 <= stones.length <= 1000",
+"0 <= xi, yi <= 10^4",
+"no two stones share the same coordinate"
+],
+"approaches": [
+{
+"name": "Union rows with columns, count components",
+"idea": "Within any connected component (stones linked through shared rows/columns) you can remove every stone except one, so the answer is `stones - components`. Model each row and each column as a node (offset columns to keep ids disjoint) and union a stone's row with its column. The number of distinct roots among used row/column nodes is the component count.",
+"time": "O(n alpha(n))",
+"space": "O(n)",
+"code": "public int removeStones(int[][] stones) {\n    int n = stones.length;\n    int OFFSET = 10001;\n    DSU dsu = new DSU(2 * OFFSET);\n    Set<Integer> used = new HashSet<>();\n    for (int[] s : stones) {\n        int r = s[0], c = s[1] + OFFSET;\n        dsu.union(r, c);\n        used.add(r); used.add(c);\n    }\n    Set<Integer> roots = new HashSet<>();\n    for (int x : used) roots.add(dsu.find(x));\n    return n - roots.size();\n}\n\nclass DSU {\n    int[] p;\n    DSU(int n) { p = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    void union(int a, int b) { int ra = find(a), rb = find(b); if (ra != rb) p[ra] = rb; }\n}"
+}
+],
+"insight": "Removable = total - number of connected components. Union each stone's row-node with its column-node (offset columns), then count distinct roots of used nodes."
+},
+"graphs__smallest-string-with-swaps": {
+"title": "Smallest String With Swaps",
+"topic": "Graphs",
+"subtopic": "Union-Find",
+"difficulty": "Hard",
+"pattern": "Union-Find components + sort characters within each component",
+"notes": "",
+"statement": "Given a string `s` and pairs of indices `pairs`, you may swap the characters at any given pair any number of times. Return the lexicographically smallest string obtainable.",
+"examples": [
+{
+"input": "s = \"dcab\", pairs = [[0,3],[1,2]]",
+"output": "\"bacd\"",
+"explanation": "Swap (0,3) and (1,2) independently to sort each pair."
+},
+{
+"input": "s = \"dcab\", pairs = [[0,3],[1,2],[0,2]]",
+"output": "\"abcd\"",
+"explanation": "Indices 0,1,2,3 form one component, so it can be fully sorted."
+}
+],
+"constraints": [
+"1 <= s.length <= 10^5",
+"0 <= pairs.length <= 10^5",
+"0 <= pairs[i][0], pairs[i][1] < s.length",
+"s contains only lowercase English letters"
+],
+"approaches": [
+{
+"name": "Union-Find over indices, sort each component",
+"idea": "Swaps are transitive, so indices connected through pairs form a component whose characters can be freely rearranged. Union all paired indices, gather the indices of each component (in ascending order), sort that component's characters, and write the smallest characters back into the ascending index slots.",
+"time": "O(n log n + P alpha(n))",
+"space": "O(n)",
+"code": "public String smallestStringWithSwaps(String s, List<List<Integer>> pairs) {\n    int n = s.length();\n    DSU dsu = new DSU(n);\n    for (List<Integer> p : pairs) dsu.union(p.get(0), p.get(1));\n\n    Map<Integer, List<Integer>> comp = new HashMap<>();\n    for (int i = 0; i < n; i++)\n        comp.computeIfAbsent(dsu.find(i), z -> new ArrayList<>()).add(i); // ascending i\n\n    char[] res = s.toCharArray();\n    for (List<Integer> idxs : comp.values()) {\n        char[] chars = new char[idxs.size()];\n        for (int i = 0; i < idxs.size(); i++) chars[i] = s.charAt(idxs.get(i));\n        Arrays.sort(chars);\n        for (int i = 0; i < idxs.size(); i++) res[idxs.get(i)] = chars[i];\n    }\n    return new String(res);\n}\n\nclass DSU {\n    int[] p;\n    DSU(int n) { p = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    void union(int a, int b) { int ra = find(a), rb = find(b); if (ra != rb) p[ra] = rb; }\n}"
+}
+],
+"insight": "Swappable indices form Union-Find components; within each component sort the chars and drop them into the component's ascending index positions."
+},
+"graphs__number-of-good-paths": {
+"title": "Number of Good Paths",
+"topic": "Graphs",
+"subtopic": "Union-Find",
+"difficulty": "Hard",
+"pattern": "Process nodes by increasing value, Union-Find, count equal-max endpoints",
+"notes": "",
+"statement": "Given a tree with node values `vals` and `edges`, count good paths. A good path has both endpoints with the same value and every node on the path has a value less than or equal to that endpoint value. Single-node paths count. Paths are undirected and counted once.",
+"examples": [
+{
+"input": "vals = [1,3,2,1,3], edges = [[0,1],[0,2],[2,3],[2,4]]",
+"output": "6",
+"explanation": "5 single-node paths plus the 3-3 path between nodes 1 and 4."
+}
+],
+"constraints": [
+"n == vals.length",
+"1 <= n <= 3*10^4",
+"0 <= vals[i] <= 10^5",
+"edges forms a valid tree"
+],
+"approaches": [
+{
+"name": "Union nodes in increasing value order",
+"idea": "Process values from smallest to largest. When handling value `v`, union each node of value `v` with any neighbor whose value is `<= v`; this guarantees every node currently in a component has value `<= v`, so `v` is the component's max. Group the value-`v` nodes by root: a root holding `c` such nodes contributes `c*(c-1)/2` good paths (every pair). Start the count at `n` for the single-node paths.",
+"time": "O(n log n + n alpha(n))",
+"space": "O(n)",
+"code": "public int numberOfGoodPaths(int[] vals, int[][] edges) {\n    int n = vals.length;\n    List<List<Integer>> adj = new ArrayList<>();\n    for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n    for (int[] e : edges) { adj.get(e[0]).add(e[1]); adj.get(e[1]).add(e[0]); }\n\n    TreeMap<Integer, List<Integer>> byVal = new TreeMap<>();\n    for (int i = 0; i < n; i++)\n        byVal.computeIfAbsent(vals[i], z -> new ArrayList<>()).add(i);\n\n    DSU dsu = new DSU(n);\n    int good = n; // each node is a good path by itself\n    for (Map.Entry<Integer, List<Integer>> e : byVal.entrySet()) {\n        int v = e.getKey();\n        for (int u : e.getValue())\n            for (int w : adj.get(u))\n                if (vals[w] <= v) dsu.union(u, w);\n        Map<Integer, Integer> cnt = new HashMap<>();\n        for (int u : e.getValue()) {\n            int root = dsu.find(u);\n            int c = cnt.getOrDefault(root, 0);\n            good += c;            // pair u with the c earlier same-value nodes in its component\n            cnt.put(root, c + 1);\n        }\n    }\n    return good;\n}\n\nclass DSU {\n    int[] p;\n    DSU(int n) { p = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    void union(int a, int b) { int ra = find(a), rb = find(b); if (ra != rb) p[ra] = rb; }\n}"
+}
+],
+"insight": "Add nodes by ascending value so each component's max is the current value; equal-max endpoints in the same component form good paths (`c` nodes -> C(c,2) pairs), plus n single-node paths."
+},
+"graphs__making-a-large-island": {
+"title": "Making a Large Island",
+"topic": "Graphs",
+"subtopic": "Union-Find",
+"difficulty": "Hard",
+"pattern": "Union-Find with component sizes; try flipping each 0 and sum distinct neighbor islands",
+"notes": "",
+"statement": "Given an `n x n` binary grid, you may change at most one `0` to `1`. Return the size of the largest island (4-directionally connected 1s) achievable afterward.",
+"examples": [
+{
+"input": "grid = [[1,0],[0,1]]",
+"output": "3",
+"explanation": "Flip one 0 to join the two size-1 islands into size 3."
+},
+{
+"input": "grid = [[1,1],[1,1]]",
+"output": "4",
+"explanation": "Already one island of size 4; no flip helps."
+}
+],
+"constraints": [
+"n == grid.length == grid[i].length",
+"1 <= n <= 500",
+"grid[i][j] is 0 or 1"
+],
+"approaches": [
+{
+"name": "Union-Find islands, then evaluate each zero",
+"idea": "Union all adjacent 1s so every island has a root with a size. The base answer is the largest existing island. For each `0`, gather the DISTINCT island roots among its four neighbors (a set avoids double-counting the same island touched twice) and sum their sizes plus one for the flipped cell. Take the maximum over all zeros.",
+"time": "O(n^2 alpha(n^2))",
+"space": "O(n^2)",
+"code": "public int largestIsland(int[][] grid) {\n    int n = grid.length;\n    DSU dsu = new DSU(n * n);\n    int[][] down = {{0, 1}, {1, 0}};\n    for (int r = 0; r < n; r++)\n        for (int c = 0; c < n; c++)\n            if (grid[r][c] == 1)\n                for (int[] d : down) {\n                    int nr = r + d[0], nc = c + d[1];\n                    if (nr < n && nc < n && grid[nr][nc] == 1)\n                        dsu.union(r * n + c, nr * n + nc);\n                }\n\n    int best = 0;\n    for (int r = 0; r < n; r++)\n        for (int c = 0; c < n; c++)\n            if (grid[r][c] == 1) best = Math.max(best, dsu.size(dsu.find(r * n + c)));\n\n    int[][] dirs = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};\n    for (int r = 0; r < n; r++)\n        for (int c = 0; c < n; c++)\n            if (grid[r][c] == 0) {\n                Set<Integer> roots = new HashSet<>();\n                int total = 1;\n                for (int[] d : dirs) {\n                    int nr = r + d[0], nc = c + d[1];\n                    if (nr >= 0 && nc >= 0 && nr < n && nc < n && grid[nr][nc] == 1) {\n                        int root = dsu.find(nr * n + nc);\n                        if (roots.add(root)) total += dsu.size(root);\n                    }\n                }\n                best = Math.max(best, total);\n            }\n    return best; // all-ones -> n*n; all-zeros -> 1 from the zero loop\n}\n\nclass DSU {\n    int[] p, sz;\n    DSU(int n) { p = new int[n]; sz = new int[n]; for (int i = 0; i < n; i++) { p[i] = i; sz[i] = 1; } }\n    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }\n    void union(int a, int b) { int ra = find(a), rb = find(b); if (ra != rb) { p[ra] = rb; sz[rb] += sz[ra]; } }\n    int size(int root) { return sz[root]; }\n}"
+}
+],
+"insight": "Label islands with sizes via Union-Find, then for each 0 sum the sizes of the DISTINCT neighboring islands (+1); the set of roots prevents counting the same island twice."
+},
+"graphs__network-delay-time": {
+"title": "Network Delay Time",
+"topic": "Graphs",
+"subtopic": "Shortest Path",
+"difficulty": "Medium",
+"pattern": "Single-source shortest path (Dijkstra)",
+"notes": "",
+"statement": "You are given a directed weighted graph of `n` nodes as `times[i] = [u, v, w]` (signal travels from `u` to `v` in `w` time). A signal starts at node `k`. Return the minimum time for all `n` nodes to receive it, or `-1` if some node is unreachable.",
+"examples": [
+{
+"input": "times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2",
+"output": "2",
+"explanation": "Node 4 receives the signal last at time 2."
+}
+],
+"constraints": [
+"1 <= k <= n <= 100",
+"1 <= times.length <= 6000",
+"1 <= u, v <= n, u != v",
+"0 <= w <= 100"
+],
+"approaches": [
+{
+"name": "Dijkstra with min-heap",
+"idea": "The answer is the maximum over all nodes of the shortest-path distance from `k`. Run Dijkstra from `k`: pop the closest unsettled node, relax its edges. If any node stays at infinity it is unreachable, so return `-1`; otherwise return the largest finalized distance.",
+"time": "O(E log V)",
+"space": "O(V + E)",
+"code": "public int networkDelayTime(int[][] times, int n, int k) {\n    List<int[]>[] adj = new List[n + 1];\n    for (int i = 1; i <= n; i++) adj[i] = new ArrayList<>();\n    for (int[] t : times) adj[t[0]].add(new int[]{t[1], t[2]});\n\n    int[] dist = new int[n + 1];\n    Arrays.fill(dist, Integer.MAX_VALUE);\n    dist[k] = 0;\n    PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);\n    pq.offer(new int[]{k, 0});\n    while (!pq.isEmpty()) {\n        int[] cur = pq.poll();\n        int u = cur[0], d = cur[1];\n        if (d > dist[u]) continue;\n        for (int[] e : adj[u]) {\n            int v = e[0], w = e[1];\n            if (dist[u] + w < dist[v]) {\n                dist[v] = dist[u] + w;\n                pq.offer(new int[]{v, dist[v]});\n            }\n        }\n    }\n    int ans = 0;\n    for (int i = 1; i <= n; i++) {\n        if (dist[i] == Integer.MAX_VALUE) return -1;\n        ans = Math.max(ans, dist[i]);\n    }\n    return ans;\n}"
+}
+],
+"insight": "It is just Dijkstra: the network delay is the max of all shortest distances from the source."
+},
+"graphs__cheapest-flights-within-k-stops": {
+"title": "Cheapest Flights Within K Stops",
+"topic": "Graphs",
+"subtopic": "Shortest Path",
+"difficulty": "Hard",
+"pattern": "Bellman-Ford bounded by k+1 relaxations",
+"notes": "",
+"statement": "Given `n` cities and `flights[i] = [from, to, price]`, find the cheapest price from `src` to `dst` using at most `k` stops (i.e. at most `k+1` edges). Return `-1` if there is no such route.",
+"examples": [
+{
+"input": "n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1",
+"output": "700",
+"explanation": "0->1->3 costs 700 using 1 stop; the cheaper 0->1->2->3 uses 2 stops and is not allowed."
+}
+],
+"constraints": [
+"1 <= n <= 100",
+"0 <= flights.length <= n*(n-1)/2",
+"0 <= from, to < n, from != to",
+"1 <= price <= 10^4",
+"0 <= k < n"
+],
+"approaches": [
+{
+"name": "Bellman-Ford, k+1 rounds",
+"idea": "Plain Dijkstra can prune a path that costs more but uses fewer stops, so it is wrong here. Instead do `k+1` Bellman-Ford relaxation rounds: each round relaxes every edge exactly once, so after round `i` we know the cheapest cost reachable with at most `i` edges. Relax from a frozen snapshot (`tmp = dist.clone()`) each round so one round cannot chain multiple hops.",
+"time": "O(k * E)",
+"space": "O(n)",
+"code": "public int findCheapestPrice(int n, int[][] flights, int src, int dst, int k) {\n    int[] dist = new int[n];\n    Arrays.fill(dist, Integer.MAX_VALUE);\n    dist[src] = 0;\n    for (int i = 0; i <= k; i++) {\n        int[] tmp = dist.clone();\n        for (int[] f : flights) {\n            int u = f[0], v = f[1], w = f[2];\n            if (dist[u] != Integer.MAX_VALUE && dist[u] + w < tmp[v]) {\n                tmp[v] = dist[u] + w;\n            }\n        }\n        dist = tmp;\n    }\n    return dist[dst] == Integer.MAX_VALUE ? -1 : dist[dst];\n}"
+}
+],
+"insight": "When paths are constrained by number of edges, Bellman-Ford with a cloned snapshot per round beats Dijkstra."
+},
+"graphs__path-with-minimum-effort": {
+"title": "Path With Minimum Effort",
+"topic": "Graphs",
+"subtopic": "Shortest Path",
+"difficulty": "Hard",
+"pattern": "Dijkstra minimizing the maximum edge (minimax path)",
+"notes": "",
+"statement": "Given a grid `heights`, travel from the top-left to the bottom-right moving 4-directionally. A route's effort is the maximum absolute height difference between consecutive cells on it. Return the minimum possible effort.",
+"examples": [
+{
+"input": "heights = [[1,2,2],[3,8,2],[5,3,5]]",
+"output": "2",
+"explanation": "The route 1->3->5->3->5 has max adjacent difference 2, better than going through 8."
+}
+],
+"constraints": [
+"rows == heights.length",
+"cols == heights[0].length",
+"1 <= rows, cols <= 100",
+"1 <= heights[i][j] <= 10^6"
+],
+"approaches": [
+{
+"name": "Dijkstra on the minimax cost",
+"idea": "Define a cell's cost as the smallest possible value of the largest step needed to reach it. Run Dijkstra where relaxing an edge uses `max(currentEffort, |heightDiff|)` instead of a sum. Pop cells by increasing effort; the first time we pop the destination its effort is optimal.",
+"time": "O(rows*cols*log(rows*cols))",
+"space": "O(rows*cols)",
+"code": "public int minimumEffortPath(int[][] heights) {\n    int rows = heights.length, cols = heights[0].length;\n    int[][] effort = new int[rows][cols];\n    for (int[] row : effort) Arrays.fill(row, Integer.MAX_VALUE);\n    effort[0][0] = 0;\n    int[][] dirs = {{0,1},{1,0},{0,-1},{-1,0}};\n    PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[2] - b[2]);\n    pq.offer(new int[]{0, 0, 0});\n    while (!pq.isEmpty()) {\n        int[] cur = pq.poll();\n        int r = cur[0], c = cur[1], e = cur[2];\n        if (e > effort[r][c]) continue;\n        if (r == rows - 1 && c == cols - 1) return e;\n        for (int[] d : dirs) {\n            int nr = r + d[0], nc = c + d[1];\n            if (nr < 0 || nc < 0 || nr >= rows || nc >= cols) continue;\n            int ne = Math.max(e, Math.abs(heights[nr][nc] - heights[r][c]));\n            if (ne < effort[nr][nc]) {\n                effort[nr][nc] = ne;\n                pq.offer(new int[]{nr, nc, ne});\n            }\n        }\n    }\n    return 0;\n}"
+}
+],
+"insight": "Minimax path = Dijkstra where you relax with max() instead of sum()."
+},
+"graphs__swim-in-rising-water": {
+"title": "Swim in Rising Water",
+"topic": "Graphs",
+"subtopic": "Shortest Path",
+"difficulty": "Hard",
+"pattern": "Dijkstra minimizing the maximum cell value",
+"notes": "",
+"statement": "In an `n x n` grid, `grid[i][j]` is the elevation of that cell. At time `t` you can be on any cell whose elevation is at most `t`, and you can swim 4-directionally instantly between such cells. Return the least time to reach the bottom-right from the top-left.",
+"examples": [
+{
+"input": "grid = [[0,2],[1,3]]",
+"output": "3",
+"explanation": "You must wait until time 3 so the cell with elevation 3 (bottom-right) is submerged and reachable."
+}
+],
+"constraints": [
+"n == grid.length == grid[i].length",
+"1 <= n <= 50",
+"0 <= grid[i][j] < n*n",
+"each value is unique"
+],
+"approaches": [
+{
+"name": "Dijkstra on max elevation",
+"idea": "The time to reach a cell equals the minimum over all paths of the maximum elevation on that path. Run Dijkstra keyed by `max(pathMax, nextCellElevation)`; settle cells in increasing order of that key. The first time the bottom-right is popped gives the answer.",
+"time": "O(n^2 log n)",
+"space": "O(n^2)",
+"code": "public int swimInWater(int[][] grid) {\n    int n = grid.length;\n    boolean[][] visited = new boolean[n][n];\n    int[][] dirs = {{0,1},{1,0},{0,-1},{-1,0}};\n    PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[2] - b[2]);\n    pq.offer(new int[]{0, 0, grid[0][0]});\n    while (!pq.isEmpty()) {\n        int[] cur = pq.poll();\n        int r = cur[0], c = cur[1], t = cur[2];\n        if (visited[r][c]) continue;\n        visited[r][c] = true;\n        if (r == n - 1 && c == n - 1) return t;\n        for (int[] d : dirs) {\n            int nr = r + d[0], nc = c + d[1];\n            if (nr < 0 || nc < 0 || nr >= n || nc >= n || visited[nr][nc]) continue;\n            pq.offer(new int[]{nr, nc, Math.max(t, grid[nr][nc])});\n        }\n    }\n    return -1;\n}"
+}
+],
+"insight": "Same minimax-Dijkstra trick as Path With Minimum Effort, but the cost is the cell value, not the edge difference."
+},
+"graphs__minimum-cost-to-make-at-least-one-valid-path": {
+"title": "Minimum Cost to Make at Least One Valid Path",
+"topic": "Graphs",
+"subtopic": "Shortest Path",
+"difficulty": "Hard",
+"pattern": "0-1 BFS (deque)",
+"notes": "",
+"statement": "Each cell of an `m x n` grid holds a sign: `1` = right, `2` = left, `3` = down, `4` = up. Following the sign costs `0`; changing a cell's sign costs `1` and lets you leave in any direction. Starting at the top-left, return the minimum cost so at least one valid path reaches the bottom-right.",
+"examples": [
+{
+"input": "grid = [[1,1,1,1],[2,2,2,2],[1,1,1,1],[2,2,2,2]]",
+"output": "3",
+"explanation": "Follow signs across each row and pay 1 to turn down at the end of rows 1, 2, and 3."
+}
+],
+"constraints": [
+"m == grid.length",
+"n == grid[i].length",
+"1 <= m, n <= 100",
+"1 <= grid[i][j] <= 4"
+],
+"approaches": [
+{
+"name": "0-1 BFS with a deque",
+"idea": "Model each cell as a node with 4 outgoing edges of weight 0 (the direction matching the sign) or 1 (the other three). With only 0/1 weights, 0-1 BFS runs Dijkstra in linear time: push zero-cost moves to the front of the deque and unit-cost moves to the back, so the deque stays monotonic in distance. `dist[m-1][n-1]` is the answer.",
+"time": "O(m*n)",
+"space": "O(m*n)",
+"code": "public int minCost(int[][] grid) {\n    int m = grid.length, n = grid[0].length;\n    // dirs index k (0..3) maps to sign value k+1: right, left, down, up\n    int[][] dirs = {{0,1},{0,-1},{1,0},{-1,0}};\n    int[][] dist = new int[m][n];\n    for (int[] row : dist) Arrays.fill(row, Integer.MAX_VALUE);\n    dist[0][0] = 0;\n    Deque<int[]> dq = new ArrayDeque<>();\n    dq.offerFirst(new int[]{0, 0});\n    while (!dq.isEmpty()) {\n        int[] cur = dq.pollFirst();\n        int r = cur[0], c = cur[1];\n        for (int k = 0; k < 4; k++) {\n            int nr = r + dirs[k][0], nc = c + dirs[k][1];\n            if (nr < 0 || nc < 0 || nr >= m || nc >= n) continue;\n            int cost = (grid[r][c] == k + 1) ? 0 : 1;\n            if (dist[r][c] + cost < dist[nr][nc]) {\n                dist[nr][nc] = dist[r][c] + cost;\n                if (cost == 0) dq.offerFirst(new int[]{nr, nc});\n                else dq.offerLast(new int[]{nr, nc});\n            }\n        }\n    }\n    return dist[m - 1][n - 1];\n}"
+}
+],
+"insight": "0/1 edge weights => 0-1 BFS: front-push free moves, back-push paid ones, no heap needed."
+},
+"graphs__reachable-nodes": {
+"title": "Reachable Nodes",
+"topic": "Graphs",
+"subtopic": "Shortest Path",
+"difficulty": "Hard",
+"pattern": "Dijkstra then count subdivided nodes",
+"notes": "",
+"statement": "Starting from an undirected graph of `n` nodes, each edge `[u, v, cnt]` is subdivided by inserting `cnt` new intermediate nodes. Starting at node `0` and moving at most `maxMoves` edges in the subdivided graph, return how many nodes (original + intermediate) are reachable.",
+"examples": [
+{
+"input": "edges = [[0,1,10],[0,2,1],[1,2,2]], maxMoves = 6, n = 3",
+"output": "13",
+"explanation": "All 3 original nodes plus 10 subdivided nodes are reachable within 6 moves."
+}
+],
+"constraints": [
+"0 <= edges.length <= min(n*(n-1)/2, 10^4)",
+"0 <= u < v < n",
+"0 <= cnt <= 10^4",
+"0 <= maxMoves <= 10^9",
+"1 <= n <= 3000"
+],
+"approaches": [
+{
+"name": "Dijkstra on original nodes, then account for edges",
+"idea": "An original edge with `cnt` intermediates has weight `cnt+1` in the compressed graph. Run Dijkstra from node `0` to get `dist[]` to every original node. Count reachable original nodes (`dist <= maxMoves`). For each edge, from `u` you can cover `max(0, maxMoves - dist[u])` intermediates and from `v` another `max(0, maxMoves - dist[v])`; the reachable intermediates on that edge are `min(cnt, u-side + v-side)`.",
+"time": "O(E log V)",
+"space": "O(V + E)",
+"code": "public int reachableNodes(int[][] edges, int maxMoves, int n) {\n    List<int[]>[] adj = new List[n];\n    for (int i = 0; i < n; i++) adj[i] = new ArrayList<>();\n    for (int[] e : edges) {\n        adj[e[0]].add(new int[]{e[1], e[2] + 1});\n        adj[e[1]].add(new int[]{e[0], e[2] + 1});\n    }\n    int[] dist = new int[n];\n    Arrays.fill(dist, Integer.MAX_VALUE);\n    dist[0] = 0;\n    PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);\n    pq.offer(new int[]{0, 0});\n    while (!pq.isEmpty()) {\n        int[] cur = pq.poll();\n        int u = cur[0], d = cur[1];\n        if (d > dist[u]) continue;\n        for (int[] e : adj[u]) {\n            int v = e[0], w = e[1];\n            if (d + w < dist[v]) {\n                dist[v] = d + w;\n                pq.offer(new int[]{v, dist[v]});\n            }\n        }\n    }\n    int reached = 0;\n    for (int i = 0; i < n; i++) if (dist[i] <= maxMoves) reached++;\n    for (int[] e : edges) {\n        int a = dist[e[0]] == Integer.MAX_VALUE ? 0 : Math.max(0, maxMoves - dist[e[0]]);\n        int b = dist[e[1]] == Integer.MAX_VALUE ? 0 : Math.max(0, maxMoves - dist[e[1]]);\n        reached += Math.min(e[2], a + b);\n    }\n    return reached;\n}"
+}
+],
+"insight": "Compress each subdivided edge to weight cnt+1, run Dijkstra on originals, then add min(cnt, budget from both ends) per edge."
+},
+"graphs__shortest-path-in-a-grid-with-obstacles-elimination": {
+"title": "Shortest Path in a Grid with Obstacles Elimination",
+"topic": "Graphs",
+"subtopic": "Shortest Path",
+"difficulty": "Hard",
+"pattern": "BFS over 3D state (row, col, obstacles left)",
+"notes": "",
+"statement": "Given an `m x n` grid of `0` (empty) and `1` (obstacle), move 4-directionally from the top-left to the bottom-right. You may eliminate at most `k` obstacles. Return the fewest steps, or `-1` if impossible.",
+"examples": [
+{
+"input": "grid = [[0,0,0],[1,1,0],[0,0,0],[0,1,1],[0,0,0]], k = 1",
+"output": "6",
+"explanation": "Eliminating one obstacle lets a length-6 path reach the corner."
+}
+],
+"constraints": [
+"m == grid.length",
+"n == grid[i].length",
+"1 <= m, n <= 40",
+"1 <= k <= m*n",
+"grid[i][j] is 0 or 1",
+"grid[0][0] == grid[m-1][n-1] == 0"
+],
+"approaches": [
+{
+"name": "BFS on (cell, remaining eliminations)",
+"idea": "Unit-cost moves mean plain BFS gives shortest steps, but we must track remaining eliminations as part of the state, since reaching a cell with more budget left is strictly better. Visit `(r, c, remaining)`; step to a neighbor spending budget if it is an obstacle. A quick prune: if `k >= m+n-2` the Manhattan-distance path is always achievable.",
+"time": "O(m*n*k)",
+"space": "O(m*n*k)",
+"code": "public int shortestPath(int[][] grid, int k) {\n    int m = grid.length, n = grid[0].length;\n    if (k >= m + n - 2) return m + n - 2;\n    boolean[][][] visited = new boolean[m][n][k + 1];\n    int[][] dirs = {{0,1},{1,0},{0,-1},{-1,0}};\n    Queue<int[]> q = new ArrayDeque<>();\n    q.offer(new int[]{0, 0, k});\n    visited[0][0][k] = true;\n    int steps = 0;\n    while (!q.isEmpty()) {\n        int size = q.size();\n        steps++;\n        for (int i = 0; i < size; i++) {\n            int[] cur = q.poll();\n            int r = cur[0], c = cur[1], rem = cur[2];\n            for (int[] d : dirs) {\n                int nr = r + d[0], nc = c + d[1];\n                if (nr < 0 || nc < 0 || nr >= m || nc >= n) continue;\n                int nrem = rem - grid[nr][nc];\n                if (nrem < 0 || visited[nr][nc][nrem]) continue;\n                if (nr == m - 1 && nc == n - 1) return steps;\n                visited[nr][nc][nrem] = true;\n                q.offer(new int[]{nr, nc, nrem});\n            }\n        }\n    }\n    return -1;\n}"
+}
+],
+"insight": "Add remaining eliminations to the BFS state so equal cells with different budgets are treated as distinct."
+},
+"graphs__path-with-maximum-probability": {
+"title": "Path with Maximum Probability",
+"topic": "Graphs",
+"subtopic": "Shortest Path",
+"difficulty": "Medium",
+"pattern": "Dijkstra with a max-heap on multiplicative weights",
+"notes": "",
+"statement": "Given an undirected graph of `n` nodes with `edges[i] = [a, b]` and `succProb[i]` the success probability of that edge, return the maximum product of edge probabilities along any path from `start` to `end`. Return `0` if none exists.",
+"examples": [
+{
+"input": "n = 3, edges = [[0,1],[1,2],[0,2]], succProb = [0.5,0.5,0.2], start = 0, end = 2",
+"output": "0.25000",
+"explanation": "Path 0->1->2 has probability 0.5*0.5 = 0.25, better than the direct 0.2."
+}
+],
+"constraints": [
+"2 <= n <= 10^4",
+"0 <= edges.length <= 2*10^4",
+"0 <= a, b < n, a != b",
+"0 <= succProb[i] <= 1",
+"there is at most one edge between any two nodes"
+],
+"approaches": [
+{
+"name": "Dijkstra maximizing product",
+"idea": "Probabilities in [0,1] only shrink as a path grows, so the greedy Dijkstra invariant holds if we always expand the node with the largest current probability. Use a max-heap keyed by probability and relax with multiplication; the first time we pop `end` its probability is maximal.",
+"time": "O(E log V)",
+"space": "O(V + E)",
+"code": "public double maxProbability(int n, int[][] edges, double[] succProb, int start, int end) {\n    List<double[]>[] adj = new List[n];\n    for (int i = 0; i < n; i++) adj[i] = new ArrayList<>();\n    for (int i = 0; i < edges.length; i++) {\n        adj[edges[i][0]].add(new double[]{edges[i][1], succProb[i]});\n        adj[edges[i][1]].add(new double[]{edges[i][0], succProb[i]});\n    }\n    double[] prob = new double[n];\n    prob[start] = 1.0;\n    PriorityQueue<double[]> pq = new PriorityQueue<>((a, b) -> Double.compare(b[1], a[1]));\n    pq.offer(new double[]{start, 1.0});\n    while (!pq.isEmpty()) {\n        double[] cur = pq.poll();\n        int u = (int) cur[0];\n        double p = cur[1];\n        if (u == end) return p;\n        if (p < prob[u]) continue;\n        for (double[] e : adj[u]) {\n            int v = (int) e[0];\n            double np = p * e[1];\n            if (np > prob[v]) {\n                prob[v] = np;\n                pq.offer(new double[]{v, np});\n            }\n        }\n    }\n    return 0.0;\n}"
+}
+],
+"insight": "Maximizing a product of values in [0,1] is Dijkstra with a max-heap and multiply-relax."
+},
+"graphs__min-cost-to-connect-all-points": {
+"title": "Min Cost to Connect All Points",
+"topic": "Graphs",
+"subtopic": "MST",
+"difficulty": "Medium",
+"pattern": "Minimum spanning tree (Prim, dense)",
+"notes": "",
+"statement": "Given `points` on a 2D plane, the cost to connect two points is their Manhattan distance. Return the minimum total cost to connect all points so that any two are reachable (a minimum spanning tree).",
+"examples": [
+{
+"input": "points = [[0,0],[2,2],[3,10],[5,2],[7,0]]",
+"output": "20",
+"explanation": "An MST over the Manhattan-distance complete graph has total cost 20."
+}
+],
+"constraints": [
+"1 <= points.length <= 1000",
+"-10^6 <= xi, yi <= 10^6",
+"all points are distinct"
+],
+"approaches": [
+{
+"name": "Prim's algorithm (O(n^2) dense)",
+"idea": "The graph is complete (every pair is an edge), so a dense O(n^2) Prim beats heap-based Kruskal. Keep `minDist[v]` = cheapest edge connecting `v` to the growing tree. Each step pick the unused node with smallest `minDist`, add it, and relax all remaining nodes against it.",
+"time": "O(n^2)",
+"space": "O(n)",
+"code": "public int minCostConnectPoints(int[][] points) {\n    int n = points.length;\n    boolean[] inMST = new boolean[n];\n    int[] minDist = new int[n];\n    Arrays.fill(minDist, Integer.MAX_VALUE);\n    minDist[0] = 0;\n    int total = 0;\n    for (int i = 0; i < n; i++) {\n        int u = -1;\n        for (int j = 0; j < n; j++) {\n            if (!inMST[j] && (u == -1 || minDist[j] < minDist[u])) u = j;\n        }\n        inMST[u] = true;\n        total += minDist[u];\n        for (int v = 0; v < n; v++) {\n            if (!inMST[v]) {\n                int d = Math.abs(points[u][0] - points[v][0])\n                      + Math.abs(points[u][1] - points[v][1]);\n                if (d < minDist[v]) minDist[v] = d;\n            }\n        }\n    }\n    return total;\n}"
+}
+],
+"insight": "Complete graph => dense O(n^2) Prim; no need to materialize all n^2 edges for a heap."
+},
+"graphs__connecting-cities-with-minimum-cost": {
+"title": "Connecting Cities With Minimum Cost",
+"topic": "Graphs",
+"subtopic": "MST",
+"difficulty": "Medium",
+"pattern": "Kruskal with union-find",
+"notes": "",
+"statement": "There are `n` cities numbered `1..n`. `connections[i] = [c1, c2, cost]` is a bidirectional edge. Return the minimum total cost to connect all cities, or `-1` if impossible.",
+"examples": [
+{
+"input": "n = 3, connections = [[1,2,5],[1,3,6],[2,3,1]]",
+"output": "6",
+"explanation": "Pick edges of cost 1 and 5 to connect all three cities."
+}
+],
+"constraints": [
+"1 <= n <= 10^4",
+"1 <= connections.length <= 10^4",
+"connections[i].length == 3",
+"1 <= c1, c2 <= n, c1 != c2",
+"0 <= cost <= 10^5"
+],
+"approaches": [
+{
+"name": "Kruskal + union-find",
+"idea": "Sort edges by cost and greedily union endpoints that are in different components, accumulating cost. Path-compressed union-find makes each merge near O(1). A spanning tree needs exactly `n-1` accepted edges; if fewer are accepted the graph is disconnected, so return `-1`.",
+"time": "O(E log E)",
+"space": "O(n)",
+"code": "public int minimumCost(int n, int[][] connections) {\n    Arrays.sort(connections, (a, b) -> a[2] - b[2]);\n    int[] parent = new int[n + 1];\n    for (int i = 0; i <= n; i++) parent[i] = i;\n    int total = 0, used = 0;\n    for (int[] c : connections) {\n        int ra = find(parent, c[0]), rb = find(parent, c[1]);\n        if (ra != rb) {\n            parent[ra] = rb;\n            total += c[2];\n            used++;\n        }\n    }\n    return used == n - 1 ? total : -1;\n}\n\nprivate int find(int[] parent, int x) {\n    while (parent[x] != x) {\n        parent[x] = parent[parent[x]];\n        x = parent[x];\n    }\n    return x;\n}"
+}
+],
+"insight": "Kruskal: sort edges, union across components, and check you accepted exactly n-1 edges."
+},
+"graphs__optimize-water-distribution": {
+"title": "Optimize Water Distribution",
+"topic": "Graphs",
+"subtopic": "MST",
+"difficulty": "Hard",
+"pattern": "MST with a virtual source node",
+"notes": "",
+"statement": "In a village of `n` houses you can either build a well in house `i` at cost `wells[i]`, or lay a pipe `pipes[j] = [h1, h2, cost]` to share water. Return the minimum total cost to supply water to every house.",
+"examples": [
+{
+"input": "n = 3, wells = [1,2,2], pipes = [[1,2,1],[2,3,1]]",
+"output": "3",
+"explanation": "Build a well in house 1 (cost 1) and lay pipes 1-2 and 2-3 (cost 1 each)."
+}
+],
+"constraints": [
+"1 <= n <= 10^4",
+"wells.length == n",
+"0 <= wells[i] <= 10^5",
+"1 <= pipes.length <= 10^4",
+"pipes[j].length == 3",
+"0 <= cost <= 10^5"
+],
+"approaches": [
+{
+"name": "Kruskal with virtual node 0",
+"idea": "Model 'building a well in house i' as a pipe of cost `wells[i]` from a virtual node `0` (an infinite water source) to house `i`. Then the whole problem is a single MST over `n+1` nodes: connecting a house to node `0` means it gets its own well, connecting to another house means shared piping. Run Kruskal over the combined edge list.",
+"time": "O((n+P) log(n+P))",
+"space": "O(n)",
+"code": "public int minCostToSupplyWater(int n, int[] wells, int[][] pipes) {\n    List<int[]> edges = new ArrayList<>();\n    for (int i = 0; i < n; i++) edges.add(new int[]{0, i + 1, wells[i]});\n    for (int[] p : pipes) edges.add(new int[]{p[0], p[1], p[2]});\n    edges.sort((a, b) -> a[2] - b[2]);\n\n    int[] parent = new int[n + 1];\n    for (int i = 0; i <= n; i++) parent[i] = i;\n    int total = 0;\n    for (int[] e : edges) {\n        int ra = find(parent, e[0]), rb = find(parent, e[1]);\n        if (ra != rb) {\n            parent[ra] = rb;\n            total += e[2];\n        }\n    }\n    return total;\n}\n\nprivate int find(int[] parent, int x) {\n    while (parent[x] != x) {\n        parent[x] = parent[parent[x]];\n        x = parent[x];\n    }\n    return x;\n}"
+}
+],
+"insight": "Turn 'build a well' into an edge from a virtual super-source, then it is a plain MST."
+},
+"graphs__find-critical-and-pseudo-critical-edges-in-mst": {
+"title": "Find Critical and Pseudo-Critical Edges in MST",
+"topic": "Graphs",
+"subtopic": "MST",
+"difficulty": "Very Hard",
+"pattern": "Kruskal with edge force/exclude tests",
+"notes": "",
+"statement": "Given a weighted undirected graph, an edge is critical if deleting it increases the MST weight, and pseudo-critical if it can appear in some MST but is not critical. Return the two lists of original edge indices.",
+"examples": [
+{
+"input": "n = 5, edges = [[0,1,1],[1,2,1],[2,3,2],[0,3,2],[0,4,3],[3,4,3],[1,4,6]]",
+"output": "[[0,1],[2,3,4,5]]",
+"explanation": "Edges 0 and 1 are in every MST (critical); edges 2,3,4,5 appear in some MST (pseudo-critical)."
+}
+],
+"constraints": [
+"2 <= n <= 100",
+"1 <= edges.length <= min(200, n*(n-1)/2)",
+"edges[i].length == 3",
+"0 <= ai < bi < n",
+"1 <= weight <= 1000",
+"all pairs (ai, bi) are distinct"
+],
+"approaches": [
+{
+"name": "Compare MST weight with each edge forced/excluded",
+"idea": "Compute the base MST weight. For each edge: build an MST that excludes it; if the resulting weight is larger (or the graph disconnects), the edge is critical. Otherwise force the edge into the MST first and build; if that still equals the base weight, the edge is pseudo-critical. Keep original indices while sorting a copy by weight.",
+"time": "O(E^2 * alpha(n))",
+"space": "O(n + E)",
+"code": "public List<List<Integer>> findCriticalAndPseudoCriticalEdges(int n, int[][] edges) {\n    int m = edges.length;\n    int[][] e = new int[m][4];\n    for (int i = 0; i < m; i++) e[i] = new int[]{edges[i][0], edges[i][1], edges[i][2], i};\n    Arrays.sort(e, (a, b) -> a[2] - b[2]);\n\n    int base = buildMST(n, e, -1, -1);\n    List<Integer> critical = new ArrayList<>(), pseudo = new ArrayList<>();\n    for (int i = 0; i < m; i++) {\n        if (buildMST(n, e, i, -1) > base) {\n            critical.add(e[i][3]);\n        } else if (buildMST(n, e, -1, i) == base) {\n            pseudo.add(e[i][3]);\n        }\n    }\n    List<List<Integer>> res = new ArrayList<>();\n    res.add(critical);\n    res.add(pseudo);\n    return res;\n}\n\nprivate int buildMST(int n, int[][] e, int skip, int force) {\n    int[] parent = new int[n];\n    for (int i = 0; i < n; i++) parent[i] = i;\n    int weight = 0, count = 0;\n    if (force != -1) {\n        parent[find(parent, e[force][0])] = find(parent, e[force][1]);\n        weight += e[force][2];\n        count++;\n    }\n    for (int i = 0; i < e.length; i++) {\n        if (i == skip) continue;\n        int ra = find(parent, e[i][0]), rb = find(parent, e[i][1]);\n        if (ra != rb) {\n            parent[ra] = rb;\n            weight += e[i][2];\n            count++;\n        }\n    }\n    return count == n - 1 ? weight : Integer.MAX_VALUE;\n}\n\nprivate int find(int[] parent, int x) {\n    while (parent[x] != x) {\n        parent[x] = parent[parent[x]];\n        x = parent[x];\n    }\n    return x;\n}"
+}
+],
+"insight": "Critical => excluding it raises MST weight; pseudo-critical => forcing it in still ties the MST weight."
+},
+"graphs__critical-connections-in-a-network": {
+"title": "Critical Connections in a Network",
+"topic": "Graphs",
+"subtopic": "Advanced (Bridges/Euler/SCC)",
+"difficulty": "Hard",
+"pattern": "Tarjan bridge-finding (DFS low-link)",
+"notes": "",
+"statement": "A network of `n` servers is connected by undirected `connections`. A connection is critical if removing it disconnects some servers. Return all critical connections (bridges) in any order.",
+"examples": [
+{
+"input": "n = 4, connections = [[0,1],[1,2],[2,0],[1,3]]",
+"output": "[[1,3]]",
+"explanation": "Edge 1-3 is the only bridge; the triangle 0-1-2 has no bridge."
+}
+],
+"constraints": [
+"2 <= n <= 10^5",
+"n - 1 <= connections.length <= 10^5",
+"0 <= ai, bi <= n - 1",
+"there are no repeated connections"
+],
+"approaches": [
+{
+"name": "Tarjan's bridge algorithm",
+"idea": "Do a DFS assigning each node a discovery time `disc[u]` and a low-link `low[u]` = the earliest discovery time reachable from `u`'s subtree via at most one back edge. Edge `(u, v)` (v a child) is a bridge exactly when `low[v] > disc[u]`, meaning `v`'s subtree has no alternative route back to `u` or above.",
+"time": "O(V + E)",
+"space": "O(V + E)",
+"code": "private int timer = 0;\n\npublic List<List<Integer>> criticalConnections(int n, List<List<Integer>> connections) {\n    List<Integer>[] adj = new List[n];\n    for (int i = 0; i < n; i++) adj[i] = new ArrayList<>();\n    for (List<Integer> c : connections) {\n        adj[c.get(0)].add(c.get(1));\n        adj[c.get(1)].add(c.get(0));\n    }\n    int[] disc = new int[n], low = new int[n];\n    Arrays.fill(disc, -1);\n    List<List<Integer>> bridges = new ArrayList<>();\n    for (int i = 0; i < n; i++) {\n        if (disc[i] == -1) dfs(i, -1, adj, disc, low, bridges);\n    }\n    return bridges;\n}\n\nprivate void dfs(int u, int parent, List<Integer>[] adj,\n                 int[] disc, int[] low, List<List<Integer>> bridges) {\n    disc[u] = low[u] = timer++;\n    boolean skippedParent = false;\n    for (int v : adj[u]) {\n        if (v == parent && !skippedParent) { skippedParent = true; continue; }\n        if (disc[v] == -1) {\n            dfs(v, u, adj, disc, low, bridges);\n            low[u] = Math.min(low[u], low[v]);\n            if (low[v] > disc[u]) bridges.add(Arrays.asList(u, v));\n        } else {\n            low[u] = Math.min(low[u], disc[v]);\n        }\n    }\n}"
+}
+],
+"insight": "Bridge test: DFS with low-links, edge (u,v) is a bridge iff low[v] > disc[u]."
+},
+"graphs__reconstruct-itinerary": {
+"title": "Reconstruct Itinerary",
+"topic": "Graphs",
+"subtopic": "Advanced (Bridges/Euler/SCC)",
+"difficulty": "Hard",
+"pattern": "Hierholzer's Eulerian path",
+"notes": "",
+"statement": "Given a list of airline `tickets [from, to]`, reconstruct the itinerary that uses all tickets exactly once, starting at `JFK`. If multiple valid itineraries exist, return the lexicographically smallest one.",
+"examples": [
+{
+"input": "tickets = [[\\\"MUC\\\",\\\"LHR\\\"],[\\\"JFK\\\",\\\"MUC\\\"],[\\\"SFO\\\",\\\"SJC\\\"],[\\\"LHR\\\",\\\"SFO\\\"]]",
+"output": "[\\\"JFK\\\",\\\"MUC\\\",\\\"LHR\\\",\\\"SFO\\\",\\\"SJC\\\"]",
+"explanation": "The unique Eulerian path using every ticket once."
+}
+],
+"constraints": [
+"1 <= tickets.length <= 300",
+"tickets[i].length == 2",
+"airport codes are 3 uppercase letters",
+"from != to",
+"a valid itinerary always exists"
+],
+"approaches": [
+{
+"name": "Hierholzer with lexical min-heaps",
+"idea": "This is an Eulerian path (use every edge once). Store each airport's destinations in a min-heap so we always try the smallest next airport. Run Hierholzer: push the current node, if it has an unused outgoing edge follow the smallest; otherwise it is a dead end, pop it to the front of the route. Reversing the post-order dead-ends yields the lexicographically smallest valid path.",
+"time": "O(E log E)",
+"space": "O(E)",
+"code": "public List<String> findItinerary(List<List<String>> tickets) {\n    Map<String, PriorityQueue<String>> graph = new HashMap<>();\n    for (List<String> t : tickets) {\n        graph.computeIfAbsent(t.get(0), x -> new PriorityQueue<>()).offer(t.get(1));\n    }\n    LinkedList<String> route = new LinkedList<>();\n    Deque<String> stack = new ArrayDeque<>();\n    stack.push(\"JFK\");\n    while (!stack.isEmpty()) {\n        String u = stack.peek();\n        PriorityQueue<String> pq = graph.get(u);\n        if (pq != null && !pq.isEmpty()) {\n            stack.push(pq.poll());\n        } else {\n            route.addFirst(stack.pop());\n        }\n    }\n    return route;\n}"
+}
+],
+"insight": "Eulerian path via Hierholzer: greedily follow smallest edges, prepend dead-ends, no backtracking needed."
+},
+"graphs__valid-arrangement-of-pairs": {
+"title": "Valid Arrangement of Pairs",
+"topic": "Graphs",
+"subtopic": "Advanced (Bridges/Euler/SCC)",
+"difficulty": "Very Hard",
+"pattern": "Directed Eulerian path (Hierholzer)",
+"notes": "",
+"statement": "Given `pairs[i] = [start_i, end_i]`, arrange all pairs into a sequence so that for every adjacent pair, `end` of the current equals `start` of the next. A valid arrangement is guaranteed to exist; return any one.",
+"examples": [
+{
+"input": "pairs = [[5,1],[4,5],[11,9],[9,4]]",
+"output": "[[11,9],[9,4],[4,5],[5,1]]",
+"explanation": "Each pair's end matches the next pair's start, forming one chain."
+}
+],
+"constraints": [
+"1 <= pairs.length <= 10^5",
+"pairs[i].length == 2",
+"0 <= start_i, end_i <= 10^9",
+"a valid arrangement exists"
+],
+"approaches": [
+{
+"name": "Hierholzer on the directed graph",
+"idea": "Treat each pair `[u, v]` as a directed edge `u -> v`; a valid arrangement is an Eulerian path. The start node is the unique vertex with `outdegree - indegree == 1` if it exists, otherwise any vertex with edges (Eulerian circuit). Run iterative Hierholzer to get the node visiting order, then emit consecutive nodes as the pairs.",
+"time": "O(V + E)",
+"space": "O(V + E)",
+"code": "public int[][] validArrangement(int[][] pairs) {\n    Map<Integer, Deque<Integer>> graph = new HashMap<>();\n    Map<Integer, Integer> out = new HashMap<>(), in = new HashMap<>();\n    for (int[] p : pairs) {\n        graph.computeIfAbsent(p[0], k -> new ArrayDeque<>()).push(p[1]);\n        out.merge(p[0], 1, Integer::sum);\n        in.merge(p[1], 1, Integer::sum);\n    }\n    int start = pairs[0][0];\n    for (int node : out.keySet()) {\n        if (out.get(node) - in.getOrDefault(node, 0) == 1) {\n            start = node;\n            break;\n        }\n    }\n    LinkedList<Integer> path = new LinkedList<>();\n    Deque<Integer> stack = new ArrayDeque<>();\n    stack.push(start);\n    while (!stack.isEmpty()) {\n        int u = stack.peek();\n        Deque<Integer> nbrs = graph.get(u);\n        if (nbrs != null && !nbrs.isEmpty()) {\n            stack.push(nbrs.pop());\n        } else {\n            path.addFirst(stack.pop());\n        }\n    }\n    int[][] res = new int[pairs.length][2];\n    int idx = 0, prev = path.pollFirst();\n    while (!path.isEmpty()) {\n        int cur = path.pollFirst();\n        res[idx][0] = prev;\n        res[idx][1] = cur;\n        idx++;\n        prev = cur;\n    }\n    return res;\n}"
+}
+],
+"insight": "Pairs form directed edges; an Eulerian path from the out-in==1 vertex gives the arrangement."
+},
+"graphs__minimize-malware-spread": {
+"title": "Minimize Malware Spread",
+"topic": "Graphs",
+"subtopic": "Advanced (Bridges/Euler/SCC)",
+"difficulty": "Hard",
+"pattern": "Union-find on connected components",
+"notes": "",
+"statement": "Given an undirected graph as adjacency matrix `graph` and a list `initial` of initially infected nodes, malware spreads to every node in an infected node's connected component. Remove exactly one node from `initial` to minimize the final number of infected nodes. Return the node to remove (smallest index on ties).",
+"examples": [
+{
+"input": "graph = [[1,1,0],[1,1,0],[0,0,1]], initial = [0,1]",
+"output": "0",
+"explanation": "Nodes 0 and 1 share a component with two infected sources, so removing either saves nobody there; return the smaller index 0."
+}
+],
+"constraints": [
+"n == graph.length == graph[i].length",
+"2 <= n <= 300",
+"graph[i][j] is 0 or 1",
+"graph[i][j] == graph[j][i]",
+"graph[i][i] == 1",
+"1 <= initial.length <= n",
+"0 <= initial[i] < n",
+"all initial[i] are distinct"
+],
+"approaches": [
+{
+"name": "Union-find, remove the sole infector of the largest component",
+"idea": "Union all connected nodes, then compute each component's size and how many initial infected nodes it contains. Removing a node helps only if it is the *only* infected node in its component, since otherwise the component still gets infected by another source. Among such nodes pick the one whose component is largest (ties broken by smallest index). If none qualifies, return the smallest index in `initial`.",
+"time": "O(n^2 * alpha(n))",
+"space": "O(n)",
+"code": "public int minMalwareSpread(int[][] graph, int[] initial) {\n    int n = graph.length;\n    int[] parent = new int[n];\n    for (int i = 0; i < n; i++) parent[i] = i;\n    for (int i = 0; i < n; i++)\n        for (int j = i + 1; j < n; j++)\n            if (graph[i][j] == 1) parent[find(parent, i)] = find(parent, j);\n\n    int[] size = new int[n];\n    for (int i = 0; i < n; i++) size[find(parent, i)]++;\n    int[] infected = new int[n];\n    for (int node : initial) infected[find(parent, node)]++;\n\n    Arrays.sort(initial);\n    int ans = initial[0], best = -1;\n    for (int node : initial) {\n        int root = find(parent, node);\n        if (infected[root] == 1 && size[root] > best) {\n            best = size[root];\n            ans = node;\n        }\n    }\n    return ans;\n}\n\nprivate int find(int[] parent, int x) {\n    while (parent[x] != x) {\n        parent[x] = parent[parent[x]];\n        x = parent[x];\n    }\n    return x;\n}"
+}
+],
+"insight": "Removing a source only helps if it is the unique infected node in its component; then favor the largest such component."
+}
+}

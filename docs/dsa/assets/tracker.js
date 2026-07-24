@@ -18,6 +18,7 @@
     index: [],
     solved: {},                 // id -> true (merged best-known)
     contentCache: {},           // topicSlug -> {id: entry}
+    lc: {},                     // id -> LeetCode url
     revealedTopics: loadSet(LS_REVEAL),
     openTopics: loadSet(LS_OPEN),
     showUnsolved: localStorage.getItem(LS_SHOWUN) === "1",
@@ -245,9 +246,11 @@
   function renderDetail(bodyEl, entry) {
     if (!entry) { bodyEl.innerHTML = '<div class="dsa-pending">Reference content not generated yet for this problem.</div>'; return; }
     var h = "";
+    var pid = slug(entry.topic) + "__" + slug(entry.title);
     var lcTerm = (entry.title || "").replace(/[\/()]/g, " ").replace(/\s+/g, " ").trim();
-    h += '<a class="dsa-lc" href="https://leetcode.com/problemset/?search=' + encodeURIComponent(lcTerm) +
-         '" target="_blank" rel="noopener">View on LeetCode ↗</a>';
+    var lcUrl = (state.lc && state.lc[pid]) ||
+                ("https://leetcode.com/problemset/?search=" + encodeURIComponent(lcTerm));
+    h += '<a class="dsa-lc" href="' + lcUrl + '" target="_blank" rel="noopener">View on LeetCode ↗</a>';
     if (entry.pattern) h += '<p class="dsa-cmplx"><b>Pattern:</b> ' + inlineMd(entry.pattern) + "</p>";
     h += "<h4>Problem</h4><p>" + inlineMd(entry.statement || "") + "</p>";
     if (entry.examples && entry.examples.length) {
@@ -400,11 +403,13 @@
     Promise.all([
       fetchJSON(DATA + "index.json"),
       fetchJSON(DATA + "solved.json").catch(function () { return {}; }),
+      fetchJSON(DATA + "leetcode.json").catch(function () { return {}; }),
     ]).then(function (r) {
       state.index = r[0];
       state.byId = {};
       state.index.forEach(function (m) { state.byId[m.id] = m; });
       state.solved = cached && Object.keys(cached).length ? cached : r[1];
+      state.lc = r[2] || {};
       bindToolbar();
       renderAll();
       syncLive(false); // refresh from live sheet in background if configured

@@ -48,6 +48,7 @@ exclude_docs: |
   *.java
   site/**
   dsa/data/parts/**
+  dsa/data/lc-parts/**
   dsa/data/*.py
   dsa/data/tracker.csv
 

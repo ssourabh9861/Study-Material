@@ -1,0 +1,22 @@
+{
+  "trees__binary-tree-maximum-path-sum": "https://leetcode.com/problems/binary-tree-maximum-path-sum/",
+  "trees__serialize-and-deserialize-binary-tree": "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/",
+  "trees__construct-binary-tree-from-preorder-inorder": "https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/",
+  "trees__lowest-common-ancestor": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/",
+  "trees__binary-tree-cameras": "https://leetcode.com/problems/binary-tree-cameras/",
+  "trees__vertical-order-traversal": "https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree/",
+  "trees__recover-binary-search-tree": "https://leetcode.com/problems/recover-binary-search-tree/",
+  "trees__count-of-smaller-numbers-after-self": "https://leetcode.com/problems/count-of-smaller-numbers-after-self/",
+  "trees__all-nodes-distance-k-in-binary-tree": "https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree/",
+  "trees__maximum-sum-bst-in-binary-tree": "https://leetcode.com/problems/maximum-sum-bst-in-binary-tree/",
+  "tries__word-search-ii": "https://leetcode.com/problems/word-search-ii/",
+  "tries__design-add-and-search-words": "https://leetcode.com/problems/design-add-and-search-words-data-structure/",
+  "tries__maximum-xor-of-two-numbers-in-an-array": "https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/",
+  "tries__maximum-xor-with-an-element-from-array": "https://leetcode.com/problems/maximum-xor-with-an-element-from-array/",
+  "tries__concatenated-words": "https://leetcode.com/problems/concatenated-words/",
+  "tries__palindrome-pairs": "https://leetcode.com/problems/palindrome-pairs/",
+  "tries__stream-of-characters": "https://leetcode.com/problems/stream-of-characters/",
+  "tries__word-squares": "https://leetcode.com/problems/word-squares/",
+  "tries__replace-words": "https://leetcode.com/problems/replace-words/",
+  "tries__count-pairs-with-xor-in-a-range": "https://leetcode.com/problems/count-pairs-with-xor-in-a-range/"
+}

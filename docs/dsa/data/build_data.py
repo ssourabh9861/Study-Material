@@ -45,6 +45,16 @@ def main() -> int:
             print(f"  !! duplicate ids in {os.path.basename(p)}: {sorted(dupes)}", file=sys.stderr)
         content.update(chunk)
 
+    # 2b. merge LeetCode URL parts (id -> url)
+    leetcode = {}
+    for p in sorted(glob.glob(os.path.join(DATA_DIR, "lc-parts", "*.json"))):
+        with open(p, encoding="utf-8") as f:
+            try:
+                leetcode.update({k: v for k, v in json.load(f).items() if v})
+            except json.JSONDecodeError as e:
+                print(f"  !! invalid JSON in lc-parts/{os.path.basename(p)}: {e}", file=sys.stderr)
+                return 1
+
     # 3. build index + solved + per-topic buckets
     index, solved, by_topic = [], {}, {}
     missing = []
@@ -73,12 +83,19 @@ def main() -> int:
         json.dump(index, f, ensure_ascii=False, indent=0)
     with open(os.path.join(DATA_DIR, "solved.json"), "w", encoding="utf-8") as f:
         json.dump(solved, f, ensure_ascii=False, indent=0)
+    with open(os.path.join(DATA_DIR, "leetcode.json"), "w", encoding="utf-8") as f:
+        json.dump(leetcode, f, ensure_ascii=False, indent=0)
     for ts, bucket in by_topic.items():
         with open(os.path.join(TOPICS_DIR, f"{ts}.json"), "w", encoding="utf-8") as f:
             json.dump(bucket, f, ensure_ascii=False, indent=0)
 
-    print(f"problems: {len(index)} | with content: {len(content)} | solved: {len(solved)}")
+    print(f"problems: {len(index)} | with content: {len(content)} | solved: {len(solved)} | leetcode urls: {len(leetcode)}")
     print(f"topics written: {len(by_topic)}")
+    no_lc = [m["id"] for m in index if m["id"] not in leetcode]
+    if no_lc:
+        print(f"NO LeetCode url for {len(no_lc)} problems (will use search fallback):")
+        for m in no_lc:
+            print(f"  - {m}")
     if missing:
         print(f"MISSING content for {len(missing)} problems:")
         for m in missing:

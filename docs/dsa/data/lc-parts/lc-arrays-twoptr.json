@@ -1,0 +1,18 @@
+{
+  "arrays-hashing-prefix-sum__subarray-sum-equals-k": "https://leetcode.com/problems/subarray-sum-equals-k/",
+  "arrays-hashing-prefix-sum__subarrays-with-k-different-integers": "https://leetcode.com/problems/subarrays-with-k-different-integers/",
+  "arrays-hashing-prefix-sum__count-of-range-sum": "https://leetcode.com/problems/count-of-range-sum/",
+  "arrays-hashing-prefix-sum__maximum-sum-of-3-non-overlapping-subarrays": "https://leetcode.com/problems/maximum-sum-of-3-non-overlapping-subarrays/",
+  "arrays-hashing-prefix-sum__number-of-submatrices-that-sum-to-target": "https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/",
+  "arrays-hashing-prefix-sum__max-sum-of-rectangle-no-larger-than-k": "https://leetcode.com/problems/max-sum-of-rectangle-no-larger-than-k/",
+  "arrays-hashing-prefix-sum__continuous-subarray-sum-subarray-sums-divisible-by-k": "https://leetcode.com/problems/continuous-subarray-sum/",
+  "arrays-hashing-prefix-sum__split-array-largest-sum": "https://leetcode.com/problems/split-array-largest-sum/",
+  "two-pointers__3sum-4sum-ksum": "https://leetcode.com/problems/3sum/",
+  "two-pointers__trapping-rain-water": "https://leetcode.com/problems/trapping-rain-water/",
+  "two-pointers__container-with-most-water": "https://leetcode.com/problems/container-with-most-water/",
+  "two-pointers__sort-colors": "https://leetcode.com/problems/sort-colors/",
+  "two-pointers__subarrays-with-product-less-than-k": "https://leetcode.com/problems/subarray-product-less-than-k/",
+  "two-pointers__boats-to-save-people": "https://leetcode.com/problems/boats-to-save-people/",
+  "two-pointers__count-pairs-3sum-smaller": "https://leetcode.com/problems/count-pairs-whose-sum-is-less-than-target/",
+  "two-pointers__trapping-rain-water-ii": "https://leetcode.com/problems/trapping-rain-water-ii/"
+}

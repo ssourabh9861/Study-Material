@@ -1,0 +1,23 @@
+{
+  "heaps__find-median-from-data-stream": "https://leetcode.com/problems/find-median-from-data-stream/",
+  "heaps__merge-k-sorted-lists": "https://leetcode.com/problems/merge-k-sorted-lists/",
+  "heaps__sliding-window-median": "https://leetcode.com/problems/sliding-window-median/",
+  "heaps__top-k-frequent-elements-words": "https://leetcode.com/problems/top-k-frequent-elements/",
+  "heaps__task-scheduler": "https://leetcode.com/problems/task-scheduler/",
+  "heaps__reorganize-string-rearrange-so-no-two-adjacent": "https://leetcode.com/problems/reorganize-string/",
+  "heaps__ipo": "https://leetcode.com/problems/ipo/",
+  "heaps__find-k-pairs-with-smallest-sums": "https://leetcode.com/problems/find-k-pairs-with-smallest-sums/",
+  "heaps__smallest-range-covering-elements-from-k-lists": "https://leetcode.com/problems/smallest-range-covering-elements-from-k-lists/",
+  "heaps__maximum-performance-of-a-team": "https://leetcode.com/problems/maximum-performance-of-a-team/",
+  "heaps__single-threaded-cpu": "https://leetcode.com/problems/single-threaded-cpu/",
+  "intervals__merge-intervals-insert-interval": "https://leetcode.com/problems/merge-intervals/",
+  "intervals__meeting-rooms-ii": "https://leetcode.com/problems/meeting-rooms-ii/",
+  "intervals__non-overlapping-intervals": "https://leetcode.com/problems/non-overlapping-intervals/",
+  "intervals__employee-free-time": "https://leetcode.com/problems/employee-free-time/",
+  "intervals__minimum-number-of-arrows-to-burst-balloons": "https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/",
+  "intervals__data-stream-as-disjoint-intervals": "https://leetcode.com/problems/data-stream-as-disjoint-intervals/",
+  "intervals__range-module": "https://leetcode.com/problems/range-module/",
+  "intervals__maximum-profit-in-job-scheduling": "https://leetcode.com/problems/maximum-profit-in-job-scheduling/",
+  "intervals__my-calendar-ii-iii": "https://leetcode.com/problems/my-calendar-ii/",
+  "intervals__the-skyline-problem": "https://leetcode.com/problems/the-skyline-problem/"
+}

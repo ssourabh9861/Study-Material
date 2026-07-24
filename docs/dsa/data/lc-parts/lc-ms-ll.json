@@ -1,0 +1,22 @@
+{
+  "monotonic-stack__largest-rectangle-in-histogram": "https://leetcode.com/problems/largest-rectangle-in-histogram/",
+  "monotonic-stack__maximal-rectangle": "https://leetcode.com/problems/maximal-rectangle/",
+  "monotonic-stack__trapping-rain-water": "https://leetcode.com/problems/trapping-rain-water/",
+  "monotonic-stack__sum-of-subarray-minimums": "https://leetcode.com/problems/sum-of-subarray-minimums/",
+  "monotonic-stack__remove-k-digits-remove-duplicate-letters": "https://leetcode.com/problems/remove-k-digits/",
+  "monotonic-stack__largest-rectangle-132-pattern": "https://leetcode.com/problems/largest-rectangle-in-histogram/",
+  "monotonic-stack__maximum-width-ramp": "https://leetcode.com/problems/maximum-width-ramp/",
+  "monotonic-stack__number-of-visible-people-in-a-queue": "https://leetcode.com/problems/number-of-visible-people-in-a-queue/",
+  "monotonic-stack__online-stock-span": "https://leetcode.com/problems/online-stock-span/",
+  "monotonic-stack__sum-of-subarray-ranges": "https://leetcode.com/problems/sum-of-subarray-ranges/",
+  "linked-list__reverse-nodes-in-k-group": "https://leetcode.com/problems/reverse-nodes-in-k-group/",
+  "linked-list__merge-k-sorted-lists": "https://leetcode.com/problems/merge-k-sorted-lists/",
+  "linked-list__copy-list-with-random-pointer": "https://leetcode.com/problems/copy-list-with-random-pointer/",
+  "linked-list__lru-cache": "https://leetcode.com/problems/lru-cache/",
+  "linked-list__lfu-cache": "https://leetcode.com/problems/lfu-cache/",
+  "linked-list__reorder-list": "https://leetcode.com/problems/reorder-list/",
+  "linked-list__linked-list-cycle-ii": "https://leetcode.com/problems/linked-list-cycle-ii/",
+  "linked-list__sort-list": "https://leetcode.com/problems/sort-list/",
+  "linked-list__flatten-a-multilevel-doubly-linked-list": "https://leetcode.com/problems/flatten-a-multilevel-doubly-linked-list/",
+  "linked-list__merge-in-between-linked-lists": "https://leetcode.com/problems/merge-in-between-linked-lists/"
+}

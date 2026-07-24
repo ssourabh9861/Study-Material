@@ -1,0 +1,22 @@
+{
+  "sliding-window__longest-substring-without-repeating-characters": "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+  "sliding-window__minimum-window-substring": "https://leetcode.com/problems/minimum-window-substring/",
+  "sliding-window__subarrays-with-k-different-integers": "https://leetcode.com/problems/subarrays-with-k-different-integers/",
+  "sliding-window__sliding-window-maximum": "https://leetcode.com/problems/sliding-window-maximum/",
+  "sliding-window__longest-substring-with-at-most-k-distinct": "https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters/",
+  "sliding-window__substring-with-concatenation-of-all-words": "https://leetcode.com/problems/substring-with-concatenation-of-all-words/",
+  "sliding-window__minimum-number-of-k-consecutive-bit-flips": "https://leetcode.com/problems/minimum-number-of-k-consecutive-bit-flips/",
+  "sliding-window__count-number-of-nice-subarrays": "https://leetcode.com/problems/count-number-of-nice-subarrays/",
+  "sliding-window__replace-the-substring-for-balanced-string": "https://leetcode.com/problems/replace-the-substring-for-balanced-string/",
+  "sliding-window__longest-substring-with-at-least-k-repeating-characters": "https://leetcode.com/problems/longest-substring-with-at-least-k-repeating-characters/",
+  "binary-search__median-of-two-sorted-arrays": "https://leetcode.com/problems/median-of-two-sorted-arrays/",
+  "binary-search__split-array-largest-sum": "https://leetcode.com/problems/split-array-largest-sum/",
+  "binary-search__capacity-to-ship-packages-within-d-days": "https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/",
+  "binary-search__koko-eating-bananas": "https://leetcode.com/problems/koko-eating-bananas/",
+  "binary-search__find-k-th-smallest-pair-distance": "https://leetcode.com/problems/find-k-th-smallest-pair-distance/",
+  "binary-search__kth-smallest-element-in-a-sorted-matrix": "https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/",
+  "binary-search__minimize-max-distance-to-gas-station": "https://leetcode.com/problems/minimize-max-distance-to-gas-station/",
+  "binary-search__find-minimum-in-rotated-sorted-array-ii": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array-ii/",
+  "binary-search__aggressive-cows-magnetic-force-between-balls": "https://leetcode.com/problems/magnetic-force-between-two-balls/",
+  "binary-search__median-of-a-row-wise-sorted-matrix": ""
+}

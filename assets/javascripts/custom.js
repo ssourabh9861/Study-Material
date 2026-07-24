@@ -277,31 +277,11 @@
     onScroll();
   }
 
-  function scrollTOCToActive(link) {
-    var scrollWrap = document.querySelector('.md-sidebar--secondary .md-sidebar__scrollwrap');
-    if (!scrollWrap) return;
-
-    // Walk offsetParent chain to get link's position within the scrollwrap content.
-    // getBoundingClientRect is unreliable here because the scrollwrap is
-    // position:absolute and clipped elements report out-of-viewport coords.
-    var offsetTop = 0;
-    var el = link;
-    while (el && el !== scrollWrap) {
-      offsetTop += el.offsetTop;
-      el = el.offsetParent;
-    }
-    if (!el) return; // link is not a descendant of scrollWrap
-
-    var wrapH     = scrollWrap.clientHeight;
-    var scrollTop = scrollWrap.scrollTop;
-
-    if (offsetTop < scrollTop + 40 || offsetTop > scrollTop + wrapH - 40) {
-      scrollWrap.scrollTo({
-        top: Math.max(0, offsetTop - Math.round(wrapH / 2)),
-        behavior: 'smooth'
-      });
-    }
-  }
+  // TOC sidebar auto-scroll is now handled natively by Material's `toc.follow`
+  // feature (mkdocs.yml theme.features). The previous offsetParent-based
+  // implementation was unreliable and is intentionally disabled to avoid
+  // two systems fighting over the sidebar scroll position.
+  function scrollTOCToActive(link) { /* no-op: handled by Material toc.follow */ }
 
   /* ---- Subtopic Quick-nav Chips ---- */
   function injectSubtopicChips() {
